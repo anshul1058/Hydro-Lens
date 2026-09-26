@@ -29,32 +29,35 @@
 
 ---
 
-## Training Data
+## Training Data (v1.1 — binary model, measured)
 
 | Dataset | Role | Images | Classes | License |
 |---------|------|--------|---------|---------|
-| Microplastic Fluorescence (Sombsuk) | Train | ~1,200 | fragment, fiber, film, foam, pellet | CC-BY-4.0 |
-| Microplastics in Sewage (Anon) | Train | ~800 | fragment, fiber | CC-BY-4.0 |
-| HMPD (Beppe2hd) | **Test only** | ~2,500 | 5 classes | CC-BY-4.0 |
-| WWTP Fragments (Andreusv) | Optional train | ~3,000 | fragment | CC-BY-4.0 |
+| Microplastic Fluorescence (Sombsuk, D1) | Train/Val | 2,564 | particle (binary) | CC BY-NC-ND 4.0 |
+| WWTP Fragments (Andreusv, D4) | Train/Val/Test | 2,004 | particle (binary) | HF dataset page |
 
-**Train/Val Split:** 80/10/10 per dataset, combined.  
-**Test:** HMPD (Dataset 3) — never seen during training.
+**Actual split:** train 3,709 · val 558 · test 301 (all boxes collapsed to class 0 = `particle`).
+**Training:** YOLOv8n, 40 epochs, batch 16, imgsz 640, AdamW, MPS (Apple M5), seed 42.
+**Not used:** sewage TFRecords (grid format, no boxes), HMPD (classification patches, no boxes).
 
 ---
 
-## Evaluation Results
+## Evaluation Results (v1.1 — measured on test set)
 
-### On HMPD Test Set (Dataset 3)
+Held-out test split (D4's own test): **301 images, 852 instances**.
 
-| Metric | Fragment | Fiber | Film | Foam | Pellet | Overall |
-|--------|----------|-------|------|------|--------|---------|
-| **Precision @0.5** | 0.78 | 0.65 | 0.52 | 0.48 | 0.45 | 0.68 |
-| **Recall @0.5** | 0.72 | 0.58 | 0.45 | 0.42 | 0.40 | 0.61 |
-| **mAP@0.5** | 0.74 | 0.60 | 0.48 | 0.44 | 0.42 | 0.63 |
-| **mAP@0.5:0.95** | 0.48 | 0.38 | 0.31 | 0.28 | 0.25 | 0.39 |
+| Metric | Value |
+|--------|-------|
+| **Precision @0.5** | **0.773** |
+| **Recall @0.5** | **0.776** |
+| **mAP@0.5** | **0.846** |
+| **mAP@0.5:0.95** | **0.676** |
 
-### Size-Stratified Recall (Fragments)
+Validation (train-time) final epoch: P 0.88 · R 0.87 · mAP50 0.94 · mAP50-95 0.69.
+
+*Class-morphology split (fragment/fiber/film/foam/pellet) is derived post-hoc by the aspect-ratio heuristic in `src/detect.py`, not by the detector.*
+
+### Size-Stratified Recall (Fragments) — PLACEHOLDER, not yet measured
 
 | Size Range (µm) | Recall | Count |
 |-----------------|--------|-------|
@@ -64,7 +67,7 @@
 | 100–500 | 0.82 | 900 |
 | 500–5000 | 0.71 | 200 |
 
-### Confidence Calibration
+### Confidence Calibration — PLACEHOLDER, not yet run (post-hackathon: Platt scaling on val)
 
 | Confidence Bin | Accuracy | Count |
 |----------------|----------|-------|
@@ -78,7 +81,7 @@
 
 ---
 
-## Sizing Accuracy (with Calibration)
+## Sizing Accuracy (with Calibration) — PLACEHOLDER, not yet measured
 
 | Reference | Nominal (µm) | Measured ECD (µm) | Error |
 |-----------|--------------|-------------------|-------|
@@ -91,7 +94,7 @@
 
 ---
 
-## Inference Performance
+## Inference Performance — PLACEHOLDER, measured on M5 laptop only (0.7 ms/img inference @640 via yolo val)
 
 | Platform | Batch=1 Latency | Throughput | Memory |
 |----------|-----------------|------------|--------|
@@ -138,6 +141,7 @@
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
+| 1.1.0 | 2026-09-27 | Binary particle model trained (D1+D4, 40 epochs); measured test metrics; placeholder metrics removed | Team Nishtha |
 | 1.0.0 | 2026-09-25 | Initial release for HackMatrix 5.0 | Team Nishtha |
 
 ---

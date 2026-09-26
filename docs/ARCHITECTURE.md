@@ -2,15 +2,13 @@
 
 ## System Overview
 
-```
-┌─────────────┐     ┌──────────────────┐     ┌─────────────────┐     ┌──────────────────┐     ┌──────────────────┐
-│  Raw Image  │────▶│  Preprocessing   │────▶│  YOLOv8n Detect │────▶│  OpenCV Sizing   │────▶│  Results Report  │
-│  (RGB,      │     │  • Median Blur   │     │  • Bounding     │     │  • Feret's       │     │  • Count         │
-│   microscope)│     │  • CLAHE         │     │    boxes        │     │  • ECD           │     │  • Size dist.    │
-└─────────────┘     └──────────────────┘     │  • Confidence   │     └──────────────────┘     │  • Confidence    │
-                                              └─────────────────┘                                │  • Calibration   │
-                                                                                                  │    flag          │
-                                                                                                  └──────────────────┘
+```mermaid
+flowchart LR
+    RAW["Raw Image<br/>RGB microscope"] --> PRE["Preprocessing<br/>• Median Blur<br/>• CLAHE<br/>• Letterbox 640×640"]
+    PRE --> DET["YOLOv8n Detect<br/>• Bounding boxes<br/>• Confidence"]
+    DET --> SZ["OpenCV Sizing<br/>• Feret max/min<br/>• ECD"]
+    SZ --> CAL["Calibration<br/>px → µm"]
+    CAL --> REP["Results Report<br/>• Count<br/>• Size distribution<br/>• Confidence<br/>• Lab flag"]
 ```
 
 ## Pipeline Stages

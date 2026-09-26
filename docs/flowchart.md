@@ -11,23 +11,23 @@ flowchart TD
 
     %% Nodes
     START([User Starts App]):::startend
-    UPLOAD[Upload Microscope Image\nJPG/PNG/TIFF]:::io
+    UPLOAD[Upload Microscope Image<br/>JPG/PNG/TIFF]:::io
     VALIDATE{Valid Image?}:::decision
-    PREPROCESS[Preprocessing\n• Median Blur 3×3\n• CLAHE clipLimit=2.0\n• Letterbox 640×640]:::process
-    CAL_CHECK{Valid Calibration\n< 7 days old?}:::decision
-    CAL_WARN[⚠️ Calibration Missing/Stale\nQuantitative Output Blocked]:::warning
-    CAL_OK[Load µm/px Factor\nValidation Beads ±20%]:::process
-    INFERENCE[YOLOv8n Inference\nconf_thresh=0.25\nNMS iou=0.45]:::process
-    DETECTIONS{Detections\nFound?}:::decision
-    NO_DETS[Zero Particles\nConfidence=1.0]:::io
-    SIZING[OpenCV Sizing per Box\n• Feret Max/Min\n• ECD\n• Aspect Ratio]:::process
-    APPLY_CAL[Apply Calibration\npx → µm]:::process
-    CONFIDENCE[Confidence Scoring\n• Mean Detection Conf\n• Calibration Quality\n• Coverage Factor]:::process
-    FLAG_LOGIC{Flag Conditions?\n• conf < 0.6\n• cal invalid\n• size > 5mm\n• class∈{film,foam,pellet}\n• aspect_ratio > 10}:::decision
+    PREPROCESS[Preprocessing<br/>• Median Blur 3×3<br/>• CLAHE clipLimit=2.0<br/>• Letterbox 640×640]:::process
+    CAL_CHECK{"Valid Calibration<br/>< 7 days old?"}:::decision
+    CAL_WARN[⚠️ Calibration Missing/Stale<br/>Quantitative Output Blocked]:::warning
+    CAL_OK[Load µm/px Factor<br/>Validation Beads ±20%]:::process
+    INFERENCE[YOLOv8n Inference<br/>conf_thresh=0.25<br/>NMS iou=0.45]:::process
+    DETECTIONS{Detections<br/>Found?}:::decision
+    NO_DETS[Zero Particles<br/>Confidence=1.0]:::io
+    SIZING[OpenCV Sizing per Box<br/>• Feret Max/Min<br/>• ECD<br/>• Aspect Ratio]:::process
+    APPLY_CAL[Apply Calibration<br/>px → µm]:::process
+    CONFIDENCE[Confidence Scoring<br/>• Mean Detection Conf<br/>• Calibration Quality<br/>• Coverage Factor]:::process
+    FLAG_LOGIC{"Flag Conditions?<br/>• conf < 0.6<br/>• cal invalid<br/>• size > 5mm<br/>• class ∈ film/foam/pellet<br/>• aspect_ratio > 10"}:::decision
     FLAG_ON[🚩 Needs Lab Confirmation]:::warning
     FLAG_OFF[✅ Screening Reliable]:::process
-    REPORT[Generate Report\n• Annotated Image\n• Size Histogram\n• Count + Distribution\n• Sample Confidence\n• Flags + Limitations Note]:::process
-    EXPORT[Export JSON / CSV\nDownload / API]:::io
+    REPORT[Generate Report<br/>• Annotated Image<br/>• Size Histogram<br/>• Count + Distribution<br/>• Sample Confidence<br/>• Flags + Limitations Note]:::process
+    EXPORT[Export JSON / CSV<br/>Download / API]:::io
     END([Done]):::startend
 
     %% Edges
@@ -56,11 +56,11 @@ flowchart TD
 
     %% Subgraphs
     subgraph CALIBRATION ["Calibration Subsystem (Offline)"]
-        MICROMETER[Stage Micrometer\n10 µm divisions]:::io
-        BEADS[Polymer Beads\n10/50/100 µm]:::io
-        COMPUTE[Compute µm/px Factor\nFFT or Manual Click]:::process
-        VALIDATE_BEADS{Beads within\n±20%?}:::decision
-        SAVE_CAL[Save calibration.json\nwith timestamp + expiry]:::io
+        MICROMETER[Stage Micrometer<br/>10 µm divisions]:::io
+        BEADS[Polymer Beads<br/>10/50/100 µm]:::io
+        COMPUTE[Compute µm/px Factor<br/>FFT or Manual Click]:::process
+        VALIDATE_BEADS{Beads within<br/>±20%?}:::decision
+        SAVE_CAL[Save calibration.json<br/>with timestamp + expiry]:::io
         MICROMETER --> COMPUTE
         BEADS --> VALIDATE_BEADS
         COMPUTE --> VALIDATE_BEADS
@@ -79,44 +79,44 @@ flowchart TD
 ```mermaid
 flowchart LR
     subgraph INPUT ["Image Input"]
-        CAM[USB Microscope\n200×]:::io
-        FILE[Pre-captured\nImages]:::io
+        CAM[USB Microscope<br/>200×]:::io
+        FILE[Pre-captured<br/>Images]:::io
     end
 
     subgraph PREPROC ["Preprocessing (OpenCV)"]
-        BLUR[Median Blur\n3×3 kernel]:::process
-        CLAHE[CLAHE\nclipLimit=2.0\ntileGrid=8×8]:::process
-        RESIZE[Letterbox Resize\n640×640\npad=114]:::process
+        BLUR[Median Blur<br/>3×3 kernel]:::process
+        CLAHE[CLAHE<br/>clipLimit=2.0<br/>tileGrid=8×8]:::process
+        RESIZE[Letterbox Resize<br/>640×640<br/>pad=114]:::process
     end
 
     subgraph DETECT ["Detection (YOLOv8n)"]
-        MODEL[YOLOv8n\n3.2M params\n6 MB]:::process
-        POST[Post-process\nNMS + Conf Filter]:::process
+        MODEL[YOLOv8n<br/>3.2M params<br/>6 MB]:::process
+        POST[Post-process<br/>NMS + Conf Filter]:::process
     end
 
     subgraph SIZING ["Sizing (OpenCV)"]
-        CONTOUR[Find Contours\nin BBox ROI]:::process
-        FERET[Feret Diameter\nMax + Min]:::process
-        ECD[Equivalent\nCircular Diameter]:::process
-        ASPECT[Aspect Ratio\nFeret_max/min]:::process
+        CONTOUR[Find Contours<br/>in BBox ROI]:::process
+        FERET[Feret Diameter<br/>Max + Min]:::process
+        ECD[Equivalent<br/>Circular Diameter]:::process
+        ASPECT[Aspect Ratio<br/>Feret_max/min]:::process
     end
 
     subgraph CALIB ["Calibration"]
         FACTOR[µm/px Factor]:::io
-        APPLY[Multiply All\nSize Metrics]:::process
+        APPLY[Multiply All<br/>Size Metrics]:::process
     end
 
     subgraph CONF ["Confidence"]
-        DET_CONF[Mean Detection\nConfidence]:::process
-        CAL_QUAL[Calibration\nQuality 0/0.5/1]:::process
-        COVERAGE[Coverage\nFactor 0–1]:::process
-        AGG[Aggregate\nSample Confidence]:::process
+        DET_CONF[Mean Detection<br/>Confidence]:::process
+        CAL_QUAL[Calibration<br/>Quality 0/0.5/1]:::process
+        COVERAGE[Coverage<br/>Factor 0–1]:::process
+        AGG[Aggregate<br/>Sample Confidence]:::process
     end
 
     subgraph OUTPUT ["Outputs"]
         JSON[JSON Report]:::io
-        UI[Streamlit\nDashboard]:::io
-        FLAG[Lab Flag\nPer Particle]:::warning
+        UI[Streamlit<br/>Dashboard]:::io
+        FLAG[Lab Flag<br/>Per Particle]:::warning
     end
 
     CAM --> BLUR
@@ -152,15 +152,15 @@ flowchart LR
 ```mermaid
 flowchart TD
     START_CAL([Start Calibration]):::startend
-    WARMUP[Warm-up Microscope\n10 minutes]:::process
-    SET_MAG[Set Working\nMagnification]:::process
-    CAP_MICRO[Capture Micrometer\nImage]:::io
-    COMPUTE[Auto-compute\nµm/px Factor]:::process
-    CAP_BEADS[Capture Bead Slide\n10/50/100 µm]:::io
-    RUN_SIZING[Run Detection +\nSizing on Beads]:::process
-    CHECK{All Beads\n±20%?}:::decision
-    FAIL[❌ Recalibrate\nCheck Focus/Illumination]:::warning
-    SAVE[Save calibration.json\nTimestamp + Expiry]:::io
+    WARMUP[Warm-up Microscope<br/>10 minutes]:::process
+    SET_MAG[Set Working<br/>Magnification]:::process
+    CAP_MICRO[Capture Micrometer<br/>Image]:::io
+    COMPUTE[Auto-compute<br/>µm/px Factor]:::process
+    CAP_BEADS[Capture Bead Slide<br/>10/50/100 µm]:::io
+    RUN_SIZING[Run Detection +<br/>Sizing on Beads]:::process
+    CHECK{All Beads<br/>±20%?}:::decision
+    FAIL[❌ Recalibrate<br/>Check Focus/Illumination]:::warning
+    SAVE[Save calibration.json<br/>Timestamp + Expiry]:::io
     END_CAL([Calibration Ready]):::startend
 
     START_CAL --> WARMUP
@@ -183,14 +183,14 @@ flowchart TD
 ```mermaid
 flowchart TD
     START_FLAG([Evaluate Particle]):::startend
-    C1{Particle Conf\n< 0.5?}:::decision
-    C2{Sample Conf\n< 0.6?}:::decision
-    C3{Calibration\nInvalid?}:::decision
-    C4{Size > 5000 µm?}:::decision
-    C5{Class ∈\n{film,foam,pellet}?}:::decision
-    C6{Aspect Ratio\n> 10?}:::decision
-    FLAG_TRUE[🚩 NEEDS LAB\nCONFIRMATION]:::warning
-    FLAG_FALSE[✅ Screening\nReliable]:::process
+    C1{"Particle Conf<br/>< 0.5?"}:::decision
+    C2{"Sample Conf<br/>< 0.6?"}:::decision
+    C3{Calibration<br/>Invalid?}:::decision
+    C4{"Size > 5000 µm?"}:::decision
+    C5{"Class ∈<br/>film / foam / pellet?"}:::decision
+    C6{"Aspect Ratio<br/>> 10?"}:::decision
+    FLAG_TRUE[🚩 NEEDS LAB<br/>CONFIRMATION]:::warning
+    FLAG_FALSE[✅ Screening<br/>Reliable]:::process
 
     START_FLAG --> C1
     C1 -- Yes --> FLAG_TRUE
@@ -248,13 +248,13 @@ sequenceDiagram
 graph TB
     subgraph FIELD ["Field / Lab"]
         MICRO[USB Microscope]
-        PI[Raspberry Pi 4\nor Laptop]
+        PI[Raspberry Pi 4<br/>or Laptop]
         MICRO --> PI
     end
 
     subgraph EDGE ["Edge Processing (Offline)"]
-        APP[Streamlit App\nPort 8501]
-        MODEL[best.pt\n6 MB]
+        APP[Streamlit App<br/>Port 8501]
+        MODEL[best.pt<br/>6 MB]
         CALIB[calibration.json]
         DATA[demo_images/]
         APP --> MODEL

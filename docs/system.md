@@ -165,6 +165,28 @@ sample_confidence = mean(detection_confidences) × calibration_quality × covera
 
 ## 11. Error Handling
 
+```mermaid
+flowchart TD
+    IMG["Image received"] --> PRE["Preprocess<br/>auto CLAHE if too dark/bright"]
+    PRE --> DET{"Model loaded?"}
+    DET -- No --> DEMO["Error message<br/>fallback to demo mode"]
+    DET -- Yes --> PRED["Run detection"]
+    PRED --> CAL{"Calibration state?"}
+    CAL -- Missing / failed --> BLOCK["Block sizes + concentration<br/>flag all particles"]
+    CAL -- Stale over 7 days --> STALE["calibration_quality = 0.5<br/>warn + flag all"]
+    CAL -- Valid --> OK["calibration_quality = 1.0<br/>full quantitative output"]
+    BLOCK --> PDETS{"Detections found?"}
+    STALE --> PDETS
+    OK --> PDETS
+    PDETS -- No --> ZERO["count = 0<br/>confidence = 1.0"]
+    PDETS -- Yes --> SIZED["Sized + flagged particles"]
+    BLOCK --> OUT["Report + warning"]
+    STALE --> OUT
+    OK --> OUT
+    ZERO --> OUT
+    SIZED --> OUT
+```
+
 | Error Condition | Behavior |
 |-----------------|----------|
 | No calibration found | Show warning, allow detection only (no sizes), flag all particles |

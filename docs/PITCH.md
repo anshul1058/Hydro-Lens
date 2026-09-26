@@ -44,11 +44,11 @@
 
 ## Slide 4: How It Works
 
-```
-Microscope Image → AI Detection (YOLOv8n) → CV Sizing (OpenCV) → Calibrated Report
-        │                  │                      │                    │
-      200×              3.2M params            Feret + ECD         JSON + Dashboard
-      RGB               6 MB                  µm/pixel            Confidence + Flags
+```mermaid
+flowchart LR
+    A["Microscope Image<br/>200× RGB"] --> B["AI Detection<br/>YOLOv8n · 3.2M params · 6 MB"]
+    B --> C["CV Sizing<br/>Feret + ECD · µm/pixel"]
+    C --> D["Calibrated Report<br/>JSON + dashboard · confidence + flags"]
 ```
 
 **Pipeline:** Preprocess → Detect → Size → Calibrate → Report — all offline, on-device.

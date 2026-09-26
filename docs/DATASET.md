@@ -50,6 +50,16 @@ Optional:     Dataset 4 (80/10/10) mixed in      →  +2,400 train / +300 val / 
 6. Compute dataset statistics (class balance, size distribution)
 ```
 
+```mermaid
+flowchart TD
+    DL["Download datasets<br/>D1 · D2 · D3 · D4"] --> CV["Convert annotations<br/>→ YOLO format"]
+    CV --> MAP["Verify class mapping<br/>across datasets"]
+    MAP --> SPLIT["Split<br/>train/val = D1+D2<br/>test = D3 (fixed)"]
+    SPLIT --> YAML["Generate data.yaml"]
+    YAML --> STATS["Compute statistics<br/>class balance + size bins"]
+    STATS --> TRAIN["Train YOLOv8n"]
+```
+
 ---
 
 ## Dataset Statistics (Target)

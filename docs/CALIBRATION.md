@@ -18,6 +18,21 @@
 
 ## Calibration Protocol
 
+```mermaid
+flowchart TD
+    START(["Start"]) --> WARM["Warm up microscope<br/>10 minutes"]
+    WARM --> MAG["Set working magnification"]
+    MAG --> CAP1["Capture micrometer image"]
+    CAP1 --> FACTOR["Compute µm/px factor<br/>FFT or manual click"]
+    FACTOR --> CAP2["Capture bead slide<br/>10 / 50 / 100 µm"]
+    CAP2 --> TEST["Run detection + sizing"]
+    TEST --> CHK{"All beads within<br/>±20%?"}
+    CHK -- No --> FIX["Refocus / fix exposure<br/>recalibrate"]
+    FIX --> MAG
+    CHK -- Yes --> SAVE["Save calibration.json<br/>timestamp + expiry"]
+    SAVE --> DONE(["Calibration ready"])
+```
+
 ### Step 1: Setup
 1. Power on microscope, allow 10 min warm-up for stable illumination
 2. Set magnification to **exact working magnification** used for samples (e.g., 200×)

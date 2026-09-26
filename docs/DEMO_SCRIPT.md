@@ -4,6 +4,18 @@
 **Setup:** Laptop + USB microscope (or pre-captured images)  
 **Backup:** Pre-recorded screen capture if live fails
 
+```mermaid
+flowchart LR
+    S1["1 Opening<br/>30 sec"] --> S2["2 Calibration gate<br/>45 sec"]
+    S2 --> S3["3 Blank filter<br/>30 sec"]
+    S3 --> S4["4 10 µm beads<br/>45 sec"]
+    S4 --> S5["5 Mixed beads<br/>30 sec"]
+    S5 --> S6["6 River sample<br/>45 sec"]
+    S6 --> S7["7 Export<br/>15 sec"]
+    S7 --> S8["8 Hardware reveal<br/>15 sec"]
+    S8 --> S9["9 Closing<br/>15 sec"]
+```
+
 ---
 
 ## 0. Pre-Demo Checklist (5 min before)

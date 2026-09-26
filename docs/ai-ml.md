@@ -3,6 +3,16 @@
 > For: ML Engineer  
 > Scope: Dataset preparation, YOLOv8n fine-tuning, evaluation, export
 
+```mermaid
+flowchart LR
+    DATA["Dataset prep<br/>prepare.py"] --> TRAIN["Train YOLOv8n<br/>train_config.yaml"]
+    TRAIN --> EVAL["Evaluate<br/>mAP@0.5 + size-stratified"]
+    EVAL -- Meets targets --> EXPORT["Export best.pt<br/>benchmark CPU latency"]
+    EVAL -- Misses targets --> TUNE["Tune: classes weights,<br/>augmentation, thresholds"]
+    TUNE --> TRAIN
+    EXPORT --> HANDOFF["Handoff to backend<br/>weights + data.yaml"]
+```
+
 ---
 
 ## 1. Environment Setup

@@ -3,6 +3,17 @@
 > For: Backend Developer  
 > Scope: Streamlit app, inference pipeline, calibration management, data persistence
 
+```mermaid
+flowchart TD
+    UP["Upload (page_home)"] --> PRE["preprocess_image"]
+    PRE --> DET["Detector.predict"]
+    DET --> SZ["compute_particle_sizes"]
+    CALM["CalibrationManager<br/>calibration.json"] --> SZ
+    SZ --> CONF["compute_sample_confidence"]
+    CONF --> RES["page_results<br/>image · histogram · table · JSON"]
+    WIZ["page_calibration<br/>micrometer → beads → save"] --> CALM
+```
+
 ---
 
 ## 1. Project Structure (Backend-Relevant)

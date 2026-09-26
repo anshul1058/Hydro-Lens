@@ -47,6 +47,23 @@ A particle/sample is flagged when **ANY** condition is true:
 | `aspect_ratio > 10` | Likely fiber contamination / non-plastic |
 | `particle_count == 0` | True negative — but verify blank |
 
+```mermaid
+flowchart TD
+    START(["Evaluate particle"]) --> C1{"particle_confidence<br/>< 0.5?"}
+    C1 -- Yes --> FLAG["🚩 Needs lab confirmation"]
+    C1 -- No --> C2{"sample_confidence<br/>< 0.6?"}
+    C2 -- Yes --> FLAG
+    C2 -- No --> C3{"calibration_quality<br/>< 1.0?"}
+    C3 -- Yes --> FLAG
+    C3 -- No --> C4{"size > 5000 µm?"}
+    C4 -- Yes --> FLAG
+    C4 -- No --> C5{"class is<br/>film / foam / pellet?"}
+    C5 -- Yes --> FLAG
+    C5 -- No --> C6{"aspect_ratio > 10?"}
+    C6 -- Yes --> FLAG
+    C6 -- No --> OK["✅ Screening reliable"]
+```
+
 ---
 
 ## Detection Limits (Validated)

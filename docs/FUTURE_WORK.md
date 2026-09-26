@@ -1,5 +1,14 @@
 # Future Work — Hydro Lens
 
+```mermaid
+flowchart LR
+    NOW["Now<br/>Hackathon v1.0"] --> V11["v1.1 Usability<br/>1 month"]
+    V11 --> V12["v1.2 Detection quality<br/>2 months"]
+    V12 --> V20["v2.0 Polymer hints<br/>3–4 months"]
+    V20 --> V21["v2.1 Concentration<br/>4 months"]
+    V21 --> V30["v3.0 Network & scale<br/>6+ months"]
+```
+
 ## v1.1 — Usability & Robustness (1 Month)
 
 | Task | Description | Effort | Impact |

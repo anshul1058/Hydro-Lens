@@ -22,3 +22,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# ML: datasets, training outputs, downloaded weights
+data/raw/
+data/processed/
+runs/
+runs_train.log
+yolov8n.pt

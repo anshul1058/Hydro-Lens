@@ -292,3 +292,131 @@ async def analyze_sample(
         "detector_fallback": detector.fallback_mode,
         "detector_load_error": detector.load_error_message
     }
+
+@app.post("/api/calibration/factor-fft")
+async def compute_factor_fft_endpoint(
+    file: UploadFile = File(...),
+    known_spacing_um: float = Form(10.0)
+):
+    contents = await file.read()
+    try:
+        img_rgb = load_image_rgb(contents)
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": {"code": "IMAGE_DECODE_ERROR", "message": f"Could not decode image: {e}"}}
+        )
+
+    cal_mgr = get_cal_manager()
+    try:
+        factor = cal_mgr.compute_factor_fft(img_rgb, known_spacing_um=known_spacing_um)
+        return {"factor_um_per_px": factor}
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": {"code": "FFT_CALCULATION_ERROR", "message": f"FFT computation failed: {e}"}}
+        )
+
+@app.post("/api/calibration/factor-manual")
+def compute_factor_manual_endpoint(req: FactorManualRequest):
+    if req.pixel_distance <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": {"code": "INVALID_INPUT", "message": "Pixel distance must be greater than 0."}}
+        )
+    cal_mgr = get_cal_manager()
+    factor = cal_mgr.compute_factor_manual(
+        pixel_distance=req.pixel_distance,
+        num_divisions=req.num_divisions,
+        known_spacing_um=req.known_spacing_um
+    )
+    return {"factor_um_per_px": factor}
+
+@app.post("/api/calibration/save")
+def save_calibration_endpoint(req: CalibrationSaveRequest):
+    cal_mgr = get_cal_manager()
+    val_info = cal_mgr.validate_beads(req.measured_beads)
+    cal_record = cal_mgr.save(
+        factor_um_per_px=req.factor_um_per_px,
+        magnification=req.magnification,
+        camera=req.camera,
+        microscope=req.microscope,
+        validation_info=val_info
+    )
+    is_valid, reason, quality = cal_mgr.is_valid(cal_record)
+    return {
+        "record": cal_record,
+        "is_valid": is_valid,
+        "reason": reason,
+        "quality": quality
+    }
+
+@app.get("/api/diagnostics")
+def get_diagnostics():
+    return {
+        "model_info": {
+            "name": "Hydro Lens Detector",
+            "version": "1.0.0",
+            "architecture": "YOLOv8n (Nano)",
+            "framework": "Ultralytics YOLOv8 / PyTorch",
+            "parameters": "3.2 M",
+            "model_size": "~6 MB (.pt)",
+            "input_resolution": "640×640 RGB",
+            "latency": "1.2 s (Laptop CPU)",
+            "status": "Production"
+        },
+        "classes": [
+            {"name": "fragment", "description": "Irregular sharp plastic particle", "count": 1200},
+            {"name": "fiber", "description": "Elongated synthetic strand", "count": 800},
+            {"name": "film", "description": "Thin translucent plastic sheet", "count": 450},
+            {"name": "foam", "description": "Porous cellular structure", "count": 320},
+            {"name": "pellet", "description": "Spherical pre-production bead", "count": 210}
+        ],
+        "limitations": [
+            {
+                "id": 1,
+                "title": "Polymer type NOT identified — morphology only",
+                "detail": "Hydro Lens does not identify polymer type (PE, PP, PET, etc.). It detects morphological candidates consistent with microplastics. Polymer ID requires FTIR/Raman spectroscopy — explicitly out of scope."
+            },
+            {
+                "id": 2,
+                "title": "< 10 µm invisible — optical resolution bound",
+                "detail": "At 200× with 1920×1080 sensor: theoretical ~0.5 µm/pixel. Practical detection limit ~10 µm (SNR, diffraction, noise). Particles < 10 µm are invisible to this system."
+            },
+            {
+                "id": 3,
+                "title": "Training domain ≠ all field conditions — validate locally",
+                "detail": "Datasets 1 & 2: fluorescence + sewage microscopy. Dataset 3 (test): different microscopes, lighting. Performance on your microscope may differ. Always validate with local reference samples."
+            },
+            {
+                "id": 4,
+                "title": "No concentration without calibration + sample volume",
+                "detail": "Single image field of view extrapolation assumes uniform distribution. Concentration calculations strictly require valid active calibration, sample volume, and imaged filter area."
+            }
+        ]
+    }
+
+@app.post("/api/concentration")
+def calculate_concentration_endpoint(req: ConcentrationRequest):
+    cal_mgr = get_cal_manager()
+    cal_record = cal_mgr.load()
+    is_valid, reason, quality = cal_mgr.is_valid(cal_record)
+    
+    if quality == 0.0 or req.imaged_area_mm2 <= 0:
+        return {
+            "concentration": None,
+            "blocked": True,
+            "message": "Calibration required — quantitative concentration is blocked"
+        }
+    
+    conc = calculate_concentration(
+        total_count=req.total_count,
+        imaged_area_mm2=req.imaged_area_mm2,
+        sample_volume_ml=req.sample_volume_ml,
+        dilution_factor=req.dilution_factor
+    )
+    return {
+        "concentration": conc,
+        "blocked": False,
+        "message": "Calculated successfully"
+    }

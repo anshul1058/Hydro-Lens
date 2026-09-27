@@ -113,3 +113,47 @@ class ConcentrationRequest(BaseModel):
 @app.get("/api/health")
 def health_check():
     return {"status": "ok"}
+
+@app.get("/api/calibration")
+def get_calibration():
+    cal_mgr = get_cal_manager()
+    record = cal_mgr.load()
+    is_valid, reason, quality = cal_mgr.is_valid(record)
+    return {
+        "record": record,
+        "is_valid": is_valid,
+        "reason": reason,
+        "quality": quality
+    }
+
+@app.get("/api/references")
+def get_references():
+    ref_dir = "data/reference"
+    references = [
+        {
+            "id": "demo_microplastic_sample.jpg",
+            "label": "Microplastic Sample",
+            "url": "/api/references/file/demo_microplastic_sample.jpg"
+        },
+        {
+            "id": "blank_filter_control.png",
+            "label": "Blank Filter Control",
+            "url": "/api/references/file/blank_filter_control.png"
+        },
+        {
+            "id": "stage_micrometer_scale.png",
+            "label": "Stage Micrometer Scale",
+            "url": "/api/references/file/stage_micrometer_scale.png"
+        }
+    ]
+    return references
+
+@app.get("/api/references/file/{filename}")
+def serve_reference_file(filename: str):
+    ref_path = os.path.join("data/reference", filename)
+    if os.path.exists(ref_path):
+        return FileResponse(ref_path)
+    raise HTTPException(
+        status_code=404,
+        detail={"error": {"code": "NOT_FOUND", "message": f"Reference file {filename} not found."}}
+    )

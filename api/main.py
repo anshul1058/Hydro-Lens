@@ -420,3 +420,17 @@ def calculate_concentration_endpoint(req: ConcentrationRequest):
         "blocked": False,
         "message": "Calculated successfully"
     }
+
+# Serve the built React frontend (registered last so /api routes win).
+_DIST = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "dist")
+
+@app.get("/{full_path:path}", include_in_schema=False)
+def spa_fallback(full_path: str):
+    if not os.path.isdir(_DIST):
+        raise HTTPException(status_code=404, detail="Frontend not built")
+    if full_path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="Not Found")
+    candidate = os.path.normpath(os.path.join(_DIST, full_path))
+    if full_path and candidate.startswith(_DIST) and os.path.isfile(candidate):
+        return FileResponse(candidate)
+    return FileResponse(os.path.join(_DIST, "index.html"))

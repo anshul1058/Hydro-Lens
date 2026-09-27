@@ -157,3 +157,138 @@ def serve_reference_file(filename: str):
         status_code=404,
         detail={"error": {"code": "NOT_FOUND", "message": f"Reference file {filename} not found."}}
     )
+
+@app.post("/api/analyze")
+async def analyze_sample(
+    file: Optional[UploadFile] = File(None),
+    reference_id: Optional[str] = Form(None)
+):
+    start_time = time.time()
+    config = get_config()
+    
+    # Read image source
+    if file is not None and file.filename:
+        # Validate max upload size and allowed extensions if file provided
+        app_cfg = config.get("app", {})
+        allowed_exts = app_cfg.get("allowed_extensions", [".jpg", ".jpeg", ".png", ".tif", ".tiff"])
+        ext = os.path.splitext(file.filename)[1].lower()
+        if ext and ext not in allowed_exts:
+            raise HTTPException(
+                status_code=400,
+                detail={"error": {"code": "INVALID_FILE_TYPE", "message": f"Unsupported file extension '{ext}'. Allowed: {allowed_exts}"}}
+            )
+        contents = await file.read()
+        max_bytes = app_cfg.get("max_upload_mb", 50) * 1024 * 1024
+        if len(contents) > max_bytes:
+            raise HTTPException(
+                status_code=400,
+                detail={"error": {"code": "FILE_TOO_LARGE", "message": f"File size exceeds maximum limit of {app_cfg.get('max_upload_mb', 50)} MB."}}
+            )
+        source = contents
+    elif reference_id:
+        # Lookup reference file
+        target_name = reference_id
+        ref_path = os.path.join("data/reference", target_name)
+        if not os.path.exists(ref_path):
+            for ext in [".jpg", ".png", ".jpeg"]:
+                if os.path.exists(ref_path + ext):
+                    ref_path = ref_path + ext
+                    break
+        if not os.path.exists(ref_path):
+            raise HTTPException(
+                status_code=400,
+                detail={"error": {"code": "INVALID_REFERENCE", "message": f"Reference file '{reference_id}' not found."}}
+            )
+        source = ref_path
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": {"code": "MISSING_INPUT", "message": "Either 'file' or 'reference_id' must be provided."}}
+        )
+
+    # 1. Preprocess
+    prep_res = preprocess_image(source, config)
+    prep_img = prep_res["preprocessed"]
+
+    # 2. Detector
+    detector = get_detector()
+    raw_detections = detector.predict(prep_img)
+
+    # 3. Calibration check
+    cal_mgr = get_cal_manager()
+    cal_record = cal_mgr.load()
+    is_valid, reason, quality = cal_mgr.is_valid(cal_record)
+    
+    um_per_px = cal_record.get("factor_um_per_px") if (cal_record and is_valid and quality > 0.0) else None
+
+    # 4. Sizing
+    sized_detections = compute_particle_sizes(
+        image=prep_img,
+        detections=raw_detections,
+        um_per_px=um_per_px,
+        config=config
+    )
+
+    # 5. Confidence scoring
+    sample_conf, needs_lab_flag, final_detections, flags_list, breakdown = compute_sample_confidence(
+        detections=sized_detections,
+        calibration=cal_record if (cal_record and is_valid) else None,
+        image_shape=prep_res["original_shape"],
+        config=config
+    )
+
+    # 6. Draw annotations
+    annotated_img = draw_annotations(
+        prep_img,
+        final_detections,
+        show_sizes=(um_per_px is not None)
+    )
+
+    # 7. Size distribution (blocked if calibration quality == 0.0)
+    if quality > 0.0:
+        size_dist = compute_size_distribution(final_detections)
+    else:
+        size_dist = {}
+
+    # 8. Report JSON
+    sample_id = f"HL-{int(time.time() * 1000)}"
+    timestamp_iso = prep_res.get("timestamp") or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    imaged_area_mm2 = breakdown.get("imaged_area_mm2", 1.0)
+    summary_dict = {
+        "total_count": len(final_detections),
+        "sample_confidence": sample_conf,
+        "flag_lab_confirmation": needs_lab_flag,
+        "size_distribution": size_dist,
+        "imaged_area_mm2": imaged_area_mm2
+    }
+    report = generate_report_json(
+        sample_id=sample_id,
+        timestamp=timestamp_iso,
+        calibration_info=cal_record,
+        image_meta={"original_shape": prep_res["original_shape"]},
+        detections=final_detections,
+        summary_dict=summary_dict
+    )
+
+    latency_sec = float(round(time.time() - start_time, 3))
+
+    return {
+        "sample_id": sample_id,
+        "latency_sec": latency_sec,
+        "total_count": len(final_detections),
+        "sample_confidence": sample_conf,
+        "flag_lab_confirmation": needs_lab_flag,
+        "size_distribution_um": size_dist,
+        "imaged_area_mm2": imaged_area_mm2,
+        "flags": flags_list,
+        "breakdown": breakdown,
+        "detections": final_detections,
+        "report": report,
+        "images": {
+            "original": cv2_to_b64(prep_res["original"]),
+            "preprocessed": cv2_to_b64(prep_res["preprocessed"]),
+            "annotated": cv2_to_b64(annotated_img)
+        },
+        "detector_fallback": detector.fallback_mode,
+        "detector_load_error": detector.load_error_message
+    }

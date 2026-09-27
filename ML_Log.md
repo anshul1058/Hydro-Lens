@@ -67,8 +67,26 @@ Claims in `docs/` were verified against the actual datasets (4 downloaded by use
 
 ## After Hackathon (the rest of the roadmap)
 
-1. **5-class retrain** — Roboflow microplastics datasets (fragment/fiber/film/foam/pellet); update `config.yaml` classes to match new `data.yaml` (Decision 1 above)
+1. **5-class retrain** — 5 Roboflow datasets **decided**: `newmp` (5k, all 5 classes), `all plastic` (7k), `mp-segmentation-jp` (1.5k), `microplastic-final` (398, CC BY), `Microplastic Annotations` (226, CC BY). Full table + class-merge map: `docs/DATASET.md` → "Post-Hackathon 5-Class Retrain". Update `config.yaml` classes to match new `data.yaml` (Decision 1 above)
 2. Confidence calibrator (Platt scaling → `calibrator.pkl`)
 3. Size-stratified recall eval (fill the PLACEHOLDER table in MODEL_CARD)
 4. ONNX export for Raspberry Pi / edge deployment
 5. Verify sizing accuracy with calibration beads (fill PLACEHOLDER table)
+
+---
+
+## 2026-09-27 — 5-Class Retrain: Roboflow dataset links
+
+Full table + class-merge map: `docs/DATASET.md` → "Post-Hackathon 5-Class Retrain".
+
+| # | Dataset | Images | Link |
+|---|---------|--------|------|
+| R1 | newmp (Univ. of Alabama) | 5,000 | search: https://universe.roboflow.com/search?q=newmp |
+| R2 | all plastic | 7,050 | search: https://universe.roboflow.com/search?q=all+plastic |
+| R3 | mp-segmentation-jp (Johann Catalla) | 1,540 | search: https://universe.roboflow.com/search?q=mp-segmentation-jp |
+| R4 | microplastic-final (CC BY 4.0) | 398 | https://universe.roboflow.com/project-aunby/microplastic-final-kpdl3 |
+| R5 | Microplastic Annotations (CC BY 4.0) | 226 | https://universe.roboflow.com/microplastic-annotations/microplastic-annotations-n1y9l |
+
+- **R1–R3 are search links, not direct** — Roboflow returns 503 to non-browser fetchers, so project slugs were not verified. Open each search link, copy the real URL, replace the link above.
+- Verified alternative for the Alabama set (MIT, 1,711 img, dirt/fiber/fragment/pellet): https://universe.roboflow.com/university-of-alabama-zwtwm/microplastic-detection
+- Licenses for R1–R3 still *verify at download*; R4/R5 confirmed CC BY 4.0.

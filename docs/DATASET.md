@@ -120,3 +120,47 @@ Outputs:
 - `data/processed/val/images/`, `labels/`
 - `data/processed/test/images/`, `labels/` (Dataset 3 only)
 - `data/processed/data.yaml` — YOLO config
+---
+
+## Post-Hackathon 5-Class Retrain — Roboflow Picks (Decided 2026-09-27)
+
+Five Roboflow Universe datasets for the 5-class morphology model (`fragment`/`fiber`/`film`/`foam`/`pellet`). Selection rule: bounding-box or polygon annotations, ≥3 morphology classes, permissive license preferred.
+
+| # | Dataset | Owner | Images | Classes | Task | License |
+|---|---------|-------|--------|---------|------|---------|
+| R1 | [newmp](https://universe.roboflow.com/search?q=newmp) | University of Alabama | 5,000 | fiber, film, foam, fragment, pellet (**all 5**) | Object detection | *verify at download* |
+| R2 | [all plastic](https://universe.roboflow.com/search?q=all+plastic) | University | 7,050 | dirt, fiber, fragment, pellet | Object detection | *verify at download* |
+| R3 | [mp-segmentation-jp](https://universe.roboflow.com/search?q=mp-segmentation-jp) | Johann Catalla | 1,540 | fiber, film, foam, fragment, pellet, sheet | Instance segmentation → boxes | *verify at download* |
+| R4 | [microplastic-final](https://universe.roboflow.com/project-aunby/microplastic-final-kpdl3) | Project | 398 | fiber, film, fragment, pellet | Instance segmentation → boxes | CC BY 4.0 |
+| R5 | [Microplastic Annotations](https://universe.roboflow.com/microplastic-annotations/microplastic-annotations-n1y9l) | Microplastic Annotations | 226 | fiber, film, foam, fragment, pellet (typos: `filber`, `Fragmnet`) | Object detection | CC BY 4.0 |
+
+**Total: ~14,200 images.**
+
+### Class merge map (apply in `src/data/prepare.py`)
+
+```
+dirt, sheet              → drop (out of scope)
+filber, Fiber            → fiber
+Fragmnet, Fragment       → fragment
+Film, Foam, Pellet       → film, foam, pellet
+pallet                   → pellet
+```
+
+### Prep checklist
+
+- [ ] Export every set as **YOLOv8 bbox** (polygon sets R3/R4: Roboflow converts on export)
+- [ ] Apply merge map above → unified 5-class `data.yaml`
+- [ ] Dedup by image hash — R4/R5 may derive from the same source images
+- [ ] Hold out HMPD (D3) as the untouched test set, same as v1
+- [ ] Update `config.yaml` class names + order to match new `data.yaml` (ML_Log Decision 1)
+
+### Rejected (and why)
+
+| Dataset | Images | Why not |
+|---------|--------|---------|
+| [microplastic_detection](https://universe.roboflow.com/yolov8-eruri/microplastic_detection) (yolov8) | 4,607 | Single class `Microplastic` — no morphology labels |
+| [MicroPlastics](https://universe.roboflow.com/iam/microplastics-m7mf5) (IAM) / microplastic-nuga5 (Project) | 400 | **BY-NC-SA 4.0** — non-commercial |
+| [Microplastics Detection](https://universe.roboflow.com/hina-tmh4j/microplastics-detection-bfhbf) (Hina) | 637 | Backup only — 11 typo'd classes, same cleanup cost as R5 |
+| Plastic (Eric Smallwood) | 730 | Backup only — 3 classes (no film/foam) |
+
+> Roboflow downloads need a free account + API key: `pip install roboflow` → `Roboflow(api_key=...).workspace(...).project(...).download("yolov8")`.

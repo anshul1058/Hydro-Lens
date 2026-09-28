@@ -26,34 +26,49 @@ export const BeadChart: React.FC<BeadChartProps> = ({ beads }) => {
   }));
 
   return (
-    <div className="w-full h-64">
+    <div className="w-full h-72">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(185,223,234,0.4)" vertical={false} />
+        <BarChart data={data} margin={{ top: 15, right: 15, left: -10, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(187,228,242,0.6)" vertical={false} />
           <XAxis
             dataKey="target"
             tickLine={false}
-            axisLine={{ stroke: '#B9DFEA' }}
-            tick={{ fill: '#5294A8', fontSize: 12 }}
+            axisLine={{ stroke: '#BBE4F2' }}
+            tick={{ fill: '#2C637A', fontSize: 12, fontWeight: 600 }}
           />
           <YAxis
             tickLine={false}
             axisLine={false}
-            tick={{ fill: '#5294A8', fontSize: 12 }}
+            tick={{ fill: '#4A7F96', fontSize: 12 }}
             unit=" µm"
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: 'rgba(232, 248, 252, 0.95)',
-              border: '1px solid #B9DFEA',
-              borderRadius: '10px',
+              backgroundColor: 'rgba(255, 255, 255, 0.98)',
+              border: '1px solid #BBE4F2',
+              borderRadius: '12px',
+              boxShadow: '0 8px 24px rgba(8,145,178,0.12)',
               fontSize: '13px',
-              color: '#397C91'
+              color: '#0A2540',
+              fontWeight: 600
             }}
           />
-          <Legend wrapperStyle={{ paddingTop: '10px', fontSize: '12px' }} />
-          <Bar dataKey="Nominal" fill="#C5ECF6" radius={[4, 4, 0, 0]} name="Nominal Size (µm)" />
-          <Bar dataKey="Measured" fill="#6BBFD8" radius={[4, 4, 0, 0]} name="Measured Size (µm)" />
+          <Legend 
+            wrapperStyle={{ paddingTop: '12px', fontSize: '12px', fontWeight: 600 }} 
+          />
+          <Bar 
+            dataKey="Nominal" 
+            fill="#BAE6FD" 
+            stroke="#7DD3FC"
+            radius={[6, 6, 0, 0]} 
+            name="Nominal Size (µm)" 
+          />
+          <Bar 
+            dataKey="Measured" 
+            fill="#0891B2" 
+            radius={[6, 6, 0, 0]} 
+            name="Measured Size (µm)" 
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>

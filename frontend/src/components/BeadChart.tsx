@@ -28,34 +28,44 @@ export const BeadChart: React.FC<BeadChartProps> = ({ beads }) => {
   return (
     <div className="w-full h-64">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(185,223,234,0.4)" vertical={false} />
+        <BarChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#CBD9E0" vertical={false} />
           <XAxis
             dataKey="target"
             tickLine={false}
-            axisLine={{ stroke: '#B9DFEA' }}
-            tick={{ fill: '#5294A8', fontSize: 12 }}
+            axisLine={{ stroke: '#9CB4C0' }}
+            tick={{ fill: '#2E4550', fontSize: 12, fontFamily: 'IBM Plex Mono' }}
           />
           <YAxis
             tickLine={false}
             axisLine={false}
-            tick={{ fill: '#5294A8', fontSize: 12 }}
+            tick={{ fill: '#58717E', fontSize: 12, fontFamily: 'IBM Plex Mono' }}
             unit=" µm"
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: 'rgba(232, 248, 252, 0.95)',
-              border: '1px solid #B9DFEA',
-              borderRadius: '10px',
-              fontSize: '13px',
-              color: '#397C91'
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #CBD9E0',
+              borderRadius: '6px',
+              fontSize: '12px',
+              fontFamily: 'IBM Plex Mono',
+              color: '#0D1C22',
+              boxShadow: '0 2px 4px rgba(13, 28, 34, 0.06)'
             }}
           />
-          <Legend wrapperStyle={{ paddingTop: '10px', fontSize: '12px' }} />
-          <Bar dataKey="Nominal" fill="#C5ECF6" radius={[4, 4, 0, 0]} name="Nominal Size (µm)" />
-          <Bar dataKey="Measured" fill="#6BBFD8" radius={[4, 4, 0, 0]} name="Measured Size (µm)" />
+          <Legend
+            wrapperStyle={{
+              paddingTop: '10px',
+              fontSize: '11.5px',
+              fontFamily: 'IBM Plex Sans'
+            }}
+          />
+          <Bar dataKey="Nominal" fill="#9CB4C0" radius={[3, 3, 0, 0]} name="Nominal Standard (µm)" />
+          <Bar dataKey="Measured" fill="#075E67" radius={[3, 3, 0, 0]} name="Observed Optical (µm)" />
         </BarChart>
       </ResponsiveContainer>
     </div>
   );
 };
+
+export default BeadChart;

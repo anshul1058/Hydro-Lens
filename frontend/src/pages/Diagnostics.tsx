@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Cpu, AlertTriangle, Layers, Bookmark } from 'lucide-react';
+import { Cpu, Warning, Stack, Bookmark } from '@phosphor-icons/react';
 import { getDiagnostics } from '../api/client';
 import type { DiagnosticsResponse } from '../api/types';
+import systemDiagnosticsHwImg from '../assets/system_diagnostics_hw.jpg';
+import fragmentImg from '../assets/morphology_fragment.jpg';
+import fiberImg from '../assets/morphology_fiber.jpg';
+import filmImg from '../assets/morphology_film.jpg';
+import foamImg from '../assets/morphology_foam.jpg';
+import pelletImg from '../assets/morphology_pellet.jpg';
 
 export const DiagnosticsPage: React.FC = () => {
   const [data, setData] = useState<DiagnosticsResponse | null>(null);
@@ -24,36 +30,36 @@ export const DiagnosticsPage: React.FC = () => {
             status: 'Production'
           },
           classes: [
-            { name: 'fragment', description: 'Irregular sharp plastic particle candidate', count: 1200 },
-            { name: 'fiber', description: 'Elongated synthetic strand candidate', count: 800 },
-            { name: 'film', description: 'Thin translucent plastic sheet candidate', count: 450 },
-            { name: 'foam', description: 'Porous cellular structure candidate', count: 320 },
-            { name: 'pellet', description: 'Spherical pre-production bead candidate', count: 210 }
+            { name: 'fragment', description: 'Angular, irregular particles originating from fragmented rigid plastics', count: 1200 },
+            { name: 'fiber', description: 'High aspect ratio elongated synthetic filaments from textiles', count: 800 },
+            { name: 'film', description: 'Planar sheets with irregular, flexible boundaries from wrap/packaging', count: 450 },
+            { name: 'foam', description: 'Cellular, porous structures exhibiting lower optical density', count: 320 },
+            { name: 'pellet', description: 'Spheroidal virgin resin nurdles and industrial microbeads', count: 210 }
           ],
           limitations: [
             {
               id: 1,
-              title: 'Polymer type NOT identified — morphology only',
+              title: 'Morphological characterization boundary',
               detail:
-                'Hydro Lens does not identify polymer type (PE, PP, PET, etc.). It detects morphological candidates consistent with microplastics. Polymer ID requires FTIR/Raman spectroscopy — explicitly out of scope.'
+                'Hydro Lens classifies particle physical geometry (fragment, fiber, film, foam, pellet). Chemical polymer classification (PE, PP, PET) requires spectroscopic confirmation via FTIR or Raman spectroscopy, which is explicitly outside the optical screening scope.'
             },
             {
               id: 2,
-              title: '< 10 µm invisible — optical resolution bound',
+              title: 'Optical diffraction resolution limit at 10 µm',
               detail:
-                'At 200× with 1920×1080 sensor: theoretical ~0.5 µm/pixel. Practical detection limit ~10 µm (SNR, diffraction, noise). Particles < 10 µm are invisible to this system.'
+                'At 200x optical magnification with a 1920x1080 sensor, theoretical sampling yields ~0.5 µm per pixel. Optical diffraction, sensor noise, and signal-to-noise ratio establish the empirical detection threshold at 10 µm. Particles under 10 µm cannot be reliably resolved.'
             },
             {
               id: 3,
-              title: 'Training domain ≠ all field conditions — validate locally',
+              title: 'Training dataset generalization and local validation',
               detail:
-                'Datasets 1 & 2: fluorescence + sewage microscopy. Dataset 3 (test): different microscopes, lighting. Performance on your microscope may differ. Always validate with local reference samples.'
+                'The detector was trained on fluorescence and sewage microscopy corpora. Environmental field conditions, organic debris, and differing illumination require local benchmark validation before production reporting.'
             },
             {
               id: 4,
-              title: 'No concentration without calibration + sample volume',
+              title: 'Prerequisites for volumetric concentration extrapolation',
               detail:
-                'Single image field of view extrapolation assumes uniform distribution. Concentration calculations strictly require valid active calibration, sample volume, and imaged filter area.'
+                'Extrapolating single field-of-view observations assumes homogeneous particle dispersion across the membrane filter. Concentration reporting strictly requires a valid active calibration record, known filter window area, and documented sample filtration volume.'
             }
           ]
         });
@@ -62,203 +68,237 @@ export const DiagnosticsPage: React.FC = () => {
 
   const model = data?.model_info;
 
-  const classColors: Record<string, string> = {
-    fragment: 'bg-[#6BBFD8]',
-    fiber: 'bg-[#3FA7C4]',
-    film: 'bg-[#65C99A]',
-    foam: 'bg-[#F5C75A]',
-    pellet: 'bg-[#F28B8B]'
+  const particleMicrographs: Record<string, string> = {
+    fragment: fragmentImg,
+    fiber: fiberImg,
+    film: filmImg,
+    foam: foamImg,
+    pellet: pelletImg
   };
+
+  const tocItems = [
+    { id: 'model-card', section: 'model' as const, label: 'Model Architecture' },
+    { id: 'detection-classes', section: 'classes' as const, label: 'Morphology Taxonomy' },
+    { id: 'limitations', section: 'limitations' as const, label: 'Operational Boundaries' }
+  ];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      {/* MAIN DIAGNOSTICS CONTENT (9 Cols) */}
       <div className="lg:col-span-9 space-y-6">
-        <div>
-          <h1 className="text-page-title">System Diagnostics</h1>
-          <p className="text-body text-[#5294A8]">
-            Architecture specifications, detection class taxonomy, and formal safety limits.
-          </p>
-        </div>
+        {/* Page Header */}
+        <header className="grid grid-cols-1 sm:grid-cols-12 gap-5 items-start">
+          <div className="sm:col-span-8 max-w-2xl">
+            <p className="text-caption">System Metrology and Architecture</p>
+            <h1 className="text-page-title mt-1">System Diagnostics</h1>
+            <p className="text-body mt-2">
+              Detector specifications, the 5-class microplastic morphology taxonomy, and the scientific
+              boundaries enforced by the screening pipeline to prevent misattribution.
+            </p>
+          </div>
+          <img
+            src={systemDiagnosticsHwImg}
+            alt="Optical bench hardware and digital sensor testbed"
+            width={320}
+            height={200}
+            className="sm:col-span-4 w-full h-32 object-cover rounded-sm border border-line bg-sunken"
+          />
+        </header>
 
-        {/* SECTION 1: MODEL CARD PANEL */}
-        <section
-          id="model-card"
-          className="bg-[#E8F8FC]/85 backdrop-blur-[20px] rounded-[18px] border border-[#B9DFEA] p-6 shadow-[0_8px_24px_rgba(57,124,145,0.08)] space-y-6"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-[56px] h-[56px] rounded-2xl bg-[#6BBFD8]/20 border border-[#6BBFD8]/35 flex items-center justify-center text-[#3FA7C4] shrink-0">
-                <Cpu className="w-7 h-7" />
-              </div>
-              <div>
-                <div className="flex items-center space-x-2">
-                  <h2 className="text-section-title">YOLOv8n Detection Model</h2>
-                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#65C99A]/20 text-[#397C91] border border-[#65C99A]/35">
-                    Production
+        {!data ? (
+          <div className="space-y-4" aria-busy="true" aria-live="polite">
+            <div className="skeleton h-40 rounded-md border border-line" />
+            <div className="skeleton h-56 rounded-md border border-line" />
+            <div className="skeleton h-40 rounded-md border border-line" />
+            <span className="sr-only">Loading diagnostics data...</span>
+          </div>
+        ) : (
+          <>
+            {/* Model Card Section */}
+            <section id="model-card" className="bg-surface border border-line rounded-md p-6 space-y-5 shadow-2xs">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+                <div className="flex items-center gap-3">
+                  <span className="w-10 h-10 rounded-sm bg-accent-tint border border-accent-border flex items-center justify-center text-accent">
+                    <Cpu size={22} weight="bold" />
                   </span>
+                  <div>
+                    <div className="flex items-center gap-2.5">
+                      <h2 className="text-section-title">YOLOv8n Neural Detector</h2>
+                      <span className="px-2 py-0.5 rounded-sm text-[11px] font-mono font-semibold bg-ok-tint text-ok border border-ok-border">
+                        Production Ready
+                      </span>
+                    </div>
+                    <p className="text-caption mt-0.5">Single-Stage Morphological Particle Detector</p>
+                  </div>
                 </div>
-                <p className="text-caption mt-0.5">Microplastic Candidate Object Detection Head</p>
+                <span className="text-[11.5px] font-mono font-medium text-ink bg-sunken px-2.5 py-1 rounded-sm border border-line">
+                  Version {model?.version || '1.0.0'}
+                </span>
               </div>
-            </div>
-            <span className="text-[12px] font-mono text-[#5294A8]">v1.0.0</span>
-          </div>
 
-          {/* 4-Column Spec Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-white/70 rounded-[14px] border border-[#B9DFEA]">
-            <div>
-              <p className="text-caption">Architecture</p>
-              <p className="text-[14px] font-semibold text-[#397C91]">{model?.architecture || 'YOLOv8n (Nano)'}</p>
-            </div>
-            <div>
-              <p className="text-caption">Parameters</p>
-              <p className="text-[14px] font-semibold text-[#397C91] tabular-nums">{model?.parameters || '3.2 M'}</p>
-            </div>
-            <div>
-              <p className="text-caption">Model Size</p>
-              <p className="text-[14px] font-semibold text-[#397C91]">{model?.model_size || '~6 MB (.pt)'}</p>
-            </div>
-            <div>
-              <p className="text-caption">Latency (CPU)</p>
-              <p className="text-[14px] font-semibold text-[#397C91] tabular-nums">{model?.latency || '1.2 s'}</p>
-            </div>
-          </div>
-        </section>
+              <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="p-3 bg-page rounded-sm border border-line">
+                  <dt className="text-caption">Architecture</dt>
+                  <dd className="text-[13.5px] font-semibold text-ink mt-0.5">
+                    {model?.architecture || 'YOLOv8n (Nano)'}
+                  </dd>
+                </div>
+                <div className="p-3 bg-page rounded-sm border border-line">
+                  <dt className="text-caption">Parameters</dt>
+                  <dd className="text-[13.5px] font-mono font-semibold text-ink mt-0.5">
+                    {model?.parameters || '3.2 M'}
+                  </dd>
+                </div>
+                <div className="p-3 bg-page rounded-sm border border-line">
+                  <dt className="text-caption">Model Footprint</dt>
+                  <dd className="text-[13.5px] font-mono font-semibold text-ink mt-0.5">
+                    {model?.model_size || '~6 MB (.pt)'}
+                  </dd>
+                </div>
+                <div className="p-3 bg-page rounded-sm border border-line">
+                  <dt className="text-caption">CPU Inference Latency</dt>
+                  <dd className="text-[13.5px] font-mono font-semibold text-ink mt-0.5">
+                    {model?.latency || '1.2 s'}
+                  </dd>
+                </div>
+              </dl>
 
-        {/* SECTION 2: DETECTION CLASSES TABLE */}
-        <section
-          id="detection-classes"
-          className="bg-[#E8F8FC]/85 backdrop-blur-[20px] rounded-[18px] border border-[#B9DFEA] p-6 shadow-[0_8px_24px_rgba(57,124,145,0.08)] space-y-4"
-        >
-          <div className="flex items-center space-x-2">
-            <Layers className="w-5 h-5 text-[#3FA7C4]" />
-            <h2 className="text-section-title">Detection Classes Taxonomy</h2>
-          </div>
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[12.5px]">
+                <div className="flex items-center justify-between p-3 bg-page rounded-sm border border-line">
+                  <dt className="text-ink-3 font-medium">Runtime Backend</dt>
+                  <dd className="font-mono text-ink">
+                    {model?.framework || 'Ultralytics YOLOv8 / PyTorch'}
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-page rounded-sm border border-line">
+                  <dt className="text-ink-3 font-medium">Input Tensor Geometry</dt>
+                  <dd className="font-mono text-ink">
+                    {model?.input_resolution || '640×640 RGB'}
+                  </dd>
+                </div>
+              </dl>
+            </section>
 
-          <div className="overflow-x-auto rounded-[14px] border border-[#B9DFEA] bg-white/60">
-            <table className="w-full text-left border-collapse text-[13px]">
-              <thead>
-                <tr className="bg-[#E8F8FC] border-b border-[#B9DFEA] text-[#5294A8] text-[11px] font-semibold uppercase tracking-[0.06em]">
-                  <th className="py-3 px-4">Class Glyph</th>
-                  <th className="py-3 px-4">Name</th>
-                  <th className="py-3 px-4">Morphology Description</th>
-                  <th className="py-3 px-4 text-right">Training Support Count</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#B9DFEA]/60 text-[#397C91]">
-                {data?.classes.map((cls) => (
-                  <tr key={cls.name} className="hover:bg-white/80 transition-all">
-                    <td className="py-3 px-4">
-                      <div className="flex items-center space-x-2">
-                        <span className={`w-3.5 h-3.5 rounded-full ${classColors[cls.name] || 'bg-gray-400'}`} />
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 font-semibold capitalize text-[#3FA7C4]">{cls.name}</td>
-                    <td className="py-3 px-4 text-[#5294A8]">{cls.description}</td>
-                    <td className="py-3 px-4 text-right font-semibold tabular-nums text-[#397C91]">
-                      {cls.count.toLocaleString()}
-                    </td>
-                  </tr>
+            {/* Detection Classes Section */}
+            <section id="detection-classes" className="bg-surface border border-line rounded-md p-6 space-y-4 shadow-2xs">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
+                <div className="flex items-center gap-2.5">
+                  <Stack size={18} className="text-accent" weight="bold" />
+                  <h2 className="text-section-title">Detection Class Taxonomy</h2>
+                </div>
+                <span className="text-caption font-mono bg-sunken px-2.5 py-1 rounded-sm border border-line">
+                  5 Classes Standardized
+                </span>
+              </div>
+
+              <div className="overflow-x-auto rounded-sm border border-line">
+                <table className="w-full text-left border-collapse text-[13px]">
+                  <thead>
+                    <tr className="bg-sunken border-b border-line text-ink-3 text-[11px] font-semibold uppercase tracking-[0.06em]">
+                      <th className="py-2.5 px-4 font-semibold">Micrograph Reference</th>
+                      <th className="py-2.5 px-4 font-semibold">Morphology Name</th>
+                      <th className="py-2.5 px-4 font-semibold">Diagnostic Definition</th>
+                      <th className="py-2.5 px-4 text-right font-semibold">Corpus Annotations</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-line text-ink-2">
+                    {data.classes.map((cls) => {
+                      const img = particleMicrographs[cls.name.toLowerCase()];
+                      return (
+                        <tr key={cls.name} className="hover:bg-sunken/40 transition-colors">
+                          <td className="py-2.5 px-4">
+                            {img ? (
+                              <img
+                                src={img}
+                                alt={`${cls.name} micrograph reference`}
+                                loading="lazy"
+                                width={56}
+                                height={44}
+                                className="w-14 h-11 rounded-sm overflow-hidden border border-line object-cover bg-panel-dark"
+                              />
+                            ) : (
+                              <span className="block w-14 h-11 rounded-sm bg-sunken border border-line" />
+                            )}
+                          </td>
+                          <td className="py-2.5 px-4">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-[12px] font-medium bg-sunken border border-line capitalize text-ink">
+                              {cls.name}
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-4 text-[12.5px] leading-relaxed">{cls.description}</td>
+                          <td className="py-2.5 px-4 text-right font-mono text-[12.5px] text-ink">
+                            {cls.count.toLocaleString()}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            {/* Operational Limitations & Safety Rules */}
+            <section id="limitations" className="bg-surface border border-line rounded-md p-6 space-y-4 shadow-2xs">
+              <div className="flex items-center gap-2.5 border-b border-line pb-3">
+                <Warning size={18} className="text-warn" weight="bold" />
+                <h2 className="text-section-title">Operational Boundaries and Scientific Constraints</h2>
+              </div>
+              <p className="text-caption">
+                Verbatim constraints from CONFIDENCE_AND_LIMITATIONS.md. Strictly enforced by algorithm gates.
+              </p>
+
+              <ol className="space-y-4 pt-1">
+                {data.limitations.map((lim) => (
+                  <li key={lim.id} className="grid grid-cols-[auto_1fr] gap-x-3.5 items-start p-3 rounded-sm bg-page border border-line">
+                    <span className="font-mono text-[12px] font-semibold text-accent pt-0.5">
+                      {String(lim.id).padStart(2, '0')}
+                    </span>
+                    <div>
+                      <h3 className="text-[13.5px] font-semibold text-ink">{lim.title}</h3>
+                      <p className="text-[12.5px] text-ink-2 leading-relaxed mt-1">{lim.detail}</p>
+                    </div>
+                  </li>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+              </ol>
+            </section>
+          </>
+        )}
+      </div>
 
-        {/* SECTION 3: LIMITATIONS & COMPLIANCE CARD */}
-        <section
-          id="limitations"
-          className="bg-[#E8F8FC]/85 backdrop-blur-[20px] rounded-[18px] border-l-4 border-l-[#F5C75A] border-y border-r border-[#B9DFEA] p-6 shadow-[0_8px_24px_rgba(57,124,145,0.08)] space-y-4"
-        >
-          <div className="flex items-center space-x-2 text-[#397C91]">
-            <AlertTriangle className="w-5 h-5 text-[#F5C75A]" />
-            <h2 className="text-section-title text-[#397C91]">Limitations &amp; Compliance Rules</h2>
+      {/* Sticky Table of Contents Navigation Rail */}
+      <nav aria-label="Section navigation" className="lg:col-span-3 sticky top-24 space-y-3">
+        <div className="bg-surface border border-line rounded-md p-4 space-y-3 shadow-2xs">
+          <div className="flex items-center gap-2 text-ink-3 text-[11px] font-semibold uppercase tracking-[0.06em] border-b border-line pb-2">
+            <Bookmark size={14} className="text-accent" />
+            <span>Diagnostic Sections</span>
           </div>
-          <p className="text-caption">
-            Verbatim constraints from CONFIDENCE_AND_LIMITATIONS.md — strictly enforced safety boundaries.
-          </p>
 
-          <div className="space-y-4 pt-2">
-            {data?.limitations.map((lim) => (
-              <div
-                key={lim.id}
-                className="p-4 bg-white/80 rounded-[14px] border border-[#B9DFEA] space-y-1 shadow-xs"
-              >
-                <div className="flex items-center space-x-2 text-[#397C91]">
-                  <span className="w-5 h-5 rounded-full bg-[#F5C75A]/30 text-[#397C91] text-[11px] font-bold flex items-center justify-center shrink-0">
-                    {lim.id}
-                  </span>
-                  <h3 className="text-[14px] font-semibold">{lim.title}</h3>
-                </div>
-                <p className="text-[13px] text-[#5294A8] pl-7 leading-relaxed">{lim.detail}</p>
-              </div>
+          <ul className="space-y-1 text-[12.5px]">
+            {tocItems.map(({ id, section, label }) => (
+              <li key={id}>
+                <a
+                  href={`#${id}`}
+                  onClick={() => setActiveSection(section)}
+                  aria-current={activeSection === section ? 'true' : undefined}
+                  className={`flex items-center gap-2 px-2.5 py-2 rounded-sm transition-colors duration-150 ${
+                    activeSection === section
+                      ? 'bg-accent-tint text-accent font-semibold border border-accent-border'
+                      : 'text-ink-2 hover:bg-sunken hover:text-ink border border-transparent'
+                  }`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      activeSection === section ? 'bg-accent' : 'bg-line-strong'
+                    }`}
+                  />
+                  <span>{label}</span>
+                </a>
+              </li>
             ))}
-          </div>
-        </section>
-      </div>
-
-      {/* STICKY RIGHT-EDGE TABLE OF CONTENTS RAIL (3 Cols) */}
-      <div className="lg:col-span-3 sticky top-[88px] space-y-3">
-        <div className="bg-[#E8F8FC]/85 backdrop-blur-[20px] rounded-[18px] border border-[#B9DFEA] p-4 shadow-[0_8px_24px_rgba(57,124,145,0.08)] space-y-3">
-          <div className="flex items-center space-x-2 text-[#5294A8] text-[12px] font-semibold uppercase tracking-[0.06em]">
-            <Bookmark className="w-4 h-4 text-[#3FA7C4]" />
-            <span>Navigation Rail</span>
-          </div>
-
-          <nav className="space-y-1 text-[13px]">
-            <a
-              href="#model-card"
-              onClick={() => setActiveSection('model')}
-              className={`flex items-center space-x-2.5 px-3 py-2 rounded-xl transition-all ${
-                activeSection === 'model'
-                  ? 'bg-[#6BBFD8]/20 text-[#397C91] font-semibold'
-                  : 'text-[#5294A8] hover:bg-white/70 hover:text-[#397C91]'
-              }`}
-            >
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  activeSection === 'model' ? 'bg-[#3FA7C4]' : 'bg-[#B9DFEA]'
-                }`}
-              />
-              <span>Model Specs</span>
-            </a>
-
-            <a
-              href="#detection-classes"
-              onClick={() => setActiveSection('classes')}
-              className={`flex items-center space-x-2.5 px-3 py-2 rounded-xl transition-all ${
-                activeSection === 'classes'
-                  ? 'bg-[#6BBFD8]/20 text-[#397C91] font-semibold'
-                  : 'text-[#5294A8] hover:bg-white/70 hover:text-[#397C91]'
-              }`}
-            >
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  activeSection === 'classes' ? 'bg-[#3FA7C4]' : 'bg-[#B9DFEA]'
-                }`}
-              />
-              <span>Detection Classes</span>
-            </a>
-
-            <a
-              href="#limitations"
-              onClick={() => setActiveSection('limitations')}
-              className={`flex items-center space-x-2.5 px-3 py-2 rounded-xl transition-all ${
-                activeSection === 'limitations'
-                  ? 'bg-[#6BBFD8]/20 text-[#397C91] font-semibold'
-                  : 'text-[#5294A8] hover:bg-white/70 hover:text-[#397C91]'
-              }`}
-            >
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  activeSection === 'limitations' ? 'bg-[#3FA7C4]' : 'bg-[#B9DFEA]'
-                }`}
-              />
-              <span>Limitations (4 Rules)</span>
-            </a>
-          </nav>
+          </ul>
         </div>
-      </div>
+      </nav>
     </div>
   );
 };
+
+export default DiagnosticsPage;

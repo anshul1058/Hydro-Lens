@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Check, Copy } from 'lucide-react';
+import { DownloadSimple, Copy, Check } from '@phosphor-icons/react';
 
 interface JsonViewerProps {
   data: Record<string, unknown>;
@@ -29,33 +29,41 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, sampleId }) => {
   };
 
   return (
-    <div className="w-full bg-[#1F3E48] rounded-[18px] border border-[#397C91]/30 p-5 shadow-lg overflow-hidden flex flex-col text-[#E8F8FC]">
-      <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#397C91]/40">
-        <span className="text-[12px] font-mono uppercase tracking-[0.06em] text-[#A2D8E6]">
-          JSON Report Export • {sampleId}
-        </span>
-        <div className="flex items-center space-x-2">
+    <section className="w-full bg-surface border border-line rounded-md overflow-hidden shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-sunken/60 border-b border-line">
+        <div>
+          <h3 className="text-[13px] font-semibold text-ink">Structured Screening Output</h3>
+          <p className="text-[11.5px] font-mono text-ink-3">{sampleId}</p>
+        </div>
+        <div className="flex items-center gap-2">
           <button
             onClick={handleCopy}
-            className="px-3 py-1.5 rounded-lg bg-[#2B5462] hover:bg-[#346272] text-[#E8F8FC] text-[12px] font-medium transition-all flex items-center space-x-1.5"
+            className="btn-secondary px-3 py-1.5 text-[12px] flex items-center gap-1.5 cursor-pointer"
+            aria-label="Copy report JSON to clipboard"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-[#65C99A]" /> : <Copy className="w-3.5 h-3.5" />}
-            <span>{copied ? 'Copied' : 'Copy'}</span>
+            {copied ? (
+              <Check size={14} className="text-ok" weight="bold" />
+            ) : (
+              <Copy size={14} />
+            )}
+            <span>{copied ? 'Copied' : 'Copy JSON'}</span>
           </button>
-
           <button
             onClick={handleDownload}
-            className="px-4 py-1.5 rounded-lg bg-[#6BBFD8] hover:bg-[#5AAEC7] text-white text-[12px] font-semibold shadow-xs transition-all flex items-center space-x-1.5"
+            className="btn-primary px-3 py-1.5 text-[12px] flex items-center gap-1.5 cursor-pointer"
+            aria-label="Download report JSON file"
           >
-            <Download className="w-3.5 h-3.5" />
-            <span>Download JSON</span>
+            <DownloadSimple size={14} weight="bold" />
+            <span>Export File</span>
           </button>
         </div>
       </div>
 
-      <pre className="text-[12px] font-mono bg-[#162D35] p-4 rounded-xl overflow-x-auto max-h-[420px] text-[#65C99A] leading-relaxed">
+      <pre className="text-[11.5px] font-mono leading-relaxed text-ink bg-page p-4 overflow-x-auto max-h-[460px] m-0 border-t border-line selection:bg-accent-tint">
         {jsonStr}
       </pre>
-    </div>
+    </section>
   );
 };
+
+export default JsonViewer;

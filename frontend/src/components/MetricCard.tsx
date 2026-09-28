@@ -4,7 +4,7 @@ interface MetricCardProps {
   label: string;
   value: React.ReactNode;
   subtitle?: string;
-  valueColor?: 'default' | 'mint' | 'amber' | 'rose' | 'periwinkle';
+  valueColor?: 'default' | 'accent' | 'ok' | 'warn' | 'err' | 'mint' | 'amber' | 'rose' | 'periwinkle';
   icon?: React.ReactNode;
   badge?: React.ReactNode;
 }
@@ -17,35 +17,39 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   icon,
   badge
 }) => {
-  const colorMap = {
-    default: 'text-[#397C91]',
-    mint: 'text-[#65C99A]',
-    amber: 'text-[#F5C75A]',
-    rose: 'text-[#F28B8B]',
-    periwinkle: 'text-[#6BBFD8]'
+  const colorMap: Record<string, string> = {
+    default: 'text-ink',
+    accent: 'text-accent',
+    periwinkle: 'text-accent',
+    ok: 'text-ok',
+    mint: 'text-ok',
+    warn: 'text-warn',
+    amber: 'text-warn',
+    err: 'text-err',
+    rose: 'text-err'
   };
 
   return (
-    <div className="bg-[#E8F8FC]/85 backdrop-blur-[20px] border border-[#B9DFEA] shadow-[0_8px_24px_rgba(57,124,145,0.08)] rounded-[18px] p-[20px] flex flex-col justify-between transition-all hover:shadow-[0_10px_28px_rgba(57,124,145,0.12)]">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[12px] font-medium uppercase tracking-[0.06em] text-[#5294A8]">
+    <div className="bg-surface border border-line rounded-md p-4 flex flex-col justify-between shadow-2xs">
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">
           {label}
         </span>
-        {icon && <div className="text-[#5294A8]">{icon}</div>}
+        {icon && <span className="text-ink-3 shrink-0">{icon}</span>}
       </div>
 
-      <div className="flex items-baseline space-x-2 my-1">
-        <span className={`text-[24px] font-semibold tabular-nums leading-tight ${colorMap[valueColor]}`}>
+      <div className="flex items-baseline flex-wrap gap-x-2 gap-y-1">
+        <span className={`text-[25px] font-bold font-mono tabular-nums leading-tight tracking-tight ${colorMap[valueColor] || 'text-ink'}`}>
           {value}
         </span>
         {badge}
       </div>
 
       {subtitle && (
-        <p className="text-[12px] text-[#5294A8] font-normal mt-1 leading-tight">
-          {subtitle}
-        </p>
+        <p className="text-[11.5px] text-ink-3 leading-snug mt-1.5">{subtitle}</p>
       )}
     </div>
   );
 };
+
+export default MetricCard;

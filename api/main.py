@@ -158,6 +158,36 @@ def serve_reference_file(filename: str):
         detail={"error": {"code": "NOT_FOUND", "message": f"Reference file {filename} not found."}}
     )
 
+@app.get("/api/testing/images")
+def list_testing_images():
+    testing_dir = "testing"
+    images = []
+    if os.path.exists(testing_dir):
+        for f in sorted(os.listdir(testing_dir)):
+            if not f.startswith(".") and f.lower().endswith((".jpg", ".jpeg", ".png", ".tif", ".tiff")):
+                p = os.path.join(testing_dir, f)
+                images.append({
+                    "filename": f,
+                    "size_bytes": os.path.getsize(p),
+                    "url": f"/api/testing/download/{f}"
+                })
+    return images
+
+@app.get("/api/testing/download/{filename}")
+def download_testing_image(filename: str):
+    file_path = os.path.join("testing", filename)
+    if os.path.exists(file_path):
+        return FileResponse(
+            file_path,
+            filename=filename,
+            media_type="image/jpeg",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+        )
+    raise HTTPException(
+        status_code=404,
+        detail={"error": {"code": "NOT_FOUND", "message": f"Testing image {filename} not found."}}
+    )
+
 @app.post("/api/analyze")
 async def analyze_sample(
     file: Optional[UploadFile] = File(None),
@@ -194,6 +224,15 @@ async def analyze_sample(
                 if os.path.exists(ref_path + ext):
                     ref_path = ref_path + ext
                     break
+        if not os.path.exists(ref_path):
+            test_path = os.path.join("testing", target_name)
+            if os.path.exists(test_path):
+                ref_path = test_path
+            else:
+                for ext in [".jpg", ".png", ".jpeg"]:
+                    if os.path.exists(test_path + ext):
+                        ref_path = test_path + ext
+                        break
         if not os.path.exists(ref_path):
             raise HTTPException(
                 status_code=400,

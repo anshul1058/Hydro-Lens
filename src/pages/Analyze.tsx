@@ -11,7 +11,8 @@ import {
   Table as TableIcon,
   Calculator,
   FileJson,
-  Sparkles
+  Sparkles,
+  Download
 } from 'lucide-react';
 import { useCalibration } from '../hooks/useCalibration';
 import { useAnalysis } from '../hooks/useAnalysis';
@@ -99,6 +100,12 @@ export const AnalyzePage: React.FC = () => {
   };
 
   const calQuality = calibrationStatus?.quality ?? 0.0;
+
+  // Sample micrographs served from public/testing/ — click downloads them
+  const demoImages = [
+    { file: 'WhatsApp Image 2026-09-27 at 6.44.57 PM.jpeg', label: 'Test Sample 01' },
+    { file: 'WhatsApp Image 2026-09-27 at 6.49.43 PM.jpeg', label: 'Test Sample 02' }
+  ];
 
   return (
     <div className="space-y-6">
@@ -188,6 +195,36 @@ export const AnalyzePage: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* Demo Test Images — click a card to download the micrograph */}
+          <div className="space-y-2">
+            <label className="text-caption block">Demo Test Images</label>
+            <div className="grid grid-cols-2 gap-2">
+              {demoImages.map((img) => (
+                <a
+                  key={img.file}
+                  href={`/testing/${encodeURIComponent(img.file)}`}
+                  download={img.file}
+                  className="p-2 rounded-[14px] border border-[#B9DFEA] bg-white/60 hover:bg-white hover:border-[#6BBFD8] hover:shadow-xs transition-all flex flex-col items-center text-center group"
+                  title={`Download ${img.label}`}
+                >
+                  <img
+                    src={`/testing/${encodeURIComponent(img.file)}`}
+                    alt={img.label}
+                    className="w-full h-16 rounded-lg object-cover border border-[#B9DFEA] bg-slate-200 mb-1.5"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                  <span className="text-[11px] font-semibold text-[#397C91]">{img.label}</span>
+                  <span className="text-[10px] text-[#5294A8] flex items-center gap-1 group-hover:text-[#3FA7C4]">
+                    <Download className="w-3 h-3" />
+                    Download
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
 
           {/* Run Analysis Action Button */}
           <button

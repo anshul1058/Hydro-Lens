@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowsDownUp, Warning, CheckCircle, Funnel } from '@phosphor-icons/react';
+import { ArrowUpDown, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import type { Detection } from '../api/types';
 
 interface ParticleTableProps {
@@ -11,7 +11,6 @@ type SortField = 'id' | 'class_name' | 'confidence' | 'feret_max' | 'ecd' | 'asp
 export const ParticleTable: React.FC<ParticleTableProps> = ({ detections }) => {
   const [sortField, setSortField] = useState<SortField>('id');
   const [sortAsc, setSortAsc] = useState<boolean>(true);
-  const [filterClass, setFilterClass] = useState<string>('all');
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -22,11 +21,7 @@ export const ParticleTable: React.FC<ParticleTableProps> = ({ detections }) => {
     }
   };
 
-  const filteredDetections = filterClass === 'all'
-    ? detections
-    : detections.filter(d => d.class_name.toLowerCase() === filterClass.toLowerCase());
-
-  const sortedDetections = [...filteredDetections].sort((a, b) => {
+  const sortedDetections = [...detections].sort((a, b) => {
     let aVal: number | string = 0;
     let bVal: number | string = 0;
 
@@ -69,150 +64,119 @@ export const ParticleTable: React.FC<ParticleTableProps> = ({ detections }) => {
 
   if (detections.length === 0) {
     return (
-      <div className="p-8 text-center bg-surface rounded-md border border-line">
-        <p className="text-[13.5px] font-semibold text-ink">No particle candidates detected</p>
-        <p className="text-[12px] text-ink-3 mt-1">
-          Upload a sample micrograph or select a calibrated reference sample above to run detection.
-        </p>
+      <div className="p-8 text-center bg-[#E8F8FC]/60 rounded-[14px] border border-[#B9DFEA]">
+        <p className="text-[14px] text-[#5294A8]">No particles detected in current sample.</p>
       </div>
     );
   }
 
-  const columns: { field: SortField; label: string }[] = [
-    { field: 'id', label: 'ID' },
-    { field: 'class_name', label: 'Class' },
-    { field: 'confidence', label: 'Confidence' },
-    { field: 'feret_max', label: 'Feret Max/Min (µm)' },
-    { field: 'ecd', label: 'ECD (µm)' },
-    { field: 'aspect_ratio', label: 'Aspect Ratio' },
-    { field: 'needs_lab', label: 'Lab Verification' }
-  ];
-
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-1.5 text-[12px] text-ink-2">
-          <Funnel size={14} className="text-accent" />
-          <span className="font-semibold text-ink text-[12px] mr-1">Morphology:</span>
-          {['all', 'fragment', 'fiber', 'film', 'foam', 'pellet'].map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => setFilterClass(c)}
-              aria-pressed={filterClass === c}
-              className={`px-2.5 py-1 rounded-sm text-[11.5px] font-medium capitalize transition-colors duration-150 cursor-pointer ${
-                filterClass === c
-                  ? 'bg-accent text-white font-semibold shadow-2xs'
-                  : 'bg-surface hover:bg-sunken text-ink-2 border border-line'
-              }`}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-        <span className="text-[11.5px] font-mono tabular-nums text-ink-3">
-          Showing {sortedDetections.length} of {detections.length} candidates
-        </span>
-      </div>
+    <div className="overflow-x-auto rounded-[14px] border border-[#B9DFEA] bg-[#E8F8FC]/80 backdrop-blur-[10px]">
+      <table className="w-full text-left border-collapse text-[13px]">
+        <thead>
+          <tr className="bg-[#E8F8FC] border-b border-[#B9DFEA] text-[#5294A8] text-[11px] font-semibold uppercase tracking-[0.06em]">
+            <th onClick={() => handleSort('id')} className="py-3 px-4 cursor-pointer hover:bg-white/80 transition-all">
+              <div className="flex items-center space-x-1">
+                <span>ID</span>
+                <ArrowUpDown className="w-3 h-3" />
+              </div>
+            </th>
+            <th onClick={() => handleSort('class_name')} className="py-3 px-4 cursor-pointer hover:bg-white/80 transition-all">
+              <div className="flex items-center space-x-1">
+                <span>Class</span>
+                <ArrowUpDown className="w-3 h-3" />
+              </div>
+            </th>
+            <th onClick={() => handleSort('confidence')} className="py-3 px-4 cursor-pointer hover:bg-white/80 transition-all">
+              <div className="flex items-center space-x-1">
+                <span>Confidence</span>
+                <ArrowUpDown className="w-3 h-3" />
+              </div>
+            </th>
+            <th onClick={() => handleSort('feret_max')} className="py-3 px-4 cursor-pointer hover:bg-white/80 transition-all">
+              <div className="flex items-center space-x-1">
+                <span>Feret Max/Min (µm)</span>
+                <ArrowUpDown className="w-3 h-3" />
+              </div>
+            </th>
+            <th onClick={() => handleSort('ecd')} className="py-3 px-4 cursor-pointer hover:bg-white/80 transition-all">
+              <div className="flex items-center space-x-1">
+                <span>ECD (µm)</span>
+                <ArrowUpDown className="w-3 h-3" />
+              </div>
+            </th>
+            <th onClick={() => handleSort('aspect_ratio')} className="py-3 px-4 cursor-pointer hover:bg-white/80 transition-all">
+              <div className="flex items-center space-x-1">
+                <span>Aspect Ratio</span>
+                <ArrowUpDown className="w-3 h-3" />
+              </div>
+            </th>
+            <th onClick={() => handleSort('needs_lab')} className="py-3 px-4 cursor-pointer hover:bg-white/80 transition-all">
+              <div className="flex items-center space-x-1">
+                <span>Needs Lab</span>
+                <ArrowUpDown className="w-3 h-3" />
+              </div>
+            </th>
+            <th className="py-3 px-4">Reasons</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-[#B9DFEA]/60 text-[#397C91]">
+          {sortedDetections.map((det) => {
+            const feretMax = det.size_um?.feret_max ?? det.size_px?.feret_max;
+            const feretMin = det.size_um?.feret_min ?? det.size_px?.feret_min;
+            const ecd = det.size_um?.ecd ?? det.size_px?.ecd;
+            const aspect = det.size_um?.aspect_ratio ?? det.size_px?.aspect_ratio ?? 1.0;
+            const isUncalibrated = det.size_um?.ecd === null;
 
-      <div className="overflow-x-auto rounded-md border border-line bg-surface shadow-2xs">
-        <table className="w-full text-left border-collapse text-[13px]">
-          <thead>
-            <tr className="bg-sunken border-b border-line text-ink-3 text-[11px] font-semibold uppercase tracking-[0.06em]">
-              {columns.map((col) => (
-                <th
-                  key={col.field}
-                  aria-sort={sortField === col.field ? (sortAsc ? 'ascending' : 'descending') : 'none'}
-                  className="p-0 font-semibold"
-                >
-                  <button
-                    type="button"
-                    onClick={() => handleSort(col.field)}
-                    className="w-full flex items-center gap-1.5 px-3.5 py-2.5 cursor-pointer hover:text-ink transition-colors"
-                  >
-                    <span>{col.label}</span>
-                    <ArrowsDownUp size={12} className={sortField === col.field ? 'text-accent' : 'text-line-strong'} />
-                  </button>
-                </th>
-              ))}
-              <th className="px-3.5 py-2.5 font-semibold">Flag Justification</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-line text-ink-2 font-mono text-[12.5px]">
-            {sortedDetections.map((det) => {
-              const feretMax = det.size_um?.feret_max ?? det.size_px?.feret_max;
-              const feretMin = det.size_um?.feret_min ?? det.size_px?.feret_min;
-              const ecd = det.size_um?.ecd ?? det.size_px?.ecd;
-              const aspect = det.size_um?.aspect_ratio ?? det.size_px?.aspect_ratio ?? 1.0;
-              const isUncalibrated = det.size_um?.ecd === null;
-
-              return (
-                <tr key={det.id} className="hover:bg-sunken/40 transition-colors">
-                  <td className="py-2 px-3.5 font-semibold text-accent">#{String(det.id).padStart(3, '0')}</td>
-                  <td className="py-2 px-3.5">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-[11.5px] font-sans font-medium bg-sunken border border-line capitalize text-ink">
-                      {det.class_name}
+            return (
+              <tr key={det.id} className="hover:bg-white/60 transition-all">
+                <td className="py-2.5 px-4 font-semibold tabular-nums text-[#3FA7C4]">#{det.id}</td>
+                <td className="py-2.5 px-4">
+                  <span className="capitalize px-2 py-0.5 rounded-md text-[12px] font-medium bg-[#6BBFD8]/20 text-[#397C91]">
+                    {det.class_name}
+                  </span>
+                </td>
+                <td className="py-2.5 px-4 tabular-nums font-medium">
+                  {(det.confidence * 100).toFixed(1)}%
+                </td>
+                <td className="py-2.5 px-4 tabular-nums">
+                  {isUncalibrated ? (
+                    <span className="text-[#5294A8] italic">Blocked</span>
+                  ) : (
+                    `${feretMax ?? '-'} / ${feretMin ?? '-'}`
+                  )}
+                </td>
+                <td className="py-2.5 px-4 tabular-nums font-semibold">
+                  {isUncalibrated ? (
+                    <span className="text-[#5294A8] italic">Blocked</span>
+                  ) : (
+                    `${ecd ?? '-'} µm`
+                  )}
+                </td>
+                <td className="py-2.5 px-4 tabular-nums">{aspect.toFixed(2)}</td>
+                <td className="py-2.5 px-4">
+                  {det.needs_lab_confirmation ? (
+                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#F28B8B]/25 text-[#397C91]">
+                      <AlertTriangle className="w-3 h-3 text-[#F28B8B]" />
+                      <span>REQUIRED</span>
                     </span>
-                  </td>
-                  <td className="py-2 px-3.5">
-                    <div className="flex items-center gap-2">
-                      <span className="tabular-nums font-semibold text-[12px] text-ink">
-                        {(det.confidence * 100).toFixed(1)}%
-                      </span>
-                      <div className="w-12 h-1.5 bg-sunken rounded-sm overflow-hidden border border-line">
-                        <div
-                          className={`h-full ${
-                            det.confidence >= 0.8 ? 'bg-ok' : det.confidence >= 0.5 ? 'bg-warn' : 'bg-err'
-                          }`}
-                          style={{ width: `${Math.min(det.confidence * 100, 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-2 px-3.5 tabular-nums">
-                    {isUncalibrated ? (
-                      <span className="text-ink-3 italic text-[11.5px] font-sans">Blocked</span>
-                    ) : (
-                      `${feretMax !== undefined ? feretMax.toFixed(1) : '-'} / ${feretMin !== undefined ? feretMin.toFixed(1) : '-'}`
-                    )}
-                  </td>
-                  <td className="py-2 px-3.5 tabular-nums font-semibold text-ink">
-                    {isUncalibrated ? (
-                      <span className="text-ink-3 italic text-[11.5px] font-sans">Blocked</span>
-                    ) : (
-                      `${ecd !== undefined ? ecd.toFixed(1) : '-'} µm`
-                    )}
-                  </td>
-                  <td className="py-2 px-3.5 tabular-nums">{aspect.toFixed(2)}</td>
-                  <td className="py-2 px-3.5">
-                    {det.needs_lab_confirmation ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-[11px] font-sans font-semibold bg-err-tint text-err border border-err-border">
-                        <Warning size={12} weight="bold" />
-                        <span>Required</span>
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-[11px] font-sans font-semibold bg-ok-tint text-ok border border-ok-border">
-                        <CheckCircle size={12} weight="bold" />
-                        <span>Pass</span>
-                      </span>
-                    )}
-                  </td>
-                  <td
-                    className="py-2 px-3.5 text-[11.5px] font-sans text-ink-3 max-w-[200px] truncate"
-                    title={det.lab_confirmation_reasons?.join(', ')}
-                  >
-                    {det.lab_confirmation_reasons && det.lab_confirmation_reasons.length > 0
-                      ? det.lab_confirmation_reasons.join(', ')
-                      : 'None'}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  ) : (
+                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#65C99A]/25 text-[#397C91]">
+                      <CheckCircle2 className="w-3 h-3 text-[#65C99A]" />
+                      <span>NO</span>
+                    </span>
+                  )}
+                </td>
+                <td className="py-2.5 px-4 text-[12px] text-[#5294A8]">
+                  {det.lab_confirmation_reasons && det.lab_confirmation_reasons.length > 0
+                    ? det.lab_confirmation_reasons.join(', ')
+                    : '—'}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 };
-
-export default ParticleTable;

@@ -11,8 +11,7 @@ import {
   Table as TableIcon,
   Calculator,
   FileJson,
-  Sparkles,
-  Download
+  Sparkles
 } from 'lucide-react';
 import { useCalibration } from '../hooks/useCalibration';
 import { useAnalysis } from '../hooks/useAnalysis';
@@ -25,23 +24,6 @@ import { SizeChart } from '../components/SizeChart';
 import { ParticleTable } from '../components/ParticleTable';
 import { JsonViewer } from '../components/JsonViewer';
 import type { ReferenceItem } from '../api/types';
-
-const testImages = [
-  {
-    filename: 'WhatsApp Image 2026-09-27 at 6.44.57 PM.jpeg',
-    label: 'Test Sample 01',
-    sizeText: '373 KB',
-    dimensions: '1600 × 900 px',
-    description: 'Field sample micrograph with microplastic candidates'
-  },
-  {
-    filename: 'WhatsApp Image 2026-09-27 at 6.49.43 PM.jpeg',
-    label: 'Test Sample 02',
-    sizeText: '406 KB',
-    dimensions: '1600 × 900 px',
-    description: 'Field sample micrograph with irregular fragment particles'
-  }
-];
 
 export const AnalyzePage: React.FC = () => {
   const { calibrationStatus, loading: calLoading } = useCalibration();

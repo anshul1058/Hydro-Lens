@@ -1,154 +1,42 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  CheckCircle,
-  Warning,
+  CheckCircle2,
+  AlertTriangle,
   Info,
-  CaretDown,
-  CaretUp,
+  ChevronDown,
+  ChevronUp,
+  FlaskConical,
   Eye,
-  ChartBar,
+  BarChart3,
   Table as TableIcon,
   Calculator,
-  FileCode,
-  Scan,
-  Microscope,
-  Stack,
-  Crosshair,
-  Circle,
-  Check,
-  DownloadSimple
-} from '@phosphor-icons/react';
+  FileJson,
+  Sparkles
+} from 'lucide-react';
 import { useCalibration } from '../hooks/useCalibration';
 import { useAnalysis } from '../hooks/useAnalysis';
 import { getReferences, calculateConcentration } from '../api/client';
 import { StatusStrip } from '../components/StatusStrip';
 import { MetricCard } from '../components/MetricCard';
-import { Dropzone, type DemoSelectionInfo } from '../components/Dropzone';
+import { Dropzone } from '../components/Dropzone';
 import { Stepper } from '../components/Stepper';
 import { SizeChart } from '../components/SizeChart';
 import { ParticleTable } from '../components/ParticleTable';
 import { JsonViewer } from '../components/JsonViewer';
 import type { ReferenceItem } from '../api/types';
-import microplasticDemoImg from '../assets/demo_microplastic_sample.jpg';
-import blankFilterDemoImg from '../assets/blank_filter_control.png';
-import heroLabImg from '../assets/hero_lab_microscope.jpg';
-import waterFiltrationImg from '../assets/water_filtration_lab.jpg';
-import microscopeTechImg from '../assets/microscope_tech.jpg';
-import calibrationMetrologyImg from '../assets/calibration_metrology.jpg';
-import fragmentImg from '../assets/morphology_fragment.jpg';
-import fiberImg from '../assets/morphology_fiber.jpg';
-import filmImg from '../assets/morphology_film.jpg';
-import foamImg from '../assets/morphology_foam.jpg';
-import pelletImg from '../assets/morphology_pellet.jpg';
-
-const workflowSteps = [
-  {
-    num: '01',
-    title: 'Membrane filtration',
-    text: 'Draw water sample through a 0.45 µm nitrocellulose membrane filter under mild vacuum to collect particulate matter.',
-    meta: '0.45 µm pore size',
-    image: waterFiltrationImg,
-    alt: 'Vacuum filtration setup for water sample processing'
-  },
-  {
-    num: '02',
-    title: 'Optical microscopy',
-    text: 'Mount filter on mechanical stage and capture digital micrographs at 200x optical magnification under ring-LED lighting.',
-    meta: '200x optical objective',
-    image: microscopeTechImg,
-    alt: 'Compound microscope stage imaging water filter membrane'
-  },
-  {
-    num: '03',
-    title: 'Stage micrometer calibration',
-    text: 'Record a calibrated stage micrometer target once every 7 days to derive the µm/pixel spatial scaling factor.',
-    meta: 'Spatial scale factor (µm/px)',
-    image: calibrationMetrologyImg,
-    alt: 'Precision stage micrometer division scale'
-  },
-  {
-    num: '04',
-    title: 'Inference and Feret sizing',
-    text: 'YOLOv8 identifies particle candidates. OpenCV calculates maximum/minimum Feret diameters, equivalent diameter, and aspect ratios.',
-    meta: 'YOLOv8n + OpenCV Sizing',
-    image: heroLabImg,
-    alt: 'Detected microplastic candidates segmented and annotated'
-  }
-];
-
-const morphologyClasses = [
-  {
-    code: '01',
-    name: 'Fragment',
-    desc: 'Angular, irregular particles originating from mechanical degradation of rigid plastic items.',
-    scale: '20 µm scale',
-    image: fragmentImg
-  },
-  {
-    code: '02',
-    name: 'Fiber',
-    desc: 'Slender, elongated synthetic filaments typically shed from synthetic textiles and filtration ropes.',
-    scale: '50 µm scale',
-    image: fiberImg
-  },
-  {
-    code: '03',
-    name: 'Film',
-    desc: 'Planar sheets with irregular, flexible boundaries, commonly derived from packaging bags and plastic wraps.',
-    scale: '100 µm scale',
-    image: filmImg
-  },
-  {
-    code: '04',
-    name: 'Foam',
-    desc: 'Cellular, porous structures exhibiting lower optical density, characteristic of expanded polystyrene.',
-    scale: '50 µm scale',
-    image: foamImg
-  },
-  {
-    code: '05',
-    name: 'Pellet',
-    desc: 'Spheroidal virgin resin nurdles and industrial microbead precursors.',
-    scale: '50 µm scale',
-    image: pelletImg
-  }
-];
-
-const resultTabs = [
-  { id: 'visual' as const, label: 'Micrograph Inspection', icon: Eye },
-  { id: 'size' as const, label: 'Size Distribution', icon: ChartBar },
-  { id: 'table' as const, label: 'Particle Candidates', icon: TableIcon },
-  { id: 'concentration' as const, label: 'Volumetric Concentration', icon: Calculator },
-  { id: 'json' as const, label: 'Diagnostic JSON', icon: FileCode }
-];
-
-const testImages = [
-  {
-    filename: 'WhatsApp Image 2026-09-27 at 6.44.57 PM.jpeg',
-    label: 'Test Sample 01',
-    sizeText: '373 KB',
-    dimensions: '1600 × 900 px',
-    description: 'Field sample micrograph with microplastic candidates'
-  },
-  {
-    filename: 'WhatsApp Image 2026-09-27 at 6.49.43 PM.jpeg',
-    label: 'Test Sample 02',
-    sizeText: '406 KB',
-    dimensions: '1600 × 900 px',
-    description: 'Field sample micrograph with irregular fragment particles'
-  }
-];
 
 export const AnalyzePage: React.FC = () => {
   const { calibrationStatus, loading: calLoading } = useCalibration();
   const { result, loading: analyzeLoading, step, error: analyzeError, runAnalysis } = useAnalysis();
 
+  const [sourceMode, setSourceMode] = useState<'upload' | 'demo'>('upload');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedDemoId, setSelectedDemoId] = useState<string | null>(null);
+  const [selectedRefId, setSelectedRefId] = useState<string>('demo_microplastic_sample.jpg');
   const [references, setReferences] = useState<ReferenceItem[]>([]);
   const [activeTab, setActiveTab] = useState<'visual' | 'size' | 'table' | 'concentration' | 'json'>('visual');
   const [flagsExpanded, setFlagsExpanded] = useState<boolean>(true);
 
+  // Concentration inputs
   const [sampleVolumeMl, setSampleVolumeMl] = useState<number>(1000);
   const [dilutionFactor, setDilutionFactor] = useState<number>(1.0);
   const [calcConcentration, setCalcConcentration] = useState<number | null>(null);
@@ -185,54 +73,12 @@ export const AnalyzePage: React.FC = () => {
   }, [result]);
 
   const handleStartAnalysis = () => {
-    if (selectedFile) {
+    if (sourceMode === 'upload') {
       runAnalysis(selectedFile, null);
-    } else if (selectedDemoId) {
-      runAnalysis(null, selectedDemoId);
+    } else {
+      runAnalysis(null, selectedRefId);
     }
   };
-
-  const handleInspectDemo = (refId: string) => {
-    setSelectedDemoId(refId);
-    setSelectedFile(null);
-  };
-
-  const handleFileSelect = (file: File) => {
-    setSelectedFile(file);
-    setSelectedDemoId(null);
-  };
-
-  const handleClearSelection = () => {
-    setSelectedFile(null);
-    setSelectedDemoId(null);
-  };
-
-  const selectedDemoInfo: DemoSelectionInfo | null = useMemo(() => {
-    if (!selectedDemoId) return null;
-    if (selectedDemoId === 'demo_microplastic_sample.jpg') {
-      return {
-        id: 'demo_microplastic_sample.jpg',
-        title: 'Environmental Sample 01',
-        filename: 'demo_microplastic_sample.jpg',
-        label: 'Surface Water Micrograph',
-        thumbnail: microplasticDemoImg,
-        badge: 'Spiked Sample',
-        fileSizeText: '240 KB'
-      };
-    }
-    if (selectedDemoId === 'blank_filter_control.png') {
-      return {
-        id: 'blank_filter_control.png',
-        title: 'Negative Control Filter',
-        filename: 'blank_filter_control.png',
-        label: 'Clean Nitrocellulose Blank',
-        thumbnail: blankFilterDemoImg,
-        badge: 'Blank Control',
-        fileSizeText: '265 KB'
-      };
-    }
-    return null;
-  }, [selectedDemoId]);
 
   const handleCalculateConcentration = async () => {
     if (!result) return;
@@ -252,459 +98,216 @@ export const AnalyzePage: React.FC = () => {
     }
   };
 
-  const handleDownloadTestImage = async (filename: string, e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    const publicUrl = `/testing/${encodeURIComponent(filename)}`;
-    try {
-      const res = await fetch(publicUrl);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const blob = await res.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
-    } catch {
-      // Fallback: trigger API direct download or direct link
-      const link = document.createElement('a');
-      link.href = `/api/testing/download/${encodeURIComponent(filename)}`;
-      link.download = filename;
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
-
-  const handleStageTestImage = async (filename: string) => {
-    try {
-      const res = await fetch(`/testing/${encodeURIComponent(filename)}`);
-      const blob = await res.blob();
-      const file = new File([blob], filename, { type: 'image/jpeg' });
-      handleFileSelect(file);
-    } catch (err) {
-      console.error('Failed to stage test image:', err);
-    }
-  };
-
   const calQuality = calibrationStatus?.quality ?? 0.0;
 
-  const microplasticRef = references.find((r) => r.id === 'demo_microplastic_sample.jpg') || {
-    id: 'demo_microplastic_sample.jpg',
-    label: 'Microplastic Sample',
-    url: '/api/references/file/demo_microplastic_sample.jpg'
-  };
-
-  const blankControlRef = references.find((r) => r.id === 'blank_filter_control.png') || {
-    id: 'blank_filter_control.png',
-    label: 'Blank Filter Control',
-    url: '/api/references/file/blank_filter_control.png'
-  };
-
-  const demoCards = [
-    {
-      ref: microplasticRef,
-      title: 'Positive Sample Reference',
-      tag: 'Spiked Water',
-      tagClass: 'bg-accent-tint text-accent border-accent-border'
-    },
-    {
-      ref: blankControlRef,
-      title: 'Negative Control Filter',
-      tag: 'Field Blank',
-      tagClass: 'bg-sunken text-ink-3 border-line'
-    }
-  ];
-
   return (
-    <div className="space-y-8">
-      {/* Page Header */}
-      <header className="max-w-3xl">
-        <h1 className="text-page-title">Optical Microplastic Screening</h1>
-        <p className="text-body mt-2">
-          Stage a reference micrograph or upload a raw sample image to execute the computer vision pipeline.
-          The detector identifies morphology classes, calculates Feret metrics, and computes volumetric particle concentrations.
-        </p>
-      </header>
-
-      {/* Calibration Gatekeeper Alert */}
+    <div className="space-y-6">
+      {/* Calibration Status Banner */}
       <StatusStrip calibrationStatus={calibrationStatus} loading={calLoading} />
 
-      {/* Editorial Laboratory Workflow Progression */}
-      <section aria-labelledby="workflow-heading" className="border-t border-line pt-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-x-10 gap-y-5">
-          <div className="lg:col-span-4">
-            <h2 id="workflow-heading" className="text-section-title">
-              Sample Preparation and Imaging Workflow
-            </h2>
-            <p className="text-body mt-2">
-              From water bottle to counted report. Physical filtration and optical capture occur at the bench,
-              followed by automated object detection and sizing in this application.
-            </p>
-          </div>
-          <ol className="lg:col-span-8 divide-y divide-line border-t border-line">
-            {workflowSteps.map((s) => (
-              <li key={s.num} className="grid grid-cols-[auto_1fr] sm:grid-cols-[auto_1fr_auto] gap-x-4 gap-y-2 py-4 items-start">
-                <span className="font-mono text-[12px] font-semibold text-accent pt-0.5">{s.num}</span>
-                <div className="min-w-0">
-                  <h3 className="text-[14.5px] font-semibold text-ink">{s.title}</h3>
-                  <p className="text-[13px] text-ink-2 mt-1 leading-relaxed">{s.text}</p>
-                  <p className="text-[11px] font-mono text-ink-3 mt-1.5 uppercase tracking-[0.06em]">{s.meta}</p>
-                </div>
-                <img
-                  src={s.image}
-                  alt={s.alt}
-                  loading="lazy"
-                  width={160}
-                  height={100}
-                  className="col-span-2 sm:col-span-1 w-full sm:w-36 h-22 object-cover rounded-sm border border-line bg-sunken"
-                />
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      {/* Main Workspace Layout */}
+      {/* Main Stitch Grid: Left Source Selector (380px) | Right Metrics & Results */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Sample Staging & Control Library */}
-        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-20">
-          <section aria-labelledby="image-source-heading" className="bg-surface border border-line rounded-md p-5 space-y-4 shadow-2xs">
-            <div className="flex items-center justify-between border-b border-line pb-3 gap-2">
-              <h2 id="image-source-heading" className="text-section-title">
-                Image Source
-              </h2>
-              <span className="text-[10.5px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-sm bg-sunken text-ink-2 border border-line">
-                {selectedDemoId ? 'Reference Loaded' : selectedFile ? 'Upload Loaded' : 'Awaiting Image'}
-              </span>
-            </div>
+        {/* LEFT 380px Panel: Image Source */}
+        <div className="lg:col-span-4 bg-[#E8F8FC]/85 backdrop-blur-[20px] rounded-[18px] border border-[#B9DFEA] p-5 shadow-[0_8px_24px_rgba(57,124,145,0.08)] space-y-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-section-title">Image Source</h2>
+            <span className="text-caption font-semibold px-2 py-0.5 rounded-full bg-[#6BBFD8]/20 text-[#397C91]">
+              Input
+            </span>
+          </div>
 
+          {/* Segmented Control (Upload | Demo reference) */}
+          <div className="grid grid-cols-2 gap-1 p-1 bg-white/80 rounded-full border border-[#B9DFEA] shadow-xs">
+            <button
+              onClick={() => setSourceMode('upload')}
+              className={`py-1.5 px-3 rounded-full text-[13px] font-medium transition-all ${
+                sourceMode === 'upload'
+                  ? 'bg-[#6BBFD8] text-white shadow-xs font-semibold'
+                  : 'text-[#5294A8] hover:text-[#397C91]'
+              }`}
+            >
+              Upload File
+            </button>
+            <button
+              onClick={() => setSourceMode('demo')}
+              className={`py-1.5 px-3 rounded-full text-[13px] font-medium transition-all ${
+                sourceMode === 'demo'
+                  ? 'bg-[#6BBFD8] text-white shadow-xs font-semibold'
+                  : 'text-[#5294A8] hover:text-[#397C91]'
+              }`}
+            >
+              Demo Reference
+            </button>
+          </div>
+
+          {sourceMode === 'upload' ? (
             <Dropzone
-              onFileSelect={handleFileSelect}
+              onFileSelect={(file) => setSelectedFile(file)}
               selectedFile={selectedFile}
-              selectedDemo={selectedDemoInfo}
-              onClear={handleClearSelection}
+              onClear={() => setSelectedFile(null)}
               disabled={analyzeLoading}
             />
-
-            {/* Quick Test Images Bar inside Image Source */}
-            <div className="p-3 bg-sunken/60 rounded-md border border-line space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11.5px] font-semibold text-ink flex items-center gap-1.5">
-                  <DownloadSimple size={14} className="text-accent" weight="bold" />
-                  Testing Images (testing/ folder)
-                </span>
-                <span className="text-[10px] font-mono text-ink-3">Click name to download</span>
-              </div>
-              <div className="space-y-1.5">
-                {testImages.map((img) => (
-                  <div
-                    key={img.filename}
-                    className="flex items-center justify-between gap-2 p-2 bg-surface rounded border border-line hover:border-accent transition-colors group"
-                  >
-                    <a
-                      href={`/testing/${encodeURIComponent(img.filename)}`}
-                      download={img.filename}
-                      onClick={(e) => handleDownloadTestImage(img.filename, e)}
-                      title={`Click name to directly download ${img.filename}`}
-                      className="flex-1 min-w-0 text-left cursor-pointer flex items-center gap-2"
-                    >
-                      <span className="text-[9.5px] font-mono uppercase px-1.5 py-0.5 rounded bg-accent-tint text-accent border border-accent-border shrink-0 font-semibold">
-                        {img.label}
-                      </span>
-                      <span className="text-[11.5px] font-mono text-ink group-hover:text-accent group-hover:underline truncate">
-                        {img.filename}
-                      </span>
-                    </a>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <span className="text-[10px] font-mono text-ink-3 mr-0.5">{img.sizeText}</span>
-                      <button
-                        type="button"
-                        onClick={(e) => handleDownloadTestImage(img.filename, e)}
-                        title={`Download ${img.filename}`}
-                        className="p-1 rounded hover:bg-accent-tint text-ink-2 hover:text-accent cursor-pointer transition-colors"
-                      >
-                        <DownloadSimple size={14} weight="bold" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <button
-              onClick={handleStartAnalysis}
-              disabled={analyzeLoading || (!selectedFile && !selectedDemoId)}
-              className="w-full py-2.5 btn-primary flex items-center justify-center gap-2 text-[13.5px] cursor-pointer"
-            >
-              {analyzeLoading ? (
-                <>
-                  <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" aria-hidden="true" />
-                  <span>Executing Pipeline...</span>
-                </>
-              ) : (
-                <span>Run Screening Pipeline</span>
-              )}
-            </button>
-
-            {analyzeError && (
-              <div role="alert" className="p-3 bg-err-tint border border-err-border rounded-sm text-[12px] text-err flex items-start gap-2.5">
-                <Warning size={16} className="shrink-0 mt-0.5" weight="bold" />
-                <span>{analyzeError}</span>
-              </div>
-            )}
-          </section>
-
-          {/* Model Test Images Download Section */}
-          <section aria-labelledby="test-images-heading" className="bg-surface border border-line rounded-md p-5 space-y-3 shadow-2xs">
-            <div className="flex items-center justify-between border-b border-line pb-3 gap-2">
-              <div className="flex items-center gap-2">
-                <DownloadSimple size={16} className="text-accent" weight="bold" />
-                <h2 id="test-images-heading" className="text-section-title">
-                  Model Test Images
-                </h2>
-              </div>
-              <span className="text-[10.5px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-sm bg-accent-tint text-accent border border-accent-border font-medium">
-                2 Micrographs
-              </span>
-            </div>
-
-            <p className="text-[12px] text-ink-3 leading-relaxed">
-              Click on either image name to directly download test micrographs from the <code className="text-accent font-semibold">testing/</code> folder to test model detection:
-            </p>
-
-            <div className="space-y-2.5">
-              {testImages.map((img) => (
-                <div
-                  key={img.filename}
-                  className="p-3 rounded-md border border-line bg-page hover:border-line-strong transition-all flex items-center justify-between gap-3 group"
-                >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <img
-                      src={`/testing/${encodeURIComponent(img.filename)}`}
-                      alt={img.label}
-                      className="w-12 h-12 rounded object-cover border border-line bg-sunken shrink-0"
-                      loading="lazy"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded-sm bg-accent-tint text-accent border border-accent-border shrink-0 font-semibold">
-                          {img.label}
-                        </span>
-                        <span className="text-[11px] font-mono text-ink-3 shrink-0">
-                          {img.sizeText}
-                        </span>
-                      </div>
-                      {/* Clicking on the name triggers direct download */}
-                      <a
-                        href={`/testing/${encodeURIComponent(img.filename)}`}
-                        download={img.filename}
-                        onClick={(e) => handleDownloadTestImage(img.filename, e)}
-                        title={`Click to directly download ${img.filename}`}
-                        className="block mt-1 font-mono text-[12px] font-semibold text-ink group-hover:text-accent hover:underline truncate cursor-pointer"
-                      >
-                        {img.filename}
-                      </a>
-                      <p className="text-[11px] text-ink-3 mt-0.5 truncate">
-                        {img.dimensions} • Click name to download
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <button
-                      type="button"
-                      onClick={(e) => handleDownloadTestImage(img.filename, e)}
-                      title={`Directly download ${img.filename}`}
-                      className="px-2.5 py-1.5 rounded-sm text-[12px] font-medium bg-accent text-white hover:bg-accent-hover transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                    >
-                      <DownloadSimple size={13} weight="bold" />
-                      <span>Download</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleStageTestImage(img.filename)}
-                      title={`Stage ${img.label} into Dropzone for instant testing`}
-                      className="px-2 py-1.5 rounded-sm text-[11.5px] font-medium bg-surface text-ink-2 border border-line hover:bg-sunken transition-colors cursor-pointer"
-                    >
-                      Stage
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Reference Library Selection */}
-          <section aria-labelledby="samples-heading" className="bg-surface border border-line rounded-md p-5 space-y-3 shadow-2xs">
-            <div className="flex items-center justify-between border-b border-line pb-3 gap-2">
-              <h2 id="samples-heading" className="text-section-title">Reference Samples</h2>
-              <span className="text-[10.5px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-sm bg-sunken text-ink-2 border border-line">
-                2 Micrographs
-              </span>
-            </div>
-
-            <p className="text-[12px] text-ink-3">
-              Select a benchmark sample to test detector inference without local hardware capture:
-            </p>
-
+          ) : (
             <div className="space-y-2">
-              {demoCards.map(({ ref, title, tag, tagClass }) => {
-                const isSelected = selectedDemoId === ref.id;
-                return (
-                  <div
-                    key={ref.id}
-                    onClick={() => handleInspectDemo(ref.id)}
-                    className={`p-3 rounded-sm border cursor-pointer flex items-center justify-between gap-3 transition-colors duration-150 ${
-                      isSelected ? 'border-accent bg-accent-tint' : 'border-line bg-page hover:border-line-strong'
-                    }`}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-[13px] font-semibold text-ink truncate">{title}</h3>
-                        <span className={`text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded-sm border shrink-0 ${tagClass}`}>
-                          {tag}
-                        </span>
-                      </div>
-                      <p className="text-[11px] font-mono text-ink-3 truncate mt-0.5">{ref.id}</p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleInspectDemo(ref.id);
-                      }}
-                      className={`px-2.5 py-1 rounded-sm text-[11.5px] font-medium transition-colors duration-150 flex items-center gap-1.5 cursor-pointer shrink-0 ${
+              <label className="text-caption block mb-1">Select Reference Image</label>
+              <div className="space-y-2.5">
+                {references.map((ref) => {
+                  const isSelected = selectedRefId === ref.id;
+                  return (
+                    <div
+                      key={ref.id}
+                      onClick={() => setSelectedRefId(ref.id)}
+                      className={`p-2.5 rounded-[14px] border transition-all cursor-pointer flex items-center justify-between ${
                         isSelected
-                          ? 'bg-accent text-white border border-accent'
-                          : 'bg-surface text-ink-2 border border-line hover:bg-sunken'
+                          ? 'bg-[#6BBFD8]/20 border-[#6BBFD8] shadow-xs'
+                          : 'bg-white/60 border-[#B9DFEA] hover:bg-white'
                       }`}
                     >
-                      {isSelected ? (
-                        <>
-                          <Check size={13} weight="bold" />
-                          <span>Active</span>
-                        </>
-                      ) : (
-                        <span>Stage</span>
+                      <div className="flex items-center space-x-3 overflow-hidden">
+                        <img
+                          src={ref.url}
+                          alt={ref.label}
+                          className="w-12 h-12 rounded-lg object-cover border border-[#B9DFEA] bg-slate-200 shrink-0"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                        <div className="truncate">
+                          <p className="text-[13px] font-semibold text-[#397C91] truncate">{ref.label}</p>
+                          <p className="text-[11px] text-[#5294A8] truncate">{ref.id}</p>
+                        </div>
+                      </div>
+                      {isSelected && (
+                        <div className="w-6 h-6 rounded-full bg-[#6BBFD8] text-white flex items-center justify-center shrink-0">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </div>
                       )}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        </div>
-
-        {/* Right Column: Execution Metrics & Analytical Results */}
-        <div className="lg:col-span-8 space-y-6">
-          {result?.detector_fallback && (
-            <div className="p-4 bg-accent-tint border border-accent-border rounded-md text-[13px] text-ink-2 flex items-start gap-3">
-              <Info size={18} className="text-accent shrink-0 mt-0.5" weight="bold" />
-              <div>
-                <span className="font-semibold text-ink">Heuristic Detector Fallback: </span>
-                {result.detector_load_error || 'Custom weights (models/best.pt) not detected on disk. The system has switched to optical morphological contour detection.'}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
 
-          {/* Metric Overview Row */}
+          {/* Run Analysis Action Button */}
+          <button
+            onClick={handleStartAnalysis}
+            disabled={analyzeLoading || (sourceMode === 'upload' && !selectedFile)}
+            className="w-full py-3 bg-[#6BBFD8] hover:bg-[#5AAEC7] disabled:opacity-50 text-white font-semibold rounded-full shadow-md transition-all flex items-center justify-center space-x-2 text-[14px]"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>{analyzeLoading ? 'Processing Pipeline...' : 'Run Microplastics Screening'}</span>
+          </button>
+
+          {analyzeError && (
+            <div className="p-3 bg-[#F28B8B]/20 border border-[#F28B8B]/40 rounded-xl text-[12px] text-[#397C91] flex items-center space-x-2">
+              <AlertTriangle className="w-4 h-4 text-[#F28B8B] shrink-0" />
+              <span>{analyzeError}</span>
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT Column: Metrics Cards & Results */}
+        <div className="lg:col-span-8 space-y-6">
+          {/* Detector Fallback Info Banner */}
+          {result?.detector_fallback && (
+            <div className="p-4 bg-[#6BBFD8]/15 border border-[#6BBFD8]/35 rounded-[18px] text-[13px] text-[#397C91] flex items-start space-x-3 shadow-xs">
+              <Info className="w-5 h-5 text-[#3FA7C4] shrink-0 mt-0.5" />
+              <div>
+                <span className="font-semibold">Demo Heuristic Mode Active:</span>{' '}
+                {result.detector_load_error || 'No weights file (models/best.pt) found. Running adaptive morphological candidate detector.'}
+              </div>
+            </div>
+          )}
+
+          {/* Row of 5 Glass Metric Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {analyzeLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="skeleton h-22 rounded-md border border-line" />
+                <div key={i} className="h-24 bg-[#E8F8FC]/60 rounded-[18px] border border-[#B9DFEA] animate-pulse" />
               ))
             ) : (
               <>
                 <MetricCard
-                  label="Candidate Count"
-                  value={result ? result.total_count : '-'}
-                  subtitle="Detected Particles"
+                  label="Particle Count"
+                  value={result ? result.total_count : '—'}
+                  subtitle="Detections"
                   valueColor="default"
-                  icon={<Stack size={16} />}
                 />
+
                 <MetricCard
-                  label="Sample Score"
-                  value={result ? `${(result.sample_confidence * 100).toFixed(0)}%` : '-'}
-                  subtitle="Aggregate Reliability"
+                  label="Sample Conf."
+                  value={result ? `${(result.sample_confidence * 100).toFixed(0)}%` : '—'}
+                  subtitle="Reliability Score"
                   valueColor={
                     !result
                       ? 'default'
                       : result.sample_confidence >= 0.8
-                      ? 'ok'
+                      ? 'mint'
                       : result.sample_confidence >= 0.6
-                      ? 'warn'
-                      : 'err'
+                      ? 'amber'
+                      : 'rose'
                   }
-                  icon={<Circle size={16} />}
                 />
+
                 <MetricCard
-                  label="Lab Verification"
+                  label="Lab Flag"
                   value={
                     result ? (
                       result.flag_lab_confirmation ? (
-                        <span className="text-[13px] font-bold text-err uppercase">Required</span>
+                        <span className="text-[14px] font-bold text-[#F28B8B] uppercase">REQUIRED</span>
                       ) : (
-                        <span className="text-[13px] font-bold text-ok uppercase">Screened</span>
+                        <span className="text-[14px] font-bold text-[#65C99A] uppercase">NOT REQUIRED</span>
                       )
                     ) : (
-                      '-'
+                      '—'
                     )
                   }
-                  subtitle="FTIR / Raman Trigger"
-                  valueColor={result?.flag_lab_confirmation ? 'err' : 'ok'}
-                  icon={<Warning size={16} />}
+                  subtitle="Lab Confirmation"
+                  valueColor={result?.flag_lab_confirmation ? 'rose' : 'mint'}
                 />
+
                 <MetricCard
                   label="Imaged Area"
-                  value={result ? `${result.imaged_area_mm2.toFixed(2)}` : '-'}
-                  subtitle="mm² (Filter Window)"
-                  valueColor="accent"
-                  icon={<Crosshair size={16} />}
+                  value={result ? `${result.imaged_area_mm2.toFixed(2)}` : '—'}
+                  subtitle="mm²"
+                  valueColor="periwinkle"
                 />
+
                 <MetricCard
                   label="Inference Time"
-                  value={result ? `${result.latency_sec.toFixed(2)} s` : '-'}
-                  subtitle="Pipeline Latency"
+                  value={result ? `${result.latency_sec.toFixed(2)} s` : '—'}
+                  subtitle="Latency"
                   valueColor="default"
-                  icon={<Scan size={16} />}
                 />
               </>
             )}
           </div>
 
-          {/* Active Step Progress */}
+          {/* Stepper active during loading */}
           {analyzeLoading && <Stepper currentStep={step} />}
 
-          {/* Pipeline Warnings */}
+          {/* Flags Expander if any flags exist */}
           {result && result.flags && result.flags.length > 0 && (
-            <div className="bg-warn-tint border border-warn-border rounded-md p-4 text-[12.5px] space-y-2">
+            <div className="bg-[#F5C75A]/20 border border-[#F5C75A]/45 rounded-[18px] p-4 text-[13px] space-y-2">
               <button
                 onClick={() => setFlagsExpanded(!flagsExpanded)}
-                aria-expanded={flagsExpanded}
-                className="w-full flex items-center justify-between text-ink font-semibold text-left cursor-pointer"
+                className="w-full flex items-center justify-between text-[#397C91] font-semibold text-left"
               >
-                <span className="flex items-center gap-2">
-                  <Warning size={16} className="text-warn" weight="bold" />
-                  <span>Pipeline Quality Warnings ({result.flags.length})</span>
-                </span>
-                {flagsExpanded ? <CaretUp size={14} className="text-warn" /> : <CaretDown size={14} className="text-warn" />}
+                <div className="flex items-center space-x-2">
+                  <AlertTriangle className="w-4 h-4 text-[#397C91]" />
+                  <span>Pipeline Quality &amp; Flag Warnings ({result.flags.length})</span>
+                </div>
+                {flagsExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
 
               {flagsExpanded && (
-                <ul className="space-y-2 pt-2.5 border-t border-warn-border">
+                <ul className="space-y-1.5 pt-2 border-t border-[#F5C75A]/40">
                   {result.flags.map((flag, idx) => (
-                    <li key={idx} className="flex items-start gap-2.5 text-ink-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-warn mt-1.5 shrink-0" />
+                    <li key={idx} className="flex items-start space-x-2 text-[#5294A8]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#F5C75A] mt-1.5 shrink-0" />
                       <div>
-                        <strong className="text-ink capitalize">{flag.type.replace(/_/g, ' ')}:</strong>{' '}
+                        <strong className="text-[#397C91] capitalize">{flag.type.replace(/_/g, ' ')}:</strong>{' '}
                         {flag.message}
                       </div>
                     </li>
@@ -714,96 +317,115 @@ export const AnalyzePage: React.FC = () => {
             </div>
           )}
 
-          {/* Empty State */}
-          {!result && !analyzeLoading && (
-            <div className="min-h-[320px] flex flex-col items-center justify-center bg-surface border border-line rounded-md p-8 text-center shadow-2xs">
-              <Microscope size={38} className="text-accent mb-3" />
-              <h2 className="text-[16px] font-semibold text-ink">Awaiting Sample Execution</h2>
-              <p className="text-[13px] text-ink-2 mt-2 max-w-md leading-relaxed">
-                Stage one of the reference micrographs or upload an optical filter image from the left panel.
-                The YOLOv8 pipeline will segment particles and calculate metrics.
-              </p>
-            </div>
-          )}
-
-          {/* Analytical Results View Tabs */}
+          {/* Segmented Tabs Navigation */}
           {result && (
             <div className="space-y-4">
-              <div role="tablist" aria-label="Result inspection views" className="flex items-center gap-1 border-b border-line overflow-x-auto">
-                {resultTabs.map(({ id, label, icon: Icon }) => (
-                  <button
-                    key={id}
-                    role="tab"
-                    aria-selected={activeTab === id}
-                    onClick={() => setActiveTab(id)}
-                    className={`pb-2.5 px-3 text-[13px] font-medium transition-colors duration-150 flex items-center gap-2 whitespace-nowrap cursor-pointer border-b-2 -mb-px ${
-                      activeTab === id
-                        ? 'text-accent border-accent font-semibold'
-                        : 'text-ink-3 border-transparent hover:text-ink'
-                    }`}
-                  >
-                    <Icon size={15} weight={activeTab === id ? 'bold' : 'regular'} />
-                    <span>
-                      {label}
-                      {id === 'table' ? ` (${result.detections.length})` : ''}
-                    </span>
-                  </button>
-                ))}
+              <div className="flex items-center space-x-6 border-b border-[#B9DFEA] px-2 overflow-x-auto">
+                <button
+                  onClick={() => setActiveTab('visual')}
+                  className={`pb-3 text-[14px] font-medium transition-all flex items-center space-x-2 relative whitespace-nowrap ${
+                    activeTab === 'visual' ? 'text-[#6BBFD8] font-semibold' : 'text-[#5294A8] hover:text-[#397C91]'
+                  }`}
+                >
+                  <Eye className="w-4 h-4" />
+                  <span>Visual Detection</span>
+                  {activeTab === 'visual' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#6BBFD8]" />}
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('size')}
+                  className={`pb-3 text-[14px] font-medium transition-all flex items-center space-x-2 relative whitespace-nowrap ${
+                    activeTab === 'size' ? 'text-[#6BBFD8] font-semibold' : 'text-[#5294A8] hover:text-[#397C91]'
+                  }`}
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  <span>Size Distribution</span>
+                  {activeTab === 'size' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#6BBFD8]" />}
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('table')}
+                  className={`pb-3 text-[14px] font-medium transition-all flex items-center space-x-2 relative whitespace-nowrap ${
+                    activeTab === 'table' ? 'text-[#6BBFD8] font-semibold' : 'text-[#5294A8] hover:text-[#397C91]'
+                  }`}
+                >
+                  <TableIcon className="w-4 h-4" />
+                  <span>Particle Table ({result.detections.length})</span>
+                  {activeTab === 'table' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#6BBFD8]" />}
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('concentration')}
+                  className={`pb-3 text-[14px] font-medium transition-all flex items-center space-x-2 relative whitespace-nowrap ${
+                    activeTab === 'concentration' ? 'text-[#6BBFD8] font-semibold' : 'text-[#5294A8] hover:text-[#397C91]'
+                  }`}
+                >
+                  <Calculator className="w-4 h-4" />
+                  <span>Concentration</span>
+                  {activeTab === 'concentration' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#6BBFD8]" />}
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('json')}
+                  className={`pb-3 text-[14px] font-medium transition-all flex items-center space-x-2 relative whitespace-nowrap ${
+                    activeTab === 'json' ? 'text-[#6BBFD8] font-semibold' : 'text-[#5294A8] hover:text-[#397C91]'
+                  }`}
+                >
+                  <FileJson className="w-4 h-4" />
+                  <span>JSON Export</span>
+                  {activeTab === 'json' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#6BBFD8]" />}
+                </button>
               </div>
 
-              {/* View 1: Micrograph Visual Inspection */}
+              {/* Tab 1: Visual Detection */}
               {activeTab === 'visual' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <figure className="bg-surface border border-line rounded-md p-5 space-y-3 shadow-2xs">
-                    <figcaption className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-[13.5px] font-semibold text-ink">Annotated Particle Detection</span>
-                      <span className="flex items-center gap-2 text-[11px] font-mono text-ink-3">
-                        <span className="inline-block w-2.5 h-2.5 rounded-sm bg-ok" title="Confidence ≥ 0.8" />
-                        <span>≥ 0.8</span>
-                        <span className="inline-block w-2.5 h-2.5 rounded-sm bg-warn" title="Confidence 0.5 to 0.8" />
-                        <span>0.5 to 0.8</span>
-                        <span className="inline-block w-2.5 h-2.5 rounded-sm bg-err" title="Confidence below 0.5" />
-                        <span>&lt; 0.5</span>
-                      </span>
-                    </figcaption>
-                    <div className="relative aspect-square bg-panel-dark rounded-sm overflow-hidden flex items-center justify-center border border-panel-dark-line">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-[#E8F8FC]/85 backdrop-blur-[20px] rounded-[18px] border border-[#B9DFEA] p-4 shadow-sm space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-section-title">Annotated Particles</h4>
+                      <div className="flex items-center space-x-2 text-[11px] font-medium text-[#5294A8]">
+                        <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#65C99A]" title="High Conf" />
+                        <span>≥0.8</span>
+                        <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#F5C75A]" title="Med Conf" />
+                        <span>0.5–0.8</span>
+                        <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#F28B8B]" title="Low/Flag" />
+                        <span>&lt;0.5</span>
+                      </div>
+                    </div>
+                    <div className="aspect-square bg-slate-900 rounded-[14px] overflow-hidden flex items-center justify-center border border-[#B9DFEA] shadow-inner">
                       {result.images.annotated ? (
                         <img
                           src={result.images.annotated}
-                          alt="Micrograph sample with detected microplastics bounded and tagged"
-                          loading="lazy"
+                          alt="Annotated Detections"
                           className="w-full h-full object-contain"
                         />
                       ) : (
-                        <p className="text-[12px] text-panel-dark-ink font-mono">No annotated image available</p>
+                        <p className="text-[12px] text-slate-400">No annotated image</p>
                       )}
                     </div>
-                  </figure>
+                  </div>
 
-                  <figure className="bg-surface border border-line rounded-md p-5 space-y-3 shadow-2xs">
-                    <figcaption className="flex items-center justify-between gap-2">
-                      <span className="text-[13.5px] font-semibold text-ink">Preprocessed Optical Input</span>
-                      <span className="text-[11px] font-mono px-2 py-0.5 rounded-sm bg-sunken text-ink-3 border border-line">
-                        640×640 Median + CLAHE
-                      </span>
-                    </figcaption>
-                    <div className="relative aspect-square bg-panel-dark rounded-sm overflow-hidden flex items-center justify-center border border-panel-dark-line">
+                  <div className="bg-[#E8F8FC]/85 backdrop-blur-[20px] rounded-[18px] border border-[#B9DFEA] p-4 shadow-sm space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-section-title">Preprocessed Input</h4>
+                      <span className="text-caption">640×640 CLAHE</span>
+                    </div>
+                    <div className="aspect-square bg-slate-900 rounded-[14px] overflow-hidden flex items-center justify-center border border-[#B9DFEA] shadow-inner">
                       {result.images.preprocessed ? (
                         <img
                           src={result.images.preprocessed}
-                          alt="Denoised and contrast-enhanced grayscale micrograph input"
-                          loading="lazy"
-                          className="w-full h-full object-contain"
+                          alt="Preprocessed Input"
+                          className="w-full h-full object-contain filter desaturate-30"
                         />
                       ) : (
-                        <p className="text-[12px] text-panel-dark-ink font-mono">No preprocessed image available</p>
+                        <p className="text-[12px] text-slate-400">No preprocessed image</p>
                       )}
                     </div>
-                  </figure>
+                  </div>
                 </div>
               )}
 
-              {/* View 2: Particle Size Distribution Histogram */}
+              {/* Tab 2: Size Distribution */}
               {activeTab === 'size' && (
                 <SizeChart
                   distribution={result.size_distribution_um}
@@ -811,56 +433,48 @@ export const AnalyzePage: React.FC = () => {
                 />
               )}
 
-              {/* View 3: Candidate Table */}
+              {/* Tab 3: Particle Table */}
               {activeTab === 'table' && (
                 <ParticleTable detections={result.detections} />
               )}
 
-              {/* View 4: Volumetric Concentration Calculation */}
+              {/* Tab 4: Concentration Calculator */}
               {activeTab === 'concentration' && (
                 <div className="space-y-4">
                   {calQuality === 0.0 ? (
-                    <div className="p-8 bg-err-tint border border-err-border rounded-md text-center space-y-3">
-                      <Warning size={28} className="text-err mx-auto" weight="bold" />
-                      <h3 className="text-section-title">Volumetric Extrapolation Blocked</h3>
-                      <p className="text-body max-w-md mx-auto">
-                        Calculating particles per liter requires an active calibration record to compute the physical field area. Calibrate the system to unlock this module.
+                    <div className="p-6 bg-[#F28B8B]/15 border border-[#F28B8B]/40 rounded-[18px] text-center space-y-2">
+                      <AlertTriangle className="w-8 h-8 text-[#F28B8B] mx-auto" />
+                      <h4 className="text-section-title">Concentration Calculation Blocked</h4>
+                      <p className="text-body text-[#5294A8] max-w-md mx-auto">
+                        Calculating particles per liter requires an active micro-scale calibration factor. Please recalibrate in the Calibration Portal.
                       </p>
                     </div>
                   ) : (
-                    <div className="bg-surface border border-line rounded-md p-6 space-y-5 shadow-2xs">
-                      <div className="border-b border-line pb-3">
-                        <h3 className="text-section-title">Volumetric Particle Concentration</h3>
-                        <p className="text-[12.5px] text-ink-3 mt-0.5">
-                          Extrapolates imaged filter area count across total filtered sample volume.
-                        </p>
+                    <div className="bg-[#E8F8FC]/85 backdrop-blur-[20px] rounded-[18px] border border-[#B9DFEA] p-6 space-y-5 shadow-[0_8px_24px_rgba(57,124,145,0.08)]">
+                      <div className="flex items-center space-x-2">
+                        <FlaskConical className="w-5 h-5 text-[#3FA7C4]" />
+                        <h3 className="text-section-title">Sample Concentration Calculator</h3>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label htmlFor="sample-volume" className="text-caption block mb-1.5">
-                            Sample Volume (mL)
-                          </label>
+                          <label className="text-caption block mb-1">Sample Volume (mL)</label>
                           <input
-                            id="sample-volume"
                             type="number"
                             value={sampleVolumeMl}
                             onChange={(e) => setSampleVolumeMl(Number(e.target.value))}
-                            className="w-full px-3 py-2 bg-page border border-line rounded-sm text-[13.5px] font-mono text-ink focus:border-accent focus-visible:outline-accent transition-colors"
+                            className="w-full px-4 py-2 bg-white border border-[#B9DFEA] rounded-xl text-[14px] font-semibold text-[#397C91] tabular-nums focus:outline-none focus:border-[#6BBFD8]"
                           />
                         </div>
 
                         <div>
-                          <label htmlFor="dilution-factor" className="text-caption block mb-1.5">
-                            Dilution Factor
-                          </label>
+                          <label className="text-caption block mb-1">Dilution Factor</label>
                           <input
-                            id="dilution-factor"
                             type="number"
                             step="0.1"
                             value={dilutionFactor}
                             onChange={(e) => setDilutionFactor(Number(e.target.value))}
-                            className="w-full px-3 py-2 bg-page border border-line rounded-sm text-[13.5px] font-mono text-ink focus:border-accent focus-visible:outline-accent transition-colors"
+                            className="w-full px-4 py-2 bg-white border border-[#B9DFEA] rounded-xl text-[14px] font-semibold text-[#397C91] tabular-nums focus:outline-none focus:border-[#6BBFD8]"
                           />
                         </div>
                       </div>
@@ -868,22 +482,23 @@ export const AnalyzePage: React.FC = () => {
                       <button
                         onClick={handleCalculateConcentration}
                         disabled={calcLoading}
-                        className="btn-primary px-4 py-2 text-[13px] flex items-center gap-2 cursor-pointer"
+                        className="px-5 py-2.5 bg-[#6BBFD8] hover:bg-[#5AAEC7] text-white text-[13px] font-semibold rounded-full shadow-xs transition-all flex items-center space-x-2"
                       >
-                        <Calculator size={16} weight="bold" />
-                        <span>{calcLoading ? 'Computing Concentration...' : 'Compute Concentration'}</span>
+                        <Calculator className="w-4 h-4" />
+                        <span>Calculate Concentration</span>
                       </button>
 
                       {calcConcentration !== null && (
-                        <div className="p-5 bg-ok-tint border border-ok-border rounded-md flex items-center justify-between gap-4">
+                        <div className="p-4 bg-[#65C99A]/20 border border-[#65C99A]/40 rounded-[14px] flex items-center justify-between">
                           <div>
-                            <p className="text-caption text-ok font-semibold">Calculated Water Quality Metric</p>
-                            <p className="text-[28px] font-bold font-mono text-ink my-0.5 tracking-tight">
-                              {calcConcentration.toLocaleString()}{' '}
-                              <span className="text-[14px] font-sans font-normal text-ink-2">particles / L</span>
+                            <p className="text-caption text-[#397C91]">Calculated Concentration</p>
+                            <p className="text-[28px] font-bold text-[#397C91] tabular-nums">
+                              {calcConcentration} <span className="text-[16px] font-normal text-[#5294A8]">particles / L</span>
                             </p>
                           </div>
-                          <CheckCircle size={32} className="text-ok shrink-0" weight="fill" />
+                          <div className="w-10 h-10 rounded-full bg-[#65C99A]/25 flex items-center justify-center text-[#65C99A]">
+                            <CheckCircle2 className="w-6 h-6 text-[#65C99A]" />
+                          </div>
                         </div>
                       )}
                     </div>
@@ -891,7 +506,7 @@ export const AnalyzePage: React.FC = () => {
                 </div>
               )}
 
-              {/* View 5: JSON Export */}
+              {/* Tab 5: JSON Export */}
               {activeTab === 'json' && (
                 <JsonViewer data={result.report as unknown as Record<string, unknown>} sampleId={result.sample_id} />
               )}
@@ -899,47 +514,6 @@ export const AnalyzePage: React.FC = () => {
           )}
         </div>
       </div>
-
-      {/* Morphology Taxonomy Reference Gallery */}
-      <section aria-labelledby="morphology-heading" className="border-t border-line pt-6">
-        <div className="flex flex-wrap items-baseline justify-between gap-2 mb-4">
-          <div>
-            <p className="text-caption">Taxonomy Matrix</p>
-            <h2 id="morphology-heading" className="text-section-title">
-              Microplastic Candidate Morphology Classes
-            </h2>
-          </div>
-          <span className="text-[11.5px] font-mono text-ink-3">Optical screening detection range: 10 µm to 5 mm</span>
-        </div>
-
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-x-4 gap-y-5">
-          {morphologyClasses.map((item) => (
-            <li key={item.code} className="bg-surface border border-line rounded-md p-3 flex flex-col shadow-2xs">
-              <div className="relative aspect-[4/3] w-full rounded-sm overflow-hidden bg-panel-dark border border-panel-dark-line">
-                <img
-                  src={item.image}
-                  alt={`${item.name} optical micrograph`}
-                  loading="lazy"
-                  width={320}
-                  height={240}
-                  className="w-full h-full object-cover"
-                />
-                <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded-sm bg-panel-dark/90 text-panel-dark-ink text-[10px] font-mono border border-panel-dark-line">
-                  {item.scale}
-                </span>
-              </div>
-              <h3 className="text-[14px] font-semibold text-ink mt-2.5">{item.name}</h3>
-              <p className="text-[12px] text-ink-2 leading-relaxed mt-1 flex-1">{item.desc}</p>
-              <div className="mt-2.5 pt-2 border-t border-line flex items-center justify-between text-[11px] font-mono text-ink-3">
-                <span>Code: {item.code}</span>
-                <span className="text-accent uppercase font-semibold">{item.name.toLowerCase()}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
     </div>
   );
 };
-
-export default AnalyzePage;

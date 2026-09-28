@@ -1,16 +1,16 @@
 import React from 'react';
-import { Check, SpinnerGap } from '@phosphor-icons/react';
+import { Check, Loader2 } from 'lucide-react';
 import type { PipelineStep } from '../hooks/useAnalysis';
 
 interface StepperProps {
   currentStep: PipelineStep;
 }
 
-const steps: { id: PipelineStep; label: string; desc: string }[] = [
-  { id: 'preprocessing', label: '1. Preprocessing', desc: 'Median blur + CLAHE' },
-  { id: 'inference', label: '2. Inference', desc: 'YOLOv8n candidate boxes' },
-  { id: 'sizing', label: '3. Sizing', desc: 'Feret + ECD (µm)' },
-  { id: 'confidence', label: '4. Confidence', desc: 'Sample score + safety flags' }
+const steps: { id: PipelineStep; label: string }[] = [
+  { id: 'preprocessing', label: 'Preprocessing' },
+  { id: 'inference', label: 'Inference' },
+  { id: 'sizing', label: 'Sizing' },
+  { id: 'confidence', label: 'Confidence' }
 ];
 
 export const Stepper: React.FC<StepperProps> = ({ currentStep }) => {
@@ -34,74 +34,51 @@ export const Stepper: React.FC<StepperProps> = ({ currentStep }) => {
   const currentIndex = getStepIndex(currentStep);
 
   return (
-    <section
-      aria-label="Analysis Pipeline Execution"
-      className="w-full bg-surface border border-line rounded-md p-4 mb-6 shadow-xs"
-    >
-      <div className="flex items-center justify-between gap-3 mb-3">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-accent" aria-hidden="true" />
-          <p className="text-[12px] font-semibold uppercase tracking-[0.06em] text-accent">
-            Inference Pipeline Running
-          </p>
-        </div>
-        <span className="text-[12px] font-mono text-ink-3">
-          Stage {Math.min(currentIndex + 1, 4)} of 4
-        </span>
-      </div>
-
-      <ol className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+    <div className="w-full bg-[#E8F8FC]/85 backdrop-blur-[20px] rounded-[18px] border border-[#B9DFEA] p-4 shadow-[0_4px_20px_rgba(57,124,145,0.06)] mb-6">
+      <div className="flex items-center justify-between max-w-2xl mx-auto px-4">
         {steps.map((step, idx) => {
           const isDone = currentIndex > idx || currentStep === 'complete';
           const isCurrent = currentIndex === idx;
 
           return (
-            <li
-              key={step.id}
-              className={`p-3 rounded-sm border transition-colors duration-150 ${
-                isDone
-                  ? 'bg-ok-tint border-ok-border'
-                  : isCurrent
-                  ? 'bg-accent-tint border-accent'
-                  : 'bg-sunken border-line'
-              }`}
-              aria-current={isCurrent ? 'step' : undefined}
-            >
-              <div className="flex items-center gap-2.5">
-                <span
-                  className={`w-5 h-5 rounded-sm flex items-center justify-center text-[10.5px] font-mono font-semibold shrink-0 ${
+            <React.Fragment key={step.id}>
+              <div className="flex items-center space-x-2">
+                <div
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-semibold transition-all ${
                     isDone
-                      ? 'bg-ok text-white'
+                      ? 'bg-[#65C99A] text-white'
                       : isCurrent
-                      ? 'bg-accent text-white'
-                      : 'bg-line-strong text-white'
+                      ? 'bg-[#6BBFD8] text-white shadow-xs animate-pulse'
+                      : 'bg-[#B9DFEA]/60 text-[#5294A8]'
                   }`}
                 >
                   {isDone ? (
-                    <Check size={12} weight="bold" />
+                    <Check className="w-4 h-4" />
                   ) : isCurrent ? (
-                    <SpinnerGap size={12} className="animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     idx + 1
                   )}
-                </span>
-                <div className="min-w-0">
-                  <p
-                    className={`text-[12.5px] font-semibold truncate ${
-                      isDone || isCurrent ? 'text-ink' : 'text-ink-3'
-                    }`}
-                  >
-                    {step.label}
-                  </p>
-                  <p className="text-[11px] font-mono text-ink-3 truncate">{step.desc}</p>
                 </div>
+                <span
+                  className={`text-[13px] font-medium ${
+                    isDone || isCurrent ? 'text-[#397C91]' : 'text-[#5294A8]'
+                  }`}
+                >
+                  {step.label}
+                </span>
               </div>
-            </li>
+              {idx < steps.length - 1 && (
+                <div
+                  className={`flex-1 h-0.5 mx-3 transition-all ${
+                    currentIndex > idx ? 'bg-[#65C99A]' : 'bg-[#B9DFEA]/60'
+                  }`}
+                />
+              )}
+            </React.Fragment>
           );
         })}
-      </ol>
-    </section>
+      </div>
+    </div>
   );
 };
-
-export default Stepper;

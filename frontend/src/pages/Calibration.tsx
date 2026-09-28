@@ -1,34 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import {
-  SlidersHorizontal,
-  ShieldCheck,
-  Cpu,
-  Clock,
-  CheckCircle,
-  Warning,
-  Info,
-  ArrowsClockwise
-} from '@phosphor-icons/react';
+import { Sliders, ShieldCheck, Cpu, Clock, RefreshCw, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react';
 import { useCalibration } from '../hooks/useCalibration';
 import { computeFactorFft, computeFactorManual, saveCalibration } from '../api/client';
 import { MetricCard } from '../components/MetricCard';
 import { BeadChart } from '../components/BeadChart';
-import calibrationMetrologyImg from '../assets/calibration_metrology.jpg';
-import microscopeTechImg from '../assets/microscope_tech.jpg';
 
 export const CalibrationPage: React.FC = () => {
   const { calibrationStatus, loading: calLoading, refetch } = useCalibration();
 
+  // Wizard state
   const [activeStep, setActiveStep] = useState<1 | 2>(1);
   const [computedFactor, setComputedFactor] = useState<number>(0.417);
   const [knownSpacingUm, setKnownSpacingUm] = useState<number>(10.0);
   const [fftFile, setFftFile] = useState<File | null>(null);
   const [fftLoading, setFftLoading] = useState<boolean>(false);
 
+  // Manual entry state
   const [pixelDistance, setPixelDistance] = useState<number>(24);
   const [numDivisions, setNumDivisions] = useState<number>(1);
   const [manualLoading, setManualLoading] = useState<boolean>(false);
 
+  // Validation bead inputs (Step 2)
   const [bead10, setBead10] = useState<number>(11.2);
   const [bead50, setBead50] = useState<number>(48.5);
   const [bead100, setBead100] = useState<number>(97.1);
@@ -56,7 +48,7 @@ export const CalibrationPage: React.FC = () => {
 
   const handleCalculateFFT = async () => {
     if (!fftFile) {
-      setMessage({ type: 'error', text: 'Upload a stage micrometer scale micrograph before running FFT spatial calculation.' });
+      setMessage({ type: 'error', text: 'Please upload a stage micrometer scale image for FFT calculation.' });
       return;
     }
     setFftLoading(true);
@@ -65,7 +57,7 @@ export const CalibrationPage: React.FC = () => {
       const res = await computeFactorFft(fftFile, knownSpacingUm);
       setComputedFactor(res.factor_um_per_px);
       setActiveStep(2);
-      setMessage({ type: 'success', text: `FFT spatial scale derived: ${res.factor_um_per_px} µm/px. Step 1 verified.` });
+      setMessage({ type: 'success', text: `FFT Factor calculated: ${res.factor_um_per_px} µm/px. Step 1 Complete!` });
     } catch (err) {
       setMessage({ type: 'error', text: err instanceof Error ? err.message : 'FFT computation failed.' });
     } finally {
@@ -84,7 +76,7 @@ export const CalibrationPage: React.FC = () => {
       });
       setComputedFactor(res.factor_um_per_px);
       setActiveStep(2);
-      setMessage({ type: 'success', text: `Manual scale factor calculated: ${res.factor_um_per_px} µm/px. Continue to validation.` });
+      setMessage({ type: 'success', text: `Manual Factor calculated: ${res.factor_um_per_px} µm/px. Flowing into Step 2!` });
     } catch (err) {
       setMessage({ type: 'error', text: err instanceof Error ? err.message : 'Manual factor calculation failed.' });
     } finally {
@@ -103,7 +95,7 @@ export const CalibrationPage: React.FC = () => {
         microscope: 'USB Microscope',
         measured_beads: [bead10, bead50, bead100]
       });
-      setMessage({ type: 'success', text: 'Calibration record saved and activated in system registry.' });
+      setMessage({ type: 'success', text: 'Calibration record saved and activated successfully!' });
       await refetch();
     } catch (err) {
       setMessage({ type: 'error', text: err instanceof Error ? err.message : 'Failed to save calibration.' });
@@ -115,237 +107,203 @@ export const CalibrationPage: React.FC = () => {
   const record = calibrationStatus?.record;
   const quality = calibrationStatus?.quality ?? 0.0;
 
-  const inputClass =
-    'w-full px-3 py-2 bg-page border border-line rounded-sm text-[13px] font-mono text-ink focus:border-accent focus-visible:outline-accent transition-colors';
-
   return (
-    <div className="space-y-8">
-      {/* Page Header */}
-      <header className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <div className="lg:col-span-7 max-w-2xl">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-caption">Metrological Traceability</p>
-              <h1 className="text-page-title mt-1">Scale Metrology and Calibration</h1>
-            </div>
-            <button
-              onClick={() => refetch()}
-              className="p-2 rounded-sm border border-line bg-surface hover:bg-sunken text-ink-3 hover:text-ink transition-colors cursor-pointer"
-              title="Refresh Calibration Status"
-              aria-label="Refresh Calibration Status"
-            >
-              <ArrowsClockwise size={16} />
-            </button>
-          </div>
-          <p className="text-body mt-2">
-            Quantitative physical sizing (Feret max/min and ECD) requires converting pixel measurements into micrometers.
-            Record a stage micrometer scale target and validate observed microsphere bead diameters. Records remain active for 7 days.
+    <div className="space-y-6">
+      {/* Top Header Title */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-page-title">Calibration Portal</h1>
+          <p className="text-body text-[#5294A8]">
+            Configure micrometer scale factors and validate reference microsphere bead measurements.
           </p>
         </div>
-        <img
-          src={calibrationMetrologyImg}
-          alt="Precision stage micrometer reticle on microscope mechanical stage"
-          width={480}
-          height={300}
-          className="lg:col-span-5 w-full h-44 object-cover rounded-sm border border-line bg-sunken"
-        />
-      </header>
+        <button
+          onClick={() => refetch()}
+          className="p-2 bg-white/70 hover:bg-white text-[#5294A8] hover:text-[#397C91] rounded-full border border-[#B9DFEA] shadow-xs transition-all"
+          title="Refresh Calibration Status"
+        >
+          <RefreshCw className="w-4 h-4" />
+        </button>
+      </div>
 
-      {/* Calibration Metric Strip */}
+      {/* Row of 4 Glass Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
-          label="Spatial Scale Factor"
+          label="Scale Factor"
           value={`${computedFactor.toFixed(3)}`}
-          subtitle="µm per pixel"
-          valueColor="accent"
-          icon={<SlidersHorizontal size={16} />}
+          subtitle="µm / pixel"
+          valueColor="periwinkle"
+          icon={<Sliders className="w-4 h-4" />}
         />
+
         <MetricCard
-          label="Optical Objective"
+          label="Magnification"
           value={magnification}
-          subtitle="Preset Magnification"
+          subtitle="Objective Optical Zoom"
           valueColor="default"
-          icon={<Cpu size={16} />}
+          icon={<Cpu className="w-4 h-4" />}
         />
+
         <MetricCard
-          label="Registry Status"
+          label="Status"
           value={
             calLoading ? (
-              'Verifying...'
+              'Loading...'
             ) : quality === 1.0 ? (
-              <span className="text-[14px] font-bold text-ok">Active and Valid</span>
+              <span className="text-[14px] font-bold text-[#65C99A]">VALID &amp; ACTIVE</span>
             ) : quality === 0.5 ? (
-              <span className="text-[14px] font-bold text-warn">Stale (Over 7 Days)</span>
+              <span className="text-[14px] font-bold text-[#F5C75A]">STALE (&gt;7d)</span>
             ) : (
-              <span className="text-[14px] font-bold text-err">Calibration Required</span>
+              <span className="text-[14px] font-bold text-[#F28B8B]">REQUIRED</span>
             )
           }
-          subtitle={calibrationStatus?.reason ?? 'Verify System Status'}
-          valueColor={quality === 1.0 ? 'ok' : quality === 0.5 ? 'warn' : 'err'}
-          icon={<ShieldCheck size={16} />}
+          subtitle={calibrationStatus?.reason ?? 'Check System Status'}
+          valueColor={quality === 1.0 ? 'mint' : quality === 0.5 ? 'amber' : 'rose'}
+          icon={<ShieldCheck className="w-4 h-4" />}
         />
+
         <MetricCard
-          label="Record Expiry"
-          value={record?.expires ? record.expires.substring(0, 10) : 'None'}
-          subtitle="7-Day Safety Drift Window"
+          label="Expires"
+          value={record?.expires ? record.expires.substring(0, 10) : 'N/A'}
+          subtitle="7-Day Safety Rule"
           valueColor="default"
-          icon={<Clock size={16} />}
+          icon={<Clock className="w-4 h-4" />}
         />
       </div>
 
-      {/* User Feedback Alert */}
+      {/* Notification Toast/Message */}
       {message && (
         <div
-          role="status"
-          className={`p-4 rounded-md border text-[13px] flex items-center justify-between gap-3 ${
+          className={`p-4 rounded-[14px] border text-[13px] flex items-center justify-between ${
             message.type === 'success'
-              ? 'bg-ok-tint border-ok-border text-ok'
-              : 'bg-err-tint border-err-border text-err'
+              ? 'bg-[#65C99A]/20 border-[#65C99A]/40 text-[#397C91]'
+              : 'bg-[#F28B8B]/20 border-[#F28B8B]/40 text-[#397C91]'
           }`}
         >
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center space-x-2">
             {message.type === 'success' ? (
-              <CheckCircle size={18} className="shrink-0" weight="fill" />
+              <CheckCircle2 className="w-4 h-4 text-[#65C99A] shrink-0" />
             ) : (
-              <Warning size={18} className="shrink-0" weight="fill" />
+              <AlertTriangle className="w-4 h-4 text-[#F28B8B] shrink-0" />
             )}
-            <span className="text-ink font-medium">{message.text}</span>
+            <span>{message.text}</span>
           </div>
-          <button
-            onClick={() => setMessage(null)}
-            className="text-[11px] font-mono font-semibold uppercase tracking-wider px-2 py-1 rounded-sm hover:bg-black/5 cursor-pointer text-ink-2"
-          >
+          <button onClick={() => setMessage(null)} className="text-[11px] font-semibold uppercase opacity-70">
             Dismiss
           </button>
         </div>
       )}
 
-      {/* 2-Step Interactive Wizard */}
+      {/* Two Columns: LEFT Calibration Wizard | RIGHT Reference Beads Validation */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Step 1: Scale Factor Computation */}
-        <section aria-labelledby="wizard-heading" className="lg:col-span-6 bg-surface border border-line rounded-md p-6 space-y-5 shadow-2xs">
-          <div className="border-b border-line pb-3">
-            <h2 id="wizard-heading" className="text-section-title">Calibration Wizard</h2>
-            <p className="text-[12px] text-ink-3 mt-0.5">Two-step procedure: calculate factor, then validate against reference beads.</p>
+        {/* LEFT: Calibration Wizard (2-Step Vertical Stepper) */}
+        <div className="lg:col-span-6 bg-[#E8F8FC]/85 backdrop-blur-[20px] rounded-[18px] border border-[#B9DFEA] p-6 shadow-[0_8px_24px_rgba(57,124,145,0.08)] space-y-6">
+          <h2 className="text-section-title">Calibration Wizard</h2>
+
+          {/* Stepper Header */}
+          <div className="flex items-center space-x-4 border-b border-[#B9DFEA] pb-3">
+            <button
+              onClick={() => setActiveStep(1)}
+              className={`flex items-center space-x-2 text-[13px] font-semibold px-3 py-1.5 rounded-full transition-all ${
+                activeStep === 1 ? 'bg-[#6BBFD8] text-white shadow-xs' : 'bg-white/70 text-[#5294A8]'
+              }`}
+            >
+              <span>1. Scale Factor Calculation</span>
+            </button>
+            <ArrowRight className="w-4 h-4 text-[#5294A8]" />
+            <button
+              onClick={() => setActiveStep(2)}
+              className={`flex items-center space-x-2 text-[13px] font-semibold px-3 py-1.5 rounded-full transition-all ${
+                activeStep === 2 ? 'bg-[#6BBFD8] text-white shadow-xs' : 'bg-white/70 text-[#5294A8]'
+              }`}
+            >
+              <span>2. Reference Bead Validation</span>
+            </button>
           </div>
 
-          <nav aria-label="Calibration Steps" className="flex items-center gap-2 border-b border-line pb-4">
-            {[
-              { step: 1 as const, label: '1. Scale Factor Calculation' },
-              { step: 2 as const, label: '2. Bead Verification' }
-            ].map((s, i) => (
-              <React.Fragment key={s.step}>
-                {i > 0 && <span className="text-line-strong text-[12px] font-mono px-1">/</span>}
-                <button
-                  onClick={() => setActiveStep(s.step)}
-                  aria-current={activeStep === s.step ? 'step' : undefined}
-                  className={`text-[12.5px] font-medium px-3 py-1.5 rounded-sm transition-colors duration-150 cursor-pointer ${
-                    activeStep === s.step
-                      ? 'bg-accent text-white font-semibold shadow-2xs'
-                      : 'bg-sunken text-ink-2 hover:text-ink border border-line'
-                  }`}
-                >
-                  {s.label}
-                </button>
-              </React.Fragment>
-            ))}
-          </nav>
-
+          {/* STEP 1: FFT & Manual Scale Calculation */}
           {activeStep === 1 && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between bg-sunken p-2.5 rounded-sm border border-line gap-2">
-                <span className="text-caption text-ink">Method A: Automated 2D FFT Peak Detection</span>
-                <span className="text-[10.5px] font-mono font-semibold px-2 py-0.5 rounded-sm bg-accent-tint text-accent border border-accent-border">
-                  Recommended
-                </span>
+            <div className="space-y-5">
+              <div className="flex items-center justify-between">
+                <span className="text-caption">Option A: Stage Micrometer FFT</span>
+                <span className="text-[12px] font-medium text-[#3FA7C4]">Automated</span>
               </div>
 
-              <div className="p-4 border border-dashed border-line-strong rounded-sm bg-page flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-sm overflow-hidden border border-line bg-panel-dark shrink-0 flex items-center justify-center">
-                    <img
-                      src="/api/references/file/stage_micrometer_scale.png"
-                      alt="Stage micrometer scale target preview"
-                      width={48}
-                      height={48}
-                      loading="lazy"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
+              {/* Micrometer Thumbnail Upload */}
+              <div className="p-3 border border-dashed border-[#6BBFD8]/40 rounded-[14px] bg-white/60 flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <img
+                    src="/api/references/file/stage_micrometer_scale.png"
+                    alt="Micrometer scale"
+                    className="w-12 h-12 rounded-lg object-cover border border-[#B9DFEA]"
+                  />
                   <div>
-                    <p className="text-[13px] font-semibold text-ink">Stage Micrometer Target</p>
-                    <p className="text-[11.5px] text-ink-3">Upload custom capture or use system default</p>
+                    <p className="text-[13px] font-semibold text-[#397C91]">Stage Micrometer Image</p>
+                    <p className="text-[11px] text-[#5294A8]">Upload or use default reference scale</p>
                   </div>
                 </div>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => e.target.files && setFftFile(e.target.files[0])}
-                  aria-label="Upload stage micrometer scale target image"
-                  className="text-[11.5px] font-mono text-ink-2 max-w-[190px] file:mr-2 file:py-1 file:px-2.5 file:rounded-sm file:border-0 file:text-[11px] file:font-semibold file:bg-accent file:text-white cursor-pointer"
+                  className="text-[12px] text-[#5294A8] max-w-[140px]"
                 />
               </div>
 
-              <div className="p-4 bg-page rounded-sm border border-line space-y-2">
-                <div className="flex justify-between items-center">
-                  <label htmlFor="known-spacing" className="text-caption">Physical Division Spacing</label>
-                  <span className="text-[13px] font-mono font-semibold text-ink bg-sunken px-2 py-0.5 rounded-sm border border-line">
+              {/* Known Line Spacing Slider */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-caption">Known Line Spacing</label>
+                  <span className="text-[13px] font-semibold text-[#397C91] tabular-nums">
                     {knownSpacingUm} µm
                   </span>
                 </div>
                 <input
-                  id="known-spacing"
                   type="range"
                   min="1"
                   max="50"
                   step="1"
                   value={knownSpacingUm}
                   onChange={(e) => setKnownSpacingUm(Number(e.target.value))}
-                  className="w-full accent-accent cursor-pointer"
+                  className="w-full accent-[#6BBFD8]"
                 />
               </div>
 
               <button
                 onClick={handleCalculateFFT}
                 disabled={fftLoading}
-                className="w-full py-2.5 btn-primary text-[13px] flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-2.5 bg-[#6BBFD8] hover:bg-[#5AAEC7] text-white text-[13px] font-semibold rounded-full shadow-xs transition-all flex items-center justify-center space-x-2"
               >
-                {fftLoading && (
-                  <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" aria-hidden="true" />
-                )}
-                <span>{fftLoading ? 'Computing 2D FFT...' : 'Calculate Scale Factor via FFT'}</span>
+                <span>{fftLoading ? 'Processing FFT...' : 'Calculate via FFT'}</span>
               </button>
 
-              <div className="relative my-4 flex items-center gap-3">
-                <div className="flex-1 border-t border-line" />
-                <span className="text-[10.5px] uppercase tracking-wider font-mono font-semibold text-ink-3">
-                  Method B: Manual Reticle Division Entry
-                </span>
-                <div className="flex-1 border-t border-line" />
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-[#B9DFEA]" />
+                </div>
+                <div className="relative flex justify-center text-[11px] uppercase tracking-wider text-[#5294A8] bg-[#E8F8FC] px-3 rounded-full w-max mx-auto">
+                  Option B: Manual Entry
+                </div>
               </div>
 
+              {/* Manual Entry Row */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="pixel-distance" className="text-caption block mb-1">Pixel Distance</label>
+                  <label className="text-caption block mb-1">Pixel Distance</label>
                   <input
-                    id="pixel-distance"
                     type="number"
                     value={pixelDistance}
                     onChange={(e) => setPixelDistance(Number(e.target.value))}
-                    className={inputClass}
+                    className="w-full px-3 py-1.5 bg-white border border-[#B9DFEA] rounded-xl text-[13px] font-semibold text-[#397C91] tabular-nums"
                   />
                 </div>
                 <div>
-                  <label htmlFor="num-divisions" className="text-caption block mb-1">Division Count</label>
+                  <label className="text-caption block mb-1">Num Divisions</label>
                   <input
-                    id="num-divisions"
                     type="number"
                     value={numDivisions}
                     onChange={(e) => setNumDivisions(Number(e.target.value))}
-                    className={inputClass}
+                    className="w-full px-3 py-1.5 bg-white border border-[#B9DFEA] rounded-xl text-[13px] font-semibold text-[#397C91] tabular-nums"
                   />
                 </div>
               </div>
@@ -353,66 +311,60 @@ export const CalibrationPage: React.FC = () => {
               <button
                 onClick={handleCalculateManual}
                 disabled={manualLoading}
-                className="w-full py-2 btn-secondary text-[12.5px] cursor-pointer"
+                className="w-full py-2 bg-white hover:bg-white/90 text-[#397C91] border border-[#6BBFD8]/40 text-[13px] font-semibold rounded-full transition-all"
               >
-                {manualLoading ? 'Computing...' : 'Apply Manual Distance'}
+                <span>{manualLoading ? 'Calculating...' : 'Set Factor Manually'}</span>
               </button>
             </div>
           )}
 
+          {/* STEP 2: Configure Magnification & Verification target */}
           {activeStep === 2 && (
             <div className="space-y-4">
-              <div className="p-4 bg-accent-tint border border-accent-border rounded-sm">
-                <p className="text-[11px] font-mono text-ink-3 uppercase tracking-wider">Derived Spatial Scaling</p>
-                <p className="text-[26px] font-bold font-mono text-ink my-0.5">
-                  {computedFactor.toFixed(4)} <span className="text-[14px] font-sans font-normal text-ink-2">µm/pixel</span>
+              <div className="p-4 bg-[#6BBFD8]/15 border border-[#6BBFD8]/35 rounded-[14px]">
+                <p className="text-[12px] text-[#5294A8] uppercase tracking-wider">Active Computed Factor</p>
+                <p className="text-[24px] font-bold text-[#397C91] tabular-nums my-0.5">
+                  {computedFactor.toFixed(4)} <span className="text-[14px] font-normal text-[#5294A8]">µm/px</span>
                 </p>
-                <p className="text-[12px] text-ink-2">
-                  This scaling factor will be assigned to subsequent physical measurements.
+                <p className="text-[12px] text-[#5294A8]">
+                  Factor carried into Step 2 verification target automatically.
                 </p>
               </div>
 
               <div>
-                <label htmlFor="magnification" className="text-caption block mb-1.5">Microscope Objective Tag</label>
+                <label className="text-caption block mb-1">Lens Magnification Tag</label>
                 <select
-                  id="magnification"
                   value={magnification}
                   onChange={(e) => setMagnification(e.target.value)}
-                  className="w-full px-3 py-2 bg-page border border-line rounded-sm text-[13px] font-medium text-ink focus:border-accent cursor-pointer"
+                  className="w-full px-3 py-2 bg-white border border-[#B9DFEA] rounded-xl text-[13px] font-semibold text-[#397C91]"
                 >
                   <option value="100x">100x Optical</option>
-                  <option value="200x">200x Optical (Default Laboratory Spec)</option>
+                  <option value="200x">200x Optical (Default)</option>
                   <option value="400x">400x Optical</option>
                   <option value="1000x">1000x Oil Immersion</option>
                 </select>
               </div>
 
-              <img
-                src={microscopeTechImg}
-                alt="Microscope optical lens turret"
-                loading="lazy"
-                width={640}
-                height={96}
-                className="w-full h-24 object-cover rounded-sm border border-line bg-sunken"
-              />
-
               <button
                 onClick={() => setActiveStep(1)}
-                className="text-[12.5px] text-accent hover:underline font-semibold cursor-pointer"
+                className="text-[12px] text-[#3FA7C4] hover:underline font-medium"
               >
-                ← Return to Step 1 (Adjust Scale Factor)
+                ← Back to recalculate factor in Step 1
               </button>
             </div>
           )}
-        </section>
+        </div>
 
-        {/* Step 2: Reference Bead Validation Chart */}
-        <section aria-labelledby="beads-heading" className="lg:col-span-6 bg-surface border border-line rounded-md p-6 space-y-5 shadow-2xs">
-          <div className="border-b border-line pb-3">
-            <h2 id="beads-heading" className="text-section-title">Reference Bead Verification</h2>
-            <p className="text-caption mt-0.5">Polystyrene microsphere standards (10 / 50 / 100 µm)</p>
+        {/* RIGHT: Validate Reference Beads (Chart + Inputs + Save) */}
+        <div className="lg:col-span-6 bg-[#E8F8FC]/85 backdrop-blur-[20px] rounded-[18px] border border-[#B9DFEA] p-6 shadow-[0_8px_24px_rgba(57,124,145,0.08)] space-y-5">
+          <div>
+            <h2 className="text-section-title">Validate Reference Beads</h2>
+            <p className="text-caption mt-0.5">
+              Monodisperse polystyrene microsphere bead targets (10, 50, 100 µm)
+            </p>
           </div>
 
+          {/* Grouped Bar Chart */}
           <BeadChart
             beads={[
               { nominal: 10, measured: bead10 },
@@ -421,63 +373,58 @@ export const CalibrationPage: React.FC = () => {
             ]}
           />
 
+          {/* 3 Number Inputs beneath chart */}
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label htmlFor="bead-10" className="text-caption block mb-1">10 µm Bead</label>
+              <label className="text-caption block mb-1">10 µm Bead (µm)</label>
               <input
-                id="bead-10"
                 type="number"
                 step="0.1"
                 value={bead10}
                 onChange={(e) => setBead10(Number(e.target.value))}
-                className={inputClass}
+                className="w-full px-3 py-1.5 bg-white border border-[#B9DFEA] rounded-xl text-[13px] font-semibold text-[#397C91] tabular-nums"
               />
             </div>
+
             <div>
-              <label htmlFor="bead-50" className="text-caption block mb-1">50 µm Bead</label>
+              <label className="text-caption block mb-1">50 µm Bead (µm)</label>
               <input
-                id="bead-50"
                 type="number"
                 step="0.1"
                 value={bead50}
                 onChange={(e) => setBead50(Number(e.target.value))}
-                className={inputClass}
+                className="w-full px-3 py-1.5 bg-white border border-[#B9DFEA] rounded-xl text-[13px] font-semibold text-[#397C91] tabular-nums"
               />
             </div>
+
             <div>
-              <label htmlFor="bead-100" className="text-caption block mb-1">100 µm Bead</label>
+              <label className="text-caption block mb-1">100 µm Bead (µm)</label>
               <input
-                id="bead-100"
                 type="number"
                 step="0.1"
                 value={bead100}
                 onChange={(e) => setBead100(Number(e.target.value))}
-                className={inputClass}
+                className="w-full px-3 py-1.5 bg-white border border-[#B9DFEA] rounded-xl text-[13px] font-semibold text-[#397C91] tabular-nums"
               />
             </div>
           </div>
 
+          {/* Save & Activate Primary Button */}
           <button
             onClick={handleSaveCalibration}
             disabled={saveLoading}
-            className="w-full py-2.5 btn-primary text-[13.5px] flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3 bg-[#6BBFD8] hover:bg-[#5AAEC7] text-white text-[14px] font-semibold rounded-full shadow-md transition-all flex items-center justify-center space-x-2"
           >
-            <ShieldCheck size={18} weight="bold" />
-            <span>{saveLoading ? 'Storing Record in Registry...' : 'Save and Activate Calibration'}</span>
+            <ShieldCheck className="w-4 h-4" />
+            <span>{saveLoading ? 'Saving & Validating...' : 'Save & Activate Calibration'}</span>
           </button>
-        </section>
+        </div>
       </div>
 
-      {/* Safety Policy Note */}
-      <div className="bg-sunken border border-line rounded-md p-4 flex items-start gap-3 max-w-3xl">
-        <Info size={18} className="text-accent shrink-0 mt-0.5" weight="bold" />
-        <p className="text-[12.5px] text-ink-2 leading-relaxed">
-          <strong>Mandatory 7-Day Expiration Policy:</strong> Environmental temperature fluctuations and optical bench displacement introduce physical drift.
-          Calibration records automatically degrade to a 0.5 quality factor after 7 days, blocking unverified quantitative sizing until recalibration.
-        </p>
-      </div>
+      {/* Footer Note explaining 7-day expiry rule */}
+      <p className="text-[12px] text-[#5294A8] text-center pt-2 border-t border-[#B9DFEA]">
+        System Expiry Rule: Calibration records expire exactly 7 days after timestamp creation to prevent optical drift degradation. Stale calibrations automatically reduce quantitative sample confidence scores to 0.5.
+      </p>
     </div>
   );
 };
-
-export default CalibrationPage;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, Clock, Warning } from '@phosphor-icons/react';
+import { ShieldCheck, Clock, AlertTriangle, ArrowRight } from 'lucide-react';
 import type { CalibrationStatusResponse } from '../api/types';
 
 interface StatusStripProps {
@@ -8,35 +8,14 @@ interface StatusStripProps {
   loading?: boolean;
 }
 
-const bannerTone = {
-  ok: {
-    box: 'bg-ok-tint border-ok-border',
-    icon: 'text-ok',
-    badge: 'bg-surface border-ok-border text-ok',
-    Icon: ShieldCheck
-  },
-  warn: {
-    box: 'bg-warn-tint border-warn-border',
-    icon: 'text-warn',
-    badge: 'bg-surface border-warn-border text-warn',
-    Icon: Clock
-  },
-  err: {
-    box: 'bg-err-tint border-err-border',
-    icon: 'text-err',
-    badge: 'bg-surface border-err-border text-err',
-    Icon: Warning
-  }
-};
-
 export const StatusStrip: React.FC<StatusStripProps> = ({ calibrationStatus, loading }) => {
   const navigate = useNavigate();
 
   if (loading) {
     return (
-      <div className="w-full mb-6 rounded-md border border-line bg-surface p-4 flex items-center gap-3" aria-hidden="true">
-        <div className="skeleton w-5 h-5 shrink-0 rounded-sm" />
-        <div className="skeleton h-4 w-72 max-w-full" />
+      <div className="w-full h-14 bg-[#E8F8FC]/60 backdrop-blur-[20px] rounded-[18px] border border-[#B9DFEA] animate-pulse mb-6 flex items-center px-5">
+        <div className="w-4 h-4 bg-[#6BBFD8]/40 rounded-full mr-3"></div>
+        <div className="w-64 h-4 bg-[#6BBFD8]/40 rounded"></div>
       </div>
     );
   }
@@ -45,85 +24,75 @@ export const StatusStrip: React.FC<StatusStripProps> = ({ calibrationStatus, loa
   const record = calibrationStatus?.record;
   const factor = record?.factor_um_per_px ?? 0.417;
   const mag = record?.magnification ?? '200x';
-  const expires = record?.expires ? record.expires.substring(0, 10) : 'active';
+  const expires = record?.expires ? record.expires.substring(0, 10) : 'Active';
 
   if (quality === 1.0) {
-    const { box, icon, badge, Icon } = bannerTone.ok;
     return (
-      <div
-        role="status"
-        className={`w-full mb-6 rounded-md border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${box}`}
-      >
-        <div className="flex items-start gap-3">
-          <Icon size={20} className={`shrink-0 mt-0.5 ${icon}`} weight="bold" />
+      <div className="w-full bg-[#65C99A]/15 backdrop-blur-[20px] rounded-[18px] border border-[#65C99A]/40 p-4 mb-6 flex items-center justify-between shadow-[0_4px_20px_rgba(101,201,154,0.08)]">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 rounded-full bg-[#65C99A]/25 flex items-center justify-center text-[#65C99A]">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
           <div>
-            <p className="text-[13.5px] font-semibold text-ink">
-              Calibration Active:
-              <span className="font-mono text-ink-2 ml-1 text-[13px]">
-                {factor} µm/px · {mag} · Valid until {expires}
-              </span>
-            </p>
-            <p className="text-[12.5px] text-ink-2 mt-0.5">
-              Quantitative micron sizing and volumetric extrapolation are active.
-            </p>
+            <span className="text-[14px] font-semibold text-[#397C91]">Calibration active</span>
+            <span className="text-[14px] text-[#5294A8] ml-2">
+              · {factor} µm/px · {mag} · valid until {expires}
+            </span>
           </div>
         </div>
-        <span className={`self-start sm:self-auto px-2.5 py-1 rounded-sm text-[11px] font-mono font-semibold border ${badge}`}>
-          Quality {quality.toFixed(1)}
+        <span className="px-3 py-1 rounded-full text-[12px] font-semibold bg-[#65C99A]/25 text-[#397C91]">
+          1.0 Quality
         </span>
       </div>
     );
   }
 
   if (quality === 0.5) {
-    const { box, icon, Icon } = bannerTone.warn;
     return (
-      <div
-        role="status"
-        className={`w-full mb-6 rounded-md border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${box}`}
-      >
-        <div className="flex items-start gap-3">
-          <Icon size={20} className={`shrink-0 mt-0.5 ${icon}`} weight="bold" />
+      <div className="w-full bg-[#F5C75A]/20 backdrop-blur-[20px] rounded-[18px] border border-[#F5C75A]/45 p-4 mb-6 flex items-center justify-between shadow-[0_4px_20px_rgba(245,199,90,0.08)]">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 rounded-full bg-[#F5C75A]/30 flex items-center justify-center text-[#397C91]">
+            <Clock className="w-5 h-5" />
+          </div>
           <div>
-            <p className="text-[13.5px] font-semibold text-ink">Calibration Stale: Older than 7 Days</p>
-            <p className="text-[12.5px] text-ink-2 mt-0.5">
-              Screening results carry a 0.5 quality factor until scale recalibration is completed.
-            </p>
+            <span className="text-[14px] font-semibold text-[#397C91]">Calibration stale (&gt;7 days)</span>
+            <span className="text-[14px] text-[#5294A8] ml-2">
+              · results marked 0.5 quality factor
+            </span>
           </div>
         </div>
         <button
           onClick={() => navigate('/calibration')}
-          className="btn-secondary self-start sm:self-auto px-3.5 py-1.5 text-[12.5px] cursor-pointer"
+          className="px-3.5 py-1.5 rounded-full text-[12px] font-semibold bg-white/80 hover:bg-white text-[#397C91] border border-[#F5C75A]/60 flex items-center space-x-1 transition-all"
         >
-          Recalibrate Scale
+          <span>Recalibrate</span>
+          <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
     );
   }
 
-  const { box, icon, Icon } = bannerTone.err;
+  // 0.0 quality (missing or invalid)
   return (
-    <div
-      role="alert"
-      className={`w-full mb-6 rounded-md border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${box}`}
-    >
-      <div className="flex items-start gap-3">
-        <Icon size={20} className={`shrink-0 mt-0.5 ${icon}`} weight="bold" />
+    <div className="w-full bg-[#F28B8B]/20 backdrop-blur-[20px] rounded-[18px] border border-[#F28B8B]/45 p-4 mb-6 flex items-center justify-between shadow-[0_4px_20px_rgba(242,139,139,0.08)]">
+      <div className="flex items-center space-x-3">
+        <div className="w-8 h-8 rounded-full bg-[#F28B8B]/30 flex items-center justify-center text-[#397C91]">
+          <AlertTriangle className="w-5 h-5" />
+        </div>
         <div>
-          <p className="text-[13.5px] font-semibold text-ink">Scale Calibration Required</p>
-          <p className="text-[12.5px] text-ink-2 mt-0.5">
-            Quantitative physical sizing (Feret/ECD) is blocked until a valid scale calibration is stored.
-          </p>
+          <span className="text-[14px] font-semibold text-[#397C91]">Calibration required</span>
+          <span className="text-[14px] text-[#5294A8] ml-2">
+            — quantitative sizing and particle count distributions are blocked
+          </span>
         </div>
       </div>
       <button
         onClick={() => navigate('/calibration')}
-        className="btn-primary self-start sm:self-auto px-4 py-2 text-[12.5px] cursor-pointer"
+        className="px-4 py-1.5 rounded-full text-[12px] font-semibold bg-[#6BBFD8] hover:bg-[#5AAEC7] text-white shadow-xs flex items-center space-x-1.5 transition-all"
       >
-        Open Calibration Portal
+        <span>Open calibration</span>
+        <ArrowRight className="w-3.5 h-3.5" />
       </button>
     </div>
   );
 };
-
-export default StatusStrip;

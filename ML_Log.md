@@ -90,3 +90,15 @@ Full table + class-merge map: `docs/DATASET.md` → "Post-Hackathon 5-Class Retr
 - **R1–R3 are search links, not direct** — Roboflow returns 503 to non-browser fetchers, so project slugs were not verified. Open each search link, copy the real URL, replace the link above.
 - Verified alternative for the Alabama set (MIT, 1,711 img, dirt/fiber/fragment/pellet): https://universe.roboflow.com/university-of-alabama-zwtwm/microplastic-detection
 - Licenses for R1–R3 still *verify at download*; R4/R5 confirmed CC BY 4.0.
+
+## 2026-10-10 — 100-Epoch Retrain (RTX 4060, D1 + D4 only) — verdict: KEEP
+
+- Notebook: `training/train_100_epochs.ipynb` (runner: `training/run_notebook.py`, no Jupyter install needed)
+- Environment: installed CUDA build `torch 2.14.1+cu126` / `torchvision 0.29.1+cu126` (was CPU-only) — RTX 4060 Laptop 8 GB, ~2.2 GB VRAM in use
+- Same hyperparams as the 40-epoch run except epochs and early stopping: YOLOv8n, 100 epochs, `patience=0` (disabled, always full 100), batch 16, imgsz 640, seed 42, D1+D4 (3,709/558/301)
+- Fixed two Windows issues: (1) DataLoader spawn crash — runner needs `if __name__ == "__main__":` guard; (2) `cv2: Insufficient memory` at epoch 1 val — 8 workers decoding 4K frames exhausted 16 GB RAM, dropped to `workers=2`
+- Wall time: ~85 min for 100 epochs (~51 s/epoch), plus test eval
+- Final val (epoch 100): P 0.88 · R 0.88 · mAP50 0.94 · mAP50-95 0.81 — higher than the 40-epoch val, but it did not transfer
+- **Held-out test (301 images): P 0.790 · R 0.746 · mAP50 0.832 · mAP50-95 0.670** vs baseline 0.773 / 0.776 / 0.846 / 0.676 — worse on both mAP metrics, better only on precision
+- **Verdict: KEEP.** `models/best.pt` untouched (still the 40-epoch Mac model); 100-epoch artifacts left in `training/hydro_lens_v1_100ep/` (`test_metrics.json`, `comparison.json`, `training_curves.png`)
+- Read: more epochs on the same data overfit — val climbs, test drops. Next lever is data (5-class Roboflow sets), not epochs

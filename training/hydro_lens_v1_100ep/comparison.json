@@ -1,0 +1,15 @@
+{
+  "verdict": "KEEP",
+  "baseline": {
+    "precision": 0.773,
+    "recall": 0.776,
+    "mAP50": 0.846,
+    "mAP50-95": 0.676
+  },
+  "new": {
+    "precision": 0.7899,
+    "recall": 0.7456,
+    "mAP50": 0.8318,
+    "mAP50-95": 0.6696
+  }
+}

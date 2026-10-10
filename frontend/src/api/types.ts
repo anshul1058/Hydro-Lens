@@ -151,6 +151,7 @@ export interface AnalyzeResponse {
   images: AnalyzeImages;
   detector_fallback: boolean;
   detector_load_error: string | null;
+  detection_model: string;
 }
 
 export interface FactorFftResponse {

@@ -1,7 +1,7 @@
 import React from 'react';
 import {
-  LineChart,
-  Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -75,7 +75,7 @@ export const BeadChart: React.FC<BeadChartProps> = ({ beads }) => {
   return (
     <div className="w-full h-72">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 15, right: 20, left: -10, bottom: 5 }}>
+        <BarChart data={data} margin={{ top: 15, right: 20, left: -10, bottom: 5 }} barGap={6}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(187,228,242,0.6)" vertical={false} />
           <XAxis
             dataKey="target"
@@ -94,27 +94,25 @@ export const BeadChart: React.FC<BeadChartProps> = ({ beads }) => {
           <Legend
             wrapperStyle={{ paddingTop: '12px', fontSize: '12px', fontWeight: 600 }}
           />
-          {/* Nominal reference line (dashed ideal 1:1) */}
-          <Line
-            type="monotone"
+          {/* Nominal reference bar (light sky blue) */}
+          <Bar
             dataKey="Nominal"
             name="Nominal Reference (µm)"
+            fill="#BAE6FD"
             stroke="#38BDF8"
-            strokeDasharray="4 4"
-            strokeWidth={2}
-            dot={{ r: 4, fill: '#BAE6FD', stroke: '#0284C7', strokeWidth: 1.5 }}
+            strokeWidth={1.5}
+            radius={[6, 6, 0, 0]}
           />
-          {/* Measured line (solid optical calibration curve) */}
-          <Line
-            type="monotone"
+          {/* Measured size bar (ocean cyan) */}
+          <Bar
             dataKey="Measured"
             name="Measured Size (µm)"
-            stroke="#0891B2"
-            strokeWidth={2.5}
-            dot={{ r: 5, fill: '#0891B2', stroke: '#ffffff', strokeWidth: 2 }}
-            activeDot={{ r: 7, fill: '#0284C7', stroke: '#BAE6FD', strokeWidth: 2 }}
+            fill="#0891B2"
+            stroke="#0369A1"
+            strokeWidth={1.5}
+            radius={[6, 6, 0, 0]}
           />
-        </LineChart>
+        </BarChart>
       </ResponsiveContainer>
     </div>
   );

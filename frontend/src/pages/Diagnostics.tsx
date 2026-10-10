@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Cpu, AlertTriangle, Layers, Bookmark, Sparkles } from 'lucide-react';
+import { Cpu, AlertTriangle, Layers, Bookmark } from 'lucide-react';
 import { getDiagnostics } from '../api/client';
 import type { DiagnosticsResponse } from '../api/types';
-import heroLabImg from '../assets/hero_lab_microscope.jpg';
 import fragmentImg from '../assets/morphology_fragment.jpg';
 import fiberImg from '../assets/morphology_fiber.jpg';
 import filmImg from '../assets/morphology_film.jpg';
@@ -124,35 +123,6 @@ export const DiagnosticsPage: React.FC = () => {
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       {/* MAIN DIAGNOSTICS CONTENT (9 Cols) */}
       <div className="lg:col-span-9 space-y-6">
-        {/* Light Scientific Presentation Diagnostics Hero */}
-        <section className="relative overflow-hidden rounded-[26px] bg-white/95 backdrop-blur-[24px] border border-[#BBE4F2] p-6 sm:p-8 shadow-[0_8px_30px_rgba(8,145,178,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-          <div className="space-y-3">
-            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-[#EAF7FC] border border-[#BBE4F2] text-[#0284C7] text-[11px] font-bold tracking-wider uppercase shadow-xs">
-              <Sparkles className="w-3.5 h-3.5 text-[#06B6D4]" />
-              <span>Hardware Architecture &amp; AI Diagnostics</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0A2540]">
-              System Diagnostics
-            </h1>
-            <p className="text-[#2C637A] text-[14px] leading-relaxed max-w-xl font-normal">
-              Architecture specifications, detection class taxonomy, and certified hardware boundary compliance.
-            </p>
-          </div>
-
-          <div className="shrink-0 hidden sm:block">
-            <div className="relative w-36 h-24 rounded-2xl overflow-hidden border border-[#BBE4F2] bg-[#EAF7FC] shadow-sm">
-              <img 
-                src={heroLabImg} 
-                alt="Optical Microscopy Sensor Workbench" 
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A2540]/60 to-transparent" />
-              <span className="absolute bottom-1.5 left-2 text-[9.5px] font-mono text-cyan-200 font-bold">
-                OPTICS BENCH
-              </span>
-            </div>
-          </div>
-        </section>
 
         {/* SECTION 1: MODEL CARD PANEL */}
         <section

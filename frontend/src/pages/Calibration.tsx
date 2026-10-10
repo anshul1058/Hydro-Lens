@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Sliders, ShieldCheck, Cpu, Clock, RefreshCw, CheckCircle2, AlertTriangle, ArrowRight, Sparkles, Scale, Info } from 'lucide-react';
+import { Sliders, ShieldCheck, Cpu, Clock, CheckCircle2, AlertTriangle, ArrowRight, Sparkles, Scale, Info } from 'lucide-react';
 import { useCalibration } from '../hooks/useCalibration';
 import { computeFactorFft, computeFactorManual, saveCalibration } from '../api/client';
 import { MetricCard } from '../components/MetricCard';
 import { BeadChart } from '../components/BeadChart';
-import calibrationSlideImg from '../assets/calibration_slide.jpg';
 import microscopeTechImg from '../assets/hero_lab_microscope.jpg';
 
 export const CalibrationPage: React.FC = () => {
@@ -110,72 +109,15 @@ export const CalibrationPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Top Laboratory Hero Context Banner */}
-      {/* Light Scientific Presentation Calibration Hero */}
-      <section className="relative overflow-hidden rounded-[26px] bg-white/95 backdrop-blur-[24px] border border-[#BBE4F2] p-6 sm:p-8 shadow-[0_8px_30px_rgba(8,145,178,0.06)] flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div className="max-w-2xl space-y-3">
-          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-[#EAF7FC] border border-[#BBE4F2] text-[#0284C7] text-[11px] font-bold tracking-wider uppercase shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-[#06B6D4]" />
-            <span>Optical Metrology &amp; Certified Scale Factor</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0A2540]">
-            Calibration Portal
-          </h1>
-          <p className="text-[#2C637A] text-[14px] leading-relaxed font-normal">
-            Stage micrometer optical calibration establishes certified micron-per-pixel factors for precise Feret diameter and equivalent circular diameter (ECD) particle sizing.
-          </p>
-          <div className="flex flex-wrap gap-2 pt-1 text-[11px]">
-            <span className="px-3 py-1 rounded-full bg-[#F0F9FD] border border-[#BBE4F2] text-[#0284C7] font-semibold">
-              NIST Traceable Stage Grating
-            </span>
-            <span className="px-3 py-1 rounded-full bg-[#F0F9FD] border border-[#BBE4F2] text-[#0891B2] font-semibold">
-              7-Day Mandatory Re-Calibration
-            </span>
-            <span className="px-3 py-1 rounded-full bg-[#E6FBF2] border border-[#10B981]/30 text-[#059669] font-semibold">
-              ISO/TR 21960 Compliant
-            </span>
-          </div>
-        </div>
-
-        {/* Right Visual Metrology Reticle Showcase */}
-        <div className="w-full lg:w-[340px] shrink-0">
-          <div className="relative rounded-2xl overflow-hidden border border-[#BBE4F2] bg-white p-3 shadow-md group">
-            <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-[#EAF7FC] border border-[#BBE4F2]">
-              <img 
-                src={calibrationSlideImg} 
-                alt="Stage Micrometer Alignment" 
-                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A2540]/65 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-xs text-[#0A2540] text-[10px] font-mono font-bold border border-[#BBE4F2] shadow-2xs flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
-                <span>Reticle Scale Active</span>
-              </div>
-              <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[11px] text-white">
-                <span className="font-semibold backdrop-blur-md bg-black/30 px-2 py-0.5 rounded-md border border-white/20">
-                  Factor: {computedFactor.toFixed(3)} µm/px
-                </span>
-                <button
-                  onClick={() => refetch()}
-                  className="p-1.5 rounded-md bg-black/40 hover:bg-black/70 text-cyan-200 hover:text-white transition-colors cursor-pointer border border-white/20"
-                  title="Refresh Calibration Status"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Row of 4 Glass Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 4 Floating 3D Calibration Bubbles */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 my-2">
         <MetricCard
           label="Scale Factor"
           value={`${computedFactor.toFixed(3)}`}
           subtitle="µm / pixel"
           valueColor="periwinkle"
-          icon={<Sliders className="w-4 h-4" />}
+          icon={<Sliders className="w-3.5 h-3.5" />}
+          index={0}
         />
 
         <MetricCard
@@ -183,7 +125,8 @@ export const CalibrationPage: React.FC = () => {
           value={magnification}
           subtitle="Objective Optical Zoom"
           valueColor="default"
-          icon={<Cpu className="w-4 h-4" />}
+          icon={<Cpu className="w-3.5 h-3.5" />}
+          index={1}
         />
 
         <MetricCard
@@ -192,24 +135,26 @@ export const CalibrationPage: React.FC = () => {
             calLoading ? (
               'Loading...'
             ) : quality === 1.0 ? (
-              <span className="text-[15px] font-bold text-[#059669]">VALID &amp; ACTIVE</span>
+              <span className="text-[13px] sm:text-[14px] font-bold text-[#059669]">VALID &amp; ACTIVE</span>
             ) : quality === 0.5 ? (
-              <span className="text-[15px] font-bold text-[#D97706]">STALE (&gt;7d)</span>
+              <span className="text-[13px] sm:text-[14px] font-bold text-[#D97706]">STALE (&gt;7d)</span>
             ) : (
-              <span className="text-[15px] font-bold text-[#DC2626]">REQUIRED</span>
+              <span className="text-[13px] sm:text-[14px] font-bold text-[#9B3418]">REQUIRED</span>
             )
           }
           subtitle={calibrationStatus?.reason ?? 'Check System Status'}
-          valueColor={quality === 1.0 ? 'mint' : quality === 0.5 ? 'amber' : 'rose'}
-          icon={<ShieldCheck className="w-4 h-4" />}
+          valueColor={quality === 1.0 ? 'mint' : quality === 0.5 ? 'amber' : 'rust'}
+          icon={<ShieldCheck className="w-3.5 h-3.5" />}
+          index={2}
         />
 
         <MetricCard
-          label="Expires"
+          label="Expiry"
           value={record?.expires ? record.expires.substring(0, 10) : 'N/A'}
           subtitle="7-Day Safety Rule"
           valueColor="default"
-          icon={<Clock className="w-4 h-4" />}
+          icon={<Clock className="w-3.5 h-3.5" />}
+          index={3}
         />
       </div>
 

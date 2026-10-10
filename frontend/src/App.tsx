@@ -1,9 +1,17 @@
+<<<<<<< HEAD
 import { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+=======
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { RequireAuth } from './components/RequireAuth';
+>>>>>>> origin/main
 import { Layout } from './components/Layout';
+import { LoginPage } from './pages/Login';
 import { AnalyzePage } from './pages/Analyze';
 import { CalibrationPage } from './pages/Calibration';
 import { DiagnosticsPage } from './pages/Diagnostics';
+<<<<<<< HEAD
 import { IntroAnimation } from './components/IntroAnimation';
 
 const STORAGE_KEY = 'hydrolens_intro_shown';
@@ -31,6 +39,9 @@ function shouldPlayIntro(): boolean {
     return true;
   }
 }
+=======
+import { IntroGuard } from './components/IntroAnimation';
+>>>>>>> origin/main
 
 export function App() {
   const [showIntro, setShowIntro] = useState<boolean>(() => shouldPlayIntro());
@@ -54,6 +65,7 @@ export function App() {
   }, []);
 
   return (
+<<<<<<< HEAD
     <BrowserRouter>
       {/* Real-time 3D Cinematic Opening Animation */}
       {showIntro && <IntroAnimation onComplete={handleIntroComplete} />}
@@ -67,6 +79,33 @@ export function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+=======
+    <AuthProvider>
+      <IntroGuard>
+        <BrowserRouter>
+          <Routes>
+            {/* Public Login Route rendered OUTSIDE Layout */}
+            <Route path="/login" element={<LoginPage />} />
+
+            {/* Protected Application Routes wrapped in Layout + RequireAuth */}
+            <Route
+              path="/"
+              element={
+                <RequireAuth>
+                  <Layout />
+                </RequireAuth>
+              }
+            >
+              <Route index element={<AnalyzePage />} />
+              <Route path="calibration" element={<CalibrationPage />} />
+              <Route path="diagnostics" element={<DiagnosticsPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </IntroGuard>
+    </AuthProvider>
+>>>>>>> origin/main
   );
 }
 

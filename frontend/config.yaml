@@ -1,0 +1,45 @@
+# Hydro-Lens System Configuration
+app:
+  title: "Hydro Lens — Microplastics Screening Backend"
+  max_upload_mb: 50
+  allowed_extensions: [".jpg", ".jpeg", ".png", ".tif", ".tiff"]
+
+model:
+  weights_path: "models/best.pt"
+  input_size: 640
+  conf_threshold: 0.25
+  iou_threshold: 0.45
+  max_det: 300
+  classes: ["fragment", "fiber", "film", "foam", "pellet"]
+
+preprocessing:
+  median_blur_kernel: 3
+  clahe_clip_limit: 2.0
+  clahe_tile_grid: [8, 8]
+
+calibration:
+  validity_days: 7
+  bead_nominal_um: [10, 50, 100]
+  bead_tolerance_pct: 20
+  micrometer_spacing_um: 10
+
+confidence:
+  low_threshold: 0.5
+  sample_low_threshold: 0.6
+  calibration_quality:
+    valid: 1.0
+    stale: 0.5
+    missing: 0.0
+  min_coverage_mm2: 1.0
+
+sizing:
+  size_bins_um: [10, 25, 50, 100, 1000, 5000]
+  flag_size_um: 5000
+  flag_aspect_ratio: 10
+  flag_classes: ["film", "foam", "pellet"]
+
+paths:
+  calibration_file: "data/calibration/calibration.json"
+  upload_dir: "data/uploads"
+  reference_dir: "data/reference"
+  results_dir: "data/results"

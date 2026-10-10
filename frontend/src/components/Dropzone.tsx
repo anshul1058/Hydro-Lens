@@ -24,7 +24,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
   selectedFile,
   selectedDemo = null,
   onClear,
-  disabled = false
+  disabled = false,
 }) => {
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -84,6 +84,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
   // 1. STATE: Personal Uploaded Image Selected
   if (selectedFile) {
     return (
+<<<<<<< HEAD
       <div className="w-full bg-white/95 border-2 border-[#10B981]/50 rounded-[18px] p-3.5 sm:p-4 shadow-[0_6px_20px_rgba(16,185,129,0.08)] transition-all space-y-3">
         <input
           ref={fileInputRef}
@@ -100,6 +101,16 @@ export const Dropzone: React.FC<DropzoneProps> = ({
             <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse shrink-0" />
             <span className="text-[12px] font-bold text-[#059669]">Uploaded Sample</span>
             <span className="text-[11px] text-[#4A7F96] font-mono shrink-0">
+=======
+      <div className="w-full bg-[#eff3ff]/70 border border-[#4a90d9]/40 rounded-xl p-4 flex items-center justify-between shadow-xs">
+        <div className="flex items-center space-x-3 overflow-hidden">
+          <div className="w-10 h-10 rounded-lg bg-[#4a90d9]/15 flex items-center justify-center text-[#4a90d9] shrink-0 border border-[#9ecae1]">
+            <FileImage className="w-5 h-5" />
+          </div>
+          <div className="truncate">
+            <p className="text-[13px] font-bold text-[#1E2A38] truncate">{selectedFile.name}</p>
+            <p className="text-[11px] text-[#6b7a90] font-medium">
+>>>>>>> origin/main
               {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
             </span>
           </div>
@@ -155,6 +166,16 @@ export const Dropzone: React.FC<DropzoneProps> = ({
             </span>
           </div>
         </div>
+<<<<<<< HEAD
+=======
+        <button
+          onClick={onClear}
+          className="p-1.5 rounded-full hover:bg-white text-[#6b7a90] hover:text-[#FF6B6B] transition-colors"
+          title="Remove file"
+        >
+          <X className="w-4 h-4" />
+        </button>
+>>>>>>> origin/main
       </div>
     );
   }
@@ -241,11 +262,19 @@ export const Dropzone: React.FC<DropzoneProps> = ({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+<<<<<<< HEAD
       onClick={handleTriggerFileInput}
       className={`group relative w-full border-2 border-dashed rounded-[18px] p-7 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center overflow-hidden ${
         isDragOver
           ? 'border-[#0891B2] bg-[#EAF7FC] shadow-[0_0_24px_rgba(8,145,178,0.18)] scale-[1.01]'
           : 'border-[#BBE4F2] hover:border-[#0891B2] bg-white/70 hover:bg-white/95 shadow-xs hover:shadow-[0_8px_24px_rgba(8,145,178,0.08)]'
+=======
+      onClick={() => !disabled && fileInputRef.current?.click()}
+      className={`w-full border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center ${
+        isDragOver
+          ? 'border-[#4a90d9] bg-[#4a90d9]/10'
+          : 'border-[#9ecae1] hover:border-[#4a90d9] bg-[#eff3ff]/50 hover:bg-[#eff3ff]'
+>>>>>>> origin/main
       } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       <input
@@ -256,6 +285,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
         className="hidden"
         disabled={disabled}
       />
+<<<<<<< HEAD
 
       {/* Optical Reticle Frame Corners */}
       <span className="absolute top-2 left-2 w-3.5 h-3.5 border-t-2 border-l-2 border-[#06B6D4]/60 group-hover:border-[#0891B2] transition-colors" />
@@ -279,6 +309,15 @@ export const Dropzone: React.FC<DropzoneProps> = ({
       </p>
 
       <p className="text-[11.5px] text-[#4A7F96] font-semibold uppercase tracking-[0.06em]">
+=======
+      <div className="w-12 h-12 rounded-2xl bg-white border border-[#9ecae1] shadow-xs flex items-center justify-center text-[#4a90d9] mb-3">
+        <UploadCloud className="w-6 h-6" />
+      </div>
+      <p className="text-[14px] font-bold text-[#1E2A38] mb-1">
+        Drag &amp; drop optical image or <span className="text-[#4a90d9]">browse</span>
+      </p>
+      <p className="text-[11px] font-semibold text-[#6b7a90] uppercase tracking-wider">
+>>>>>>> origin/main
         JPG, PNG, TIFF · max 50 MB
       </p>
 

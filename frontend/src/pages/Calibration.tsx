@@ -74,7 +74,7 @@ export const CalibrationPage: React.FC = () => {
       const res = await computeFactorManual({
         pixel_distance: pixelDistance,
         num_divisions: numDivisions,
-        known_spacing_um: knownSpacingUm
+        known_spacing_um: knownSpacingUm,
       });
       setComputedFactor(res.factor_um_per_px);
       setActiveStep(2);
@@ -95,7 +95,7 @@ export const CalibrationPage: React.FC = () => {
         magnification: magnification,
         camera: '1920x1080 USB3 Sensor',
         microscope: 'USB Microscope',
-        measured_beads: [bead10, bead50, bead100]
+        measured_beads: [bead10, bead50, bead100],
       });
       setMessage({ type: 'success', text: 'Calibration record saved and activated successfully!' });
       await refetch();
@@ -111,6 +111,7 @@ export const CalibrationPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
+<<<<<<< HEAD
       {/* Top Laboratory Hero Context Banner */}
       <section className="relative overflow-hidden rounded-[26px] hero-card-navy text-white shadow-2xl border border-cyan-500/30">
         <div className="absolute inset-0 z-0 pointer-events-none">
@@ -177,8 +178,28 @@ export const CalibrationPage: React.FC = () => {
           </div>
         </div>
       </section>
+=======
+      {/* Top Header Title */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[20px] sm:text-[24px] font-bold text-[#1E2A38] tracking-tight">
+            Calibration Portal &amp; Optics Scaling
+          </h1>
+          <p className="text-[13px] text-[#6b7a90] font-medium mt-0.5">
+            Configure micrometer scale factors and validate reference microsphere bead measurements.
+          </p>
+        </div>
+        <button
+          onClick={() => refetch()}
+          className="p-2 bg-white hover:bg-[#eff3ff] text-[#1E2A38] hover:text-[#4a90d9] rounded-full border border-[#9ecae1] shadow-2xs transition-all"
+          title="Refresh Calibration Status"
+        >
+          <RefreshCw className="w-4 h-4" />
+        </button>
+      </div>
+>>>>>>> origin/main
 
-      {/* Row of 4 Glass Metric Cards */}
+      {/* Row of 4 Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           label="Scale Factor"
@@ -202,11 +223,19 @@ export const CalibrationPage: React.FC = () => {
             calLoading ? (
               'Loading...'
             ) : quality === 1.0 ? (
+<<<<<<< HEAD
               <span className="text-[15px] font-bold text-[#059669]">VALID &amp; ACTIVE</span>
             ) : quality === 0.5 ? (
               <span className="text-[15px] font-bold text-[#D97706]">STALE (&gt;7d)</span>
             ) : (
               <span className="text-[15px] font-bold text-[#DC2626]">REQUIRED</span>
+=======
+              <span className="text-[13px] font-extrabold text-[#2ECC91]">VALID &amp; ACTIVE</span>
+            ) : quality === 0.5 ? (
+              <span className="text-[13px] font-extrabold text-[#F5B942]">STALE (&gt;7d)</span>
+            ) : (
+              <span className="text-[13px] font-extrabold text-[#FF6B6B]">REQUIRED</span>
+>>>>>>> origin/main
             )
           }
           subtitle={calibrationStatus?.reason ?? 'Check System Status'}
@@ -226,24 +255,41 @@ export const CalibrationPage: React.FC = () => {
       {/* Notification Toast/Message */}
       {message && (
         <div
+<<<<<<< HEAD
           className={`p-4 rounded-[16px] border text-[13px] font-medium flex items-center justify-between shadow-xs transition-all ${
             message.type === 'success'
               ? 'bg-gradient-to-r from-white via-[#E6FBF2] to-white border-[#10B981]/50 text-[#059669]'
               : 'bg-gradient-to-r from-white via-[#FEECEB] to-white border-[#EF4444]/50 text-[#DC2626]'
+=======
+          className={`p-4 rounded-2xl border text-[13px] flex items-center justify-between font-medium ${
+            message.type === 'success'
+              ? 'bg-[#2ECC91]/15 border-[#2ECC91]/30 text-[#1E2A38]'
+              : 'bg-[#FF6B6B]/15 border-[#FF6B6B]/30 text-[#FF6B6B]'
+>>>>>>> origin/main
           }`}
         >
           <div className="flex items-center space-x-2.5">
             {message.type === 'success' ? (
+<<<<<<< HEAD
               <CheckCircle2 className="w-5 h-5 text-[#059669] shrink-0" />
             ) : (
               <AlertTriangle className="w-5 h-5 text-[#DC2626] shrink-0" />
+=======
+              <CheckCircle2 className="w-4 h-4 text-[#2ECC91] shrink-0" />
+            ) : (
+              <AlertTriangle className="w-4 h-4 text-[#FF6B6B] shrink-0" />
+>>>>>>> origin/main
             )}
             <span className="text-[#0A2540]">{message.text}</span>
           </div>
+<<<<<<< HEAD
           <button 
             onClick={() => setMessage(null)} 
             className="text-[11.5px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md hover:bg-black/5 cursor-pointer text-[#4A7F96]"
           >
+=======
+          <button onClick={() => setMessage(null)} className="text-[11px] font-bold uppercase tracking-wider opacity-75 hover:opacity-100">
+>>>>>>> origin/main
             Dismiss
           </button>
         </div>
@@ -251,7 +297,9 @@ export const CalibrationPage: React.FC = () => {
 
       {/* Two Columns: LEFT Calibration Wizard | RIGHT Reference Beads Validation */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
         {/* LEFT: Calibration Wizard (2-Step Vertical Stepper) */}
+<<<<<<< HEAD
         <div className="lg:col-span-6 bg-white/95 backdrop-blur-[20px] rounded-[20px] border border-[#BBE4F2] p-6 shadow-[0_8px_24px_rgba(8,145,178,0.06)] space-y-6">
           <div className="flex items-center space-x-2 border-b border-[#BBE4F2]/50 pb-3">
             <Scale className="w-5 h-5 text-[#0891B2]" />
@@ -266,10 +314,22 @@ export const CalibrationPage: React.FC = () => {
                 activeStep === 1 
                   ? 'bg-gradient-to-r from-[#0284C7] to-[#0891B2] text-white shadow-sm shadow-cyan-500/25' 
                   : 'bg-[#EAF7FC] text-[#4A7F96] hover:text-[#0A2540] hover:bg-white'
+=======
+        <div className="lg:col-span-6 bg-white rounded-2xl border border-[#9ecae1] p-6 shadow-[0_4px_20px_rgba(74,144,217,0.06)] space-y-6">
+          <h2 className="text-[16px] font-bold text-[#1E2A38]">Calibration Wizard</h2>
+
+          {/* Stepper Header */}
+          <div className="flex items-center space-x-2 border-b border-[#9ecae1] pb-3">
+            <button
+              onClick={() => setActiveStep(1)}
+              className={`flex items-center space-x-2 text-[12px] font-bold px-3 py-1.5 rounded-full transition-all ${
+                activeStep === 1 ? 'bg-[#4a90d9] text-white shadow-xs' : 'bg-[#eff3ff] text-[#6b7a90] hover:text-[#1E2A38]'
+>>>>>>> origin/main
               }`}
             >
-              <span>1. Scale Factor Calculation</span>
+              <span>1. Scale Factor</span>
             </button>
+<<<<<<< HEAD
             <ArrowRight className="w-4 h-4 text-[#4A7F96] shrink-0" />
             <button
               onClick={() => setActiveStep(2)}
@@ -277,23 +337,39 @@ export const CalibrationPage: React.FC = () => {
                 activeStep === 2 
                   ? 'bg-gradient-to-r from-[#0284C7] to-[#0891B2] text-white shadow-sm shadow-cyan-500/25' 
                   : 'bg-[#EAF7FC] text-[#4A7F96] hover:text-[#0A2540] hover:bg-white'
+=======
+            <ArrowRight className="w-3.5 h-3.5 text-[#6b7a90]" />
+            <button
+              onClick={() => setActiveStep(2)}
+              className={`flex items-center space-x-2 text-[12px] font-bold px-3 py-1.5 rounded-full transition-all ${
+                activeStep === 2 ? 'bg-[#4a90d9] text-white shadow-xs' : 'bg-[#eff3ff] text-[#6b7a90] hover:text-[#1E2A38]'
+>>>>>>> origin/main
               }`}
             >
-              <span>2. Reference Bead Validation</span>
+              <span>2. Bead Validation</span>
             </button>
           </div>
 
           {/* STEP 1: FFT & Manual Scale Calculation */}
           {activeStep === 1 && (
             <div className="space-y-5">
+<<<<<<< HEAD
               <div className="flex items-center justify-between bg-[#EAF7FC]/50 p-2.5 rounded-xl border border-[#BBE4F2]">
                 <span className="text-caption font-bold text-[#0A2540]">Option A: Stage Micrometer FFT</span>
                 <span className="text-[11.5px] font-bold px-2 py-0.5 rounded-full bg-[#0891B2]/15 text-[#0891B2] border border-[#0891B2]/25">
+=======
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#6b7a90]">
+                  Option A: Stage Micrometer FFT
+                </span>
+                <span className="text-[11px] font-bold uppercase bg-[#4a90d9]/10 text-[#4a90d9] px-2 py-0.5 rounded-full border border-[#9ecae1]">
+>>>>>>> origin/main
                   Automated
                 </span>
               </div>
 
               {/* Micrometer Thumbnail Upload */}
+<<<<<<< HEAD
               <div className="p-4 border-2 border-dashed border-[#0891B2]/40 rounded-[16px] bg-[#EAF7FC]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center space-x-3.5">
                   <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-[#BBE4F2] bg-white shrink-0 shadow-2xs">
@@ -306,21 +382,46 @@ export const CalibrationPage: React.FC = () => {
                   <div>
                     <p className="text-[13.5px] font-bold text-[#0A2540]">Stage Micrometer Image</p>
                     <p className="text-[11.5px] text-[#4A7F96]">Upload or use default reference scale</p>
+=======
+              <div className="p-3.5 border border-dashed border-[#9ecae1] rounded-xl bg-[#eff3ff]/50 flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <img
+                    src="/api/references/file/stage_micrometer_scale.png"
+                    alt="Micrometer scale"
+                    className="w-12 h-12 rounded-lg object-cover border border-[#9ecae1] bg-white"
+                  />
+                  <div>
+                    <p className="text-[13px] font-bold text-[#1E2A38]">Stage Micrometer Image</p>
+                    <p className="text-[11px] text-[#6b7a90]">Upload or use default reference scale</p>
+>>>>>>> origin/main
                   </div>
                 </div>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => e.target.files && setFftFile(e.target.files[0])}
+<<<<<<< HEAD
                   className="text-[12px] text-[#2C637A] max-w-[170px] file:mr-2 file:py-1 file:px-2.5 file:rounded-full file:border-0 file:text-[11px] file:font-semibold file:bg-[#0891B2] file:text-white hover:file:bg-[#0284C7] cursor-pointer"
+=======
+                  className="text-[12px] text-[#6b7a90] max-w-[140px]"
+>>>>>>> origin/main
                 />
               </div>
 
               {/* Known Line Spacing Slider */}
+<<<<<<< HEAD
               <div className="p-4 bg-white rounded-xl border border-[#BBE4F2] shadow-2xs space-y-2">
                 <div className="flex justify-between items-center">
                   <label className="text-caption">Known Line Spacing</label>
                   <span className="text-[14px] font-bold text-[#0A2540] tabular-nums bg-[#EAF7FC] px-2.5 py-0.5 rounded-lg border border-[#BBE4F2]">
+=======
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[#6b7a90]">
+                    Known Line Spacing
+                  </label>
+                  <span className="text-[13px] font-bold text-[#4a90d9] tabular-nums">
+>>>>>>> origin/main
                     {knownSpacingUm} µm
                   </span>
                 </div>
@@ -331,14 +432,22 @@ export const CalibrationPage: React.FC = () => {
                   step="1"
                   value={knownSpacingUm}
                   onChange={(e) => setKnownSpacingUm(Number(e.target.value))}
+<<<<<<< HEAD
                   className="w-full accent-[#0891B2] cursor-pointer"
+=======
+                  className="w-full accent-[#4a90d9]"
+>>>>>>> origin/main
                 />
               </div>
 
               <button
                 onClick={handleCalculateFFT}
                 disabled={fftLoading}
+<<<<<<< HEAD
                 className="w-full py-3 btn-primary-sci text-[13.5px] flex items-center justify-center space-x-2 cursor-pointer"
+=======
+                className="w-full py-2.5 bg-[#4a90d9] hover:bg-[#3a7bc0] active:scale-[0.98] text-white text-[13px] font-bold rounded-full shadow-xs transition-all flex items-center justify-center space-x-2"
+>>>>>>> origin/main
               >
                 <Sparkles className={`w-4 h-4 ${fftLoading ? 'animate-spin' : ''}`} />
                 <span>{fftLoading ? 'Processing FFT...' : 'Calculate via FFT'}</span>
@@ -346,31 +455,58 @@ export const CalibrationPage: React.FC = () => {
 
               <div className="relative my-5">
                 <div className="absolute inset-0 flex items-center">
+<<<<<<< HEAD
                   <div className="w-full border-t border-[#BBE4F2]" />
                 </div>
                 <div className="relative flex justify-center text-[11px] uppercase tracking-wider font-bold text-[#4A7F96] bg-white px-3 rounded-full w-max mx-auto border border-[#BBE4F2]">
                   Option B: Manual Entry
+=======
+                  <div className="w-full border-t border-[#D0DCE8]" />
+                </div>
+                <div className="relative flex justify-center text-[11px] font-bold uppercase tracking-wider text-[#6b7a90] bg-white px-3 w-max mx-auto">
+                  Option B: Manual Distance
+>>>>>>> origin/main
                 </div>
               </div>
 
               {/* Manual Entry Row */}
               <div className="grid grid-cols-2 gap-3.5">
                 <div>
+<<<<<<< HEAD
                   <label className="text-caption block mb-1.5">Pixel Distance</label>
+=======
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[#6b7a90] block mb-1">
+                    Pixel Distance
+                  </label>
+>>>>>>> origin/main
                   <input
                     type="number"
                     value={pixelDistance}
                     onChange={(e) => setPixelDistance(Number(e.target.value))}
+<<<<<<< HEAD
                     className="w-full px-3.5 py-2 bg-[#EAF7FC]/30 border border-[#BBE4F2] rounded-xl text-[14px] font-bold text-[#0A2540] tabular-nums focus:outline-none focus:border-[#0891B2] focus:bg-white shadow-inner"
                   />
                 </div>
                 <div>
                   <label className="text-caption block mb-1.5">Num Divisions</label>
+=======
+                    className="w-full px-3 py-2 bg-white border border-[#D0DCE8] rounded-xl text-[13px] font-bold text-[#1E2A38] tabular-nums focus:outline-none focus:border-[#4a90d9]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[#6b7a90] block mb-1">
+                    Num Divisions
+                  </label>
+>>>>>>> origin/main
                   <input
                     type="number"
                     value={numDivisions}
                     onChange={(e) => setNumDivisions(Number(e.target.value))}
+<<<<<<< HEAD
                     className="w-full px-3.5 py-2 bg-[#EAF7FC]/30 border border-[#BBE4F2] rounded-xl text-[14px] font-bold text-[#0A2540] tabular-nums focus:outline-none focus:border-[#0891B2] focus:bg-white shadow-inner"
+=======
+                    className="w-full px-3 py-2 bg-white border border-[#D0DCE8] rounded-xl text-[13px] font-bold text-[#1E2A38] tabular-nums focus:outline-none focus:border-[#4a90d9]"
+>>>>>>> origin/main
                   />
                 </div>
               </div>
@@ -378,7 +514,11 @@ export const CalibrationPage: React.FC = () => {
               <button
                 onClick={handleCalculateManual}
                 disabled={manualLoading}
+<<<<<<< HEAD
                 className="w-full py-2.5 bg-white hover:bg-[#EAF7FC] text-[#0A2540] hover:text-[#0284C7] border border-[#BBE4F2] hover:border-[#0891B2] text-[13px] font-bold rounded-full transition-all shadow-2xs cursor-pointer"
+=======
+                className="w-full py-2.5 bg-white hover:bg-[#eff3ff] text-[#1E2A38] hover:text-[#4a90d9] border border-[#9ecae1] text-[13px] font-bold rounded-full transition-all"
+>>>>>>> origin/main
               >
                 <span>{manualLoading ? 'Calculating...' : 'Set Factor Manually'}</span>
               </button>
@@ -388,6 +528,7 @@ export const CalibrationPage: React.FC = () => {
           {/* STEP 2: Configure Magnification & Verification target */}
           {activeStep === 2 && (
             <div className="space-y-4">
+<<<<<<< HEAD
               <div className="p-5 bg-gradient-to-r from-[#EAF7FC] to-white border border-[#0891B2]/35 rounded-[16px] shadow-xs">
                 <p className="text-[11.5px] text-[#4A7F96] font-bold uppercase tracking-wider">Active Computed Factor</p>
                 <p className="text-[28px] font-bold text-[#0A2540] tabular-nums my-1">
@@ -395,15 +536,34 @@ export const CalibrationPage: React.FC = () => {
                 </p>
                 <p className="text-[12.5px] text-[#2C637A]">
                   Factor carried into Step 2 verification target automatically.
+=======
+              <div className="p-4 bg-[#eff3ff] border border-[#9ecae1] rounded-xl">
+                <p className="text-[11px] text-[#6b7a90] uppercase font-bold tracking-wider">Active Computed Factor</p>
+                <p className="text-[24px] font-extrabold text-[#4a90d9] tabular-nums my-0.5">
+                  {computedFactor.toFixed(4)} <span className="text-[13px] font-normal text-[#6b7a90]">µm/px</span>
+                </p>
+                <p className="text-[12px] text-[#1E2A38]">
+                  Factor calibrated for current camera sensor and active optical objective.
+>>>>>>> origin/main
                 </p>
               </div>
 
               <div>
+<<<<<<< HEAD
                 <label className="text-caption block mb-1.5">Lens Magnification Tag</label>
                 <select
                   value={magnification}
                   onChange={(e) => setMagnification(e.target.value)}
                   className="w-full px-4 py-2.5 bg-white border border-[#BBE4F2] rounded-xl text-[13.5px] font-bold text-[#0A2540] focus:outline-none focus:border-[#0891B2] shadow-2xs cursor-pointer"
+=======
+                <label className="text-[11px] font-bold uppercase tracking-wider text-[#6b7a90] block mb-1">
+                  Lens Magnification Tag
+                </label>
+                <select
+                  value={magnification}
+                  onChange={(e) => setMagnification(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#D0DCE8] rounded-xl text-[13px] font-bold text-[#1E2A38] focus:outline-none focus:border-[#4a90d9]"
+>>>>>>> origin/main
                 >
                   <option value="100x">100x Optical</option>
                   <option value="200x">200x Optical (Default)</option>
@@ -427,7 +587,11 @@ export const CalibrationPage: React.FC = () => {
 
               <button
                 onClick={() => setActiveStep(1)}
+<<<<<<< HEAD
                 className="text-[13px] text-[#0891B2] hover:text-[#0284C7] hover:underline font-bold flex items-center space-x-1 cursor-pointer pt-2"
+=======
+                className="text-[12px] text-[#4a90d9] hover:underline font-bold"
+>>>>>>> origin/main
               >
                 <span>← Back to recalculate factor in Step 1</span>
               </button>
@@ -436,11 +600,19 @@ export const CalibrationPage: React.FC = () => {
         </div>
 
         {/* RIGHT: Validate Reference Beads (Chart + Inputs + Save) */}
+<<<<<<< HEAD
         <div className="lg:col-span-6 bg-white/95 backdrop-blur-[20px] rounded-[20px] border border-[#BBE4F2] p-6 shadow-[0_8px_24px_rgba(8,145,178,0.06)] space-y-5">
           <div className="border-b border-[#BBE4F2]/50 pb-3">
             <h2 className="text-section-title">Validate Reference Beads</h2>
             <p className="text-caption mt-0.5">
               Monodisperse polystyrene microsphere bead targets (10, 50, 100 µm)
+=======
+        <div className="lg:col-span-6 bg-white rounded-2xl border border-[#9ecae1] p-6 shadow-[0_4px_20px_rgba(74,144,217,0.06)] space-y-5">
+          <div>
+            <h2 className="text-[16px] font-bold text-[#1E2A38]">Validate Reference Beads</h2>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[#6b7a90] mt-0.5">
+              Polystyrene microsphere bead targets (10, 50, 100 µm)
+>>>>>>> origin/main
             </p>
           </div>
 
@@ -449,42 +621,60 @@ export const CalibrationPage: React.FC = () => {
             beads={[
               { nominal: 10, measured: bead10 },
               { nominal: 50, measured: bead50 },
-              { nominal: 100, measured: bead100 }
+              { nominal: 100, measured: bead100 },
             ]}
           />
 
           {/* 3 Number Inputs beneath chart */}
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="text-caption block mb-1">10 µm Bead (µm)</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-[#6b7a90] block mb-1">
+                10 µm Bead (µm)
+              </label>
               <input
                 type="number"
                 step="0.1"
                 value={bead10}
                 onChange={(e) => setBead10(Number(e.target.value))}
+<<<<<<< HEAD
                 className="w-full px-3 py-2 bg-[#EAF7FC]/30 border border-[#BBE4F2] rounded-xl text-[13.5px] font-bold text-[#0A2540] tabular-nums focus:outline-none focus:border-[#0891B2] focus:bg-white shadow-inner"
+=======
+                className="w-full px-3 py-1.5 bg-white border border-[#D0DCE8] rounded-xl text-[13px] font-bold text-[#1E2A38] tabular-nums focus:outline-none focus:border-[#4a90d9]"
+>>>>>>> origin/main
               />
             </div>
 
             <div>
-              <label className="text-caption block mb-1">50 µm Bead (µm)</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-[#6b7a90] block mb-1">
+                50 µm Bead (µm)
+              </label>
               <input
                 type="number"
                 step="0.1"
                 value={bead50}
                 onChange={(e) => setBead50(Number(e.target.value))}
+<<<<<<< HEAD
                 className="w-full px-3 py-2 bg-[#EAF7FC]/30 border border-[#BBE4F2] rounded-xl text-[13.5px] font-bold text-[#0A2540] tabular-nums focus:outline-none focus:border-[#0891B2] focus:bg-white shadow-inner"
+=======
+                className="w-full px-3 py-1.5 bg-white border border-[#D0DCE8] rounded-xl text-[13px] font-bold text-[#1E2A38] tabular-nums focus:outline-none focus:border-[#4a90d9]"
+>>>>>>> origin/main
               />
             </div>
 
             <div>
-              <label className="text-caption block mb-1">100 µm Bead (µm)</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-[#6b7a90] block mb-1">
+                100 µm Bead (µm)
+              </label>
               <input
                 type="number"
                 step="0.1"
                 value={bead100}
                 onChange={(e) => setBead100(Number(e.target.value))}
+<<<<<<< HEAD
                 className="w-full px-3 py-2 bg-[#EAF7FC]/30 border border-[#BBE4F2] rounded-xl text-[13.5px] font-bold text-[#0A2540] tabular-nums focus:outline-none focus:border-[#0891B2] focus:bg-white shadow-inner"
+=======
+                className="w-full px-3 py-1.5 bg-white border border-[#D0DCE8] rounded-xl text-[13px] font-bold text-[#1E2A38] tabular-nums focus:outline-none focus:border-[#4a90d9]"
+>>>>>>> origin/main
               />
             </div>
           </div>
@@ -493,7 +683,11 @@ export const CalibrationPage: React.FC = () => {
           <button
             onClick={handleSaveCalibration}
             disabled={saveLoading}
+<<<<<<< HEAD
             className="w-full py-3.5 btn-primary-sci text-[14px] flex items-center justify-center space-x-2 cursor-pointer"
+=======
+            className="w-full py-3.5 bg-[#4a90d9] hover:bg-[#3a7bc0] active:scale-[0.98] text-white text-[14px] font-bold rounded-full shadow-[0_6px_20px_rgba(74,144,217,0.3)] transition-all flex items-center justify-center space-x-2"
+>>>>>>> origin/main
           >
             <ShieldCheck className="w-5 h-5" />
             <span>{saveLoading ? 'Saving & Validating...' : 'Save & Activate Calibration'}</span>
@@ -502,6 +696,7 @@ export const CalibrationPage: React.FC = () => {
       </div>
 
       {/* Footer Note explaining 7-day expiry rule */}
+<<<<<<< HEAD
       <div className="bg-[#EAF7FC]/60 border border-[#BBE4F2] rounded-[16px] p-4 text-center">
         <p className="text-[12px] text-[#2C637A] font-medium leading-relaxed max-w-3xl mx-auto flex items-center justify-center gap-1.5">
           <Info className="w-4 h-4 text-[#0891B2] shrink-0" />
@@ -510,6 +705,11 @@ export const CalibrationPage: React.FC = () => {
           </span>
         </p>
       </div>
+=======
+      <p className="text-[12px] text-[#6b7a90] text-center pt-2 border-t border-[#9ecae1]">
+        System Expiry Rule: Calibration records expire exactly 7 days after timestamp creation to prevent optical drift degradation. Stale calibrations automatically reduce quantitative sample confidence scores to 0.5.
+      </p>
+>>>>>>> origin/main
     </div>
   );
 };

@@ -12,12 +12,15 @@ import {
   Calculator,
   FileJson,
   Sparkles,
+<<<<<<< HEAD
   Scan,
   Microscope,
   Layers,
   Crosshair,
   CircleDot,
   Check
+=======
+>>>>>>> origin/main
 } from 'lucide-react';
 import { useCalibration } from '../hooks/useCalibration';
 import { useAnalysis } from '../hooks/useAnalysis';
@@ -67,18 +70,18 @@ export const AnalyzePage: React.FC = () => {
           {
             id: 'demo_microplastic_sample.jpg',
             label: 'Microplastic Sample',
-            url: '/api/references/file/demo_microplastic_sample.jpg'
+            url: '/api/references/file/demo_microplastic_sample.jpg',
           },
           {
             id: 'blank_filter_control.png',
             label: 'Blank Filter Control',
-            url: '/api/references/file/blank_filter_control.png'
+            url: '/api/references/file/blank_filter_control.png',
           },
           {
             id: 'stage_micrometer_scale.png',
             label: 'Stage Micrometer Scale',
-            url: '/api/references/file/stage_micrometer_scale.png'
-          }
+            url: '/api/references/file/stage_micrometer_scale.png',
+          },
         ]);
       });
   }, []);
@@ -148,7 +151,7 @@ export const AnalyzePage: React.FC = () => {
         total_count: result.total_count,
         imaged_area_mm2: result.imaged_area_mm2,
         sample_volume_ml: sampleVolumeMl,
-        dilution_factor: dilutionFactor
+        dilution_factor: dilutionFactor,
       });
       setCalcConcentration(res.concentration);
     } catch {
@@ -306,6 +309,7 @@ export const AnalyzePage: React.FC = () => {
       {/* Calibration Status Banner */}
       <StatusStrip calibrationStatus={calibrationStatus} loading={calLoading} />
 
+<<<<<<< HEAD
       {/* Main Grid: Left Source & Try Sample Images (4 cols) | Right Metrics & Results (8 cols) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* LEFT Column: Image Source + Try Sample Images */}
@@ -477,16 +481,140 @@ export const AnalyzePage: React.FC = () => {
               <Info className="w-5 h-5 text-[#0891B2] shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold text-[#0A2540]">Demo Heuristic Mode Active:</span>{' '}
+=======
+      {/* Main Grid: Left Source Selector (380px) | Right Metrics & Results */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        {/* LEFT 380px Panel: Image Source */}
+        <div className="lg:col-span-4 bg-white rounded-2xl border border-[#9ecae1] p-5 shadow-[0_4px_20px_rgba(74,144,217,0.06)] space-y-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[16px] font-bold text-[#1E2A38]">Image Source</h2>
+            <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#4a90d9]/15 text-[#4a90d9] border border-[#9ecae1]">
+              Input
+            </span>
+          </div>
+
+          {/* Segmented Control (Upload | Demo reference) */}
+          <div className="grid grid-cols-2 gap-1 p-1 bg-[#eff3ff] rounded-xl border border-[#9ecae1]">
+            <button
+              onClick={() => setSourceMode('upload')}
+              className={`py-2 px-3 rounded-lg text-[13px] font-bold transition-all ${
+                sourceMode === 'upload'
+                  ? 'bg-[#4a90d9] text-white shadow-xs'
+                  : 'text-[#6b7a90] hover:text-[#1E2A38]'
+              }`}
+            >
+              Upload File
+            </button>
+            <button
+              onClick={() => setSourceMode('demo')}
+              className={`py-2 px-3 rounded-lg text-[13px] font-bold transition-all ${
+                sourceMode === 'demo'
+                  ? 'bg-[#4a90d9] text-white shadow-xs'
+                  : 'text-[#6b7a90] hover:text-[#1E2A38]'
+              }`}
+            >
+              Demo Reference
+            </button>
+          </div>
+
+          {sourceMode === 'upload' ? (
+            <Dropzone
+              onFileSelect={(file) => setSelectedFile(file)}
+              selectedFile={selectedFile}
+              onClear={() => setSelectedFile(null)}
+              disabled={analyzeLoading}
+            />
+          ) : (
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-[#6b7a90] block mb-1">
+                Select Reference Image
+              </label>
+              <div className="space-y-2.5">
+                {references.map((ref) => {
+                  const isSelected = selectedRefId === ref.id;
+                  return (
+                    <div
+                      key={ref.id}
+                      onClick={() => setSelectedRefId(ref.id)}
+                      className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
+                        isSelected
+                          ? 'bg-[#4a90d9]/10 border-[#4a90d9] shadow-2xs'
+                          : 'bg-white border-[#D0DCE8] hover:border-[#9ecae1]'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3 overflow-hidden">
+                        <img
+                          src={ref.url}
+                          alt={ref.label}
+                          className="w-12 h-12 rounded-lg object-cover border border-[#9ecae1] bg-[#eff3ff] shrink-0"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                        <div className="truncate">
+                          <p className="text-[13px] font-bold text-[#1E2A38] truncate">{ref.label}</p>
+                          <p className="text-[11px] text-[#6b7a90] truncate">{ref.id}</p>
+                        </div>
+                      </div>
+                      {isSelected && (
+                        <div className="w-6 h-6 rounded-full bg-[#4a90d9] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Run Analysis Action Button */}
+          <button
+            onClick={handleStartAnalysis}
+            disabled={analyzeLoading || (sourceMode === 'upload' && !selectedFile)}
+            className="w-full py-3.5 bg-[#4a90d9] hover:bg-[#3a7bc0] active:scale-[0.98] disabled:opacity-50 text-white font-bold rounded-full shadow-[0_6px_20px_rgba(74,144,217,0.3)] transition-all flex items-center justify-center space-x-2 text-[14px]"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>{analyzeLoading ? 'Processing Pipeline...' : 'Run Microplastics Screening'}</span>
+          </button>
+
+          {analyzeError && (
+            <div className="p-3 bg-[#FF6B6B]/15 border border-[#FF6B6B]/30 rounded-xl text-[12px] text-[#FF6B6B] flex items-center space-x-2 font-medium">
+              <AlertTriangle className="w-4 h-4 text-[#FF6B6B] shrink-0" />
+              <span>{analyzeError}</span>
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT Column: Metrics Cards & Results */}
+        <div className="lg:col-span-8 space-y-6">
+          
+          {/* Detector Fallback Info Banner */}
+          {result?.detector_fallback && (
+            <div className="p-4 bg-[#eff3ff] border border-[#9ecae1] rounded-2xl text-[13px] text-[#1E2A38] flex items-start space-x-3 shadow-xs">
+              <Info className="w-5 h-5 text-[#4a90d9] shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold text-[#4a90d9]">Demo Heuristic Mode Active:</span>{' '}
+>>>>>>> origin/main
                 {result.detector_load_error || 'No weights file (models/best.pt) found. Running adaptive morphological candidate detector.'}
               </div>
             </div>
           )}
 
+<<<<<<< HEAD
           {/* Row of 5 Glass Metric Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
             {analyzeLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="h-28 bg-white/70 rounded-[18px] border border-[#BBE4F2] animate-pulse" />
+=======
+          {/* Row of 5 Metric Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            {analyzeLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="h-24 bg-white rounded-2xl border border-[#9ecae1]/50 animate-pulse" />
+>>>>>>> origin/main
               ))
             ) : (
               <>
@@ -519,9 +647,15 @@ export const AnalyzePage: React.FC = () => {
                   value={
                     result ? (
                       result.flag_lab_confirmation ? (
+<<<<<<< HEAD
                         <span className="text-[14px] font-bold text-[#DC2626] uppercase">REQUIRED</span>
                       ) : (
                         <span className="text-[14px] font-bold text-[#059669] uppercase">NOT REQUIRED</span>
+=======
+                        <span className="text-[13px] font-extrabold text-[#FF6B6B] uppercase">REQUIRED</span>
+                      ) : (
+                        <span className="text-[13px] font-extrabold text-[#2ECC91] uppercase">PASSED</span>
+>>>>>>> origin/main
                       )
                     ) : (
                       '—'
@@ -556,6 +690,7 @@ export const AnalyzePage: React.FC = () => {
 
           {/* Flags Expander if any flags exist */}
           {result && result.flags && result.flags.length > 0 && (
+<<<<<<< HEAD
             <div className="bg-gradient-to-r from-[#FEF6E7]/90 to-white border border-[#F59E0B]/50 rounded-[18px] p-4 text-[13px] space-y-2 shadow-xs">
               <button
                 onClick={() => setFlagsExpanded(!flagsExpanded)}
@@ -563,18 +698,36 @@ export const AnalyzePage: React.FC = () => {
               >
                 <div className="flex items-center space-x-2">
                   <AlertTriangle className="w-4 h-4 text-[#D97706]" />
+=======
+            <div className="bg-[#F5B942]/15 border border-[#F5B942]/40 rounded-2xl p-4 text-[13px] space-y-2">
+              <button
+                onClick={() => setFlagsExpanded(!flagsExpanded)}
+                className="w-full flex items-center justify-between text-[#1E2A38] font-bold text-left"
+              >
+                <div className="flex items-center space-x-2">
+                  <AlertTriangle className="w-4 h-4 text-[#F5B942]" />
+>>>>>>> origin/main
                   <span>Pipeline Quality &amp; Flag Warnings ({result.flags.length})</span>
                 </div>
                 {flagsExpanded ? <ChevronUp className="w-4 h-4 text-[#D97706]" /> : <ChevronDown className="w-4 h-4 text-[#D97706]" />}
               </button>
 
               {flagsExpanded && (
+<<<<<<< HEAD
                 <ul className="space-y-2 pt-2.5 border-t border-[#F59E0B]/30">
                   {result.flags.map((flag, idx) => (
                     <li key={idx} className="flex items-start space-x-2.5 text-[#2C637A]">
                       <span className="w-2 h-2 rounded-full bg-[#F59E0B] mt-1.5 shrink-0" />
                       <div>
                         <strong className="text-[#0A2540] capitalize">{flag.type.replace(/_/g, ' ')}:</strong>{' '}
+=======
+                <ul className="space-y-1.5 pt-2 border-t border-[#F5B942]/30">
+                  {result.flags.map((flag, idx) => (
+                    <li key={idx} className="flex items-start space-x-2 text-[#1E2A38]/90">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#F5B942] mt-1.5 shrink-0" />
+                      <div>
+                        <strong className="text-[#1E2A38] capitalize">{flag.type.replace(/_/g, ' ')}:</strong>{' '}
+>>>>>>> origin/main
                         {flag.message}
                       </div>
                     </li>
@@ -618,75 +771,124 @@ export const AnalyzePage: React.FC = () => {
           {/* Segmented Tabs Navigation & Results View */}
           {result && (
             <div className="space-y-4">
+<<<<<<< HEAD
               <div className="flex items-center space-x-2 border-b border-[#BBE4F2] px-1 overflow-x-auto pb-0.5">
                 <button
                   onClick={() => setActiveTab('visual')}
                   className={`pb-3 px-3 text-[13.5px] font-bold transition-all flex items-center space-x-2 relative whitespace-nowrap cursor-pointer ${
                     activeTab === 'visual' ? 'text-[#0284C7]' : 'text-[#4A7F96] hover:text-[#0A2540]'
+=======
+              <div className="flex items-center space-x-2 border-b border-[#9ecae1] px-2 overflow-x-auto">
+                <button
+                  onClick={() => setActiveTab('visual')}
+                  className={`pb-3 px-3 text-[13px] font-bold transition-all flex items-center space-x-2 relative whitespace-nowrap ${
+                    activeTab === 'visual' ? 'text-[#4a90d9]' : 'text-[#6b7a90] hover:text-[#1E2A38]'
+>>>>>>> origin/main
                   }`}
                 >
                   <Eye className="w-4 h-4" />
                   <span>Visual Detection</span>
+<<<<<<< HEAD
                   {activeTab === 'visual' && (
                     <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#0284C7] to-[#0891B2] rounded-t-full shadow-xs" />
                   )}
+=======
+                  {activeTab === 'visual' && <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#4a90d9] rounded-t" />}
+>>>>>>> origin/main
                 </button>
 
                 <button
                   onClick={() => setActiveTab('size')}
+<<<<<<< HEAD
                   className={`pb-3 px-3 text-[13.5px] font-bold transition-all flex items-center space-x-2 relative whitespace-nowrap cursor-pointer ${
                     activeTab === 'size' ? 'text-[#0284C7]' : 'text-[#4A7F96] hover:text-[#0A2540]'
+=======
+                  className={`pb-3 px-3 text-[13px] font-bold transition-all flex items-center space-x-2 relative whitespace-nowrap ${
+                    activeTab === 'size' ? 'text-[#4a90d9]' : 'text-[#6b7a90] hover:text-[#1E2A38]'
+>>>>>>> origin/main
                   }`}
                 >
                   <BarChart3 className="w-4 h-4" />
                   <span>Size Distribution</span>
+<<<<<<< HEAD
                   {activeTab === 'size' && (
                     <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#0284C7] to-[#0891B2] rounded-t-full shadow-xs" />
                   )}
+=======
+                  {activeTab === 'size' && <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#4a90d9] rounded-t" />}
+>>>>>>> origin/main
                 </button>
 
                 <button
                   onClick={() => setActiveTab('table')}
+<<<<<<< HEAD
                   className={`pb-3 px-3 text-[13.5px] font-bold transition-all flex items-center space-x-2 relative whitespace-nowrap cursor-pointer ${
                     activeTab === 'table' ? 'text-[#0284C7]' : 'text-[#4A7F96] hover:text-[#0A2540]'
+=======
+                  className={`pb-3 px-3 text-[13px] font-bold transition-all flex items-center space-x-2 relative whitespace-nowrap ${
+                    activeTab === 'table' ? 'text-[#4a90d9]' : 'text-[#6b7a90] hover:text-[#1E2A38]'
+>>>>>>> origin/main
                   }`}
                 >
                   <TableIcon className="w-4 h-4" />
                   <span>Particle Table ({result.detections.length})</span>
+<<<<<<< HEAD
                   {activeTab === 'table' && (
                     <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#0284C7] to-[#0891B2] rounded-t-full shadow-xs" />
                   )}
+=======
+                  {activeTab === 'table' && <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#4a90d9] rounded-t" />}
+>>>>>>> origin/main
                 </button>
 
                 <button
                   onClick={() => setActiveTab('concentration')}
+<<<<<<< HEAD
                   className={`pb-3 px-3 text-[13.5px] font-bold transition-all flex items-center space-x-2 relative whitespace-nowrap cursor-pointer ${
                     activeTab === 'concentration' ? 'text-[#0284C7]' : 'text-[#4A7F96] hover:text-[#0A2540]'
+=======
+                  className={`pb-3 px-3 text-[13px] font-bold transition-all flex items-center space-x-2 relative whitespace-nowrap ${
+                    activeTab === 'concentration' ? 'text-[#4a90d9]' : 'text-[#6b7a90] hover:text-[#1E2A38]'
+>>>>>>> origin/main
                   }`}
                 >
                   <Calculator className="w-4 h-4" />
                   <span>Concentration</span>
+<<<<<<< HEAD
                   {activeTab === 'concentration' && (
                     <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#0284C7] to-[#0891B2] rounded-t-full shadow-xs" />
                   )}
+=======
+                  {activeTab === 'concentration' && <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#4a90d9] rounded-t" />}
+>>>>>>> origin/main
                 </button>
 
                 <button
                   onClick={() => setActiveTab('json')}
+<<<<<<< HEAD
                   className={`pb-3 px-3 text-[13.5px] font-bold transition-all flex items-center space-x-2 relative whitespace-nowrap cursor-pointer ${
                     activeTab === 'json' ? 'text-[#0284C7]' : 'text-[#4A7F96] hover:text-[#0A2540]'
+=======
+                  className={`pb-3 px-3 text-[13px] font-bold transition-all flex items-center space-x-2 relative whitespace-nowrap ${
+                    activeTab === 'json' ? 'text-[#4a90d9]' : 'text-[#6b7a90] hover:text-[#1E2A38]'
+>>>>>>> origin/main
                   }`}
                 >
                   <FileJson className="w-4 h-4" />
                   <span>JSON Export</span>
+<<<<<<< HEAD
                   {activeTab === 'json' && (
                     <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#0284C7] to-[#0891B2] rounded-t-full shadow-xs" />
                   )}
+=======
+                  {activeTab === 'json' && <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#4a90d9] rounded-t" />}
+>>>>>>> origin/main
                 </button>
               </div>
 
               {/* Tab 1: Visual Detection */}
               {activeTab === 'visual' && (
+<<<<<<< HEAD
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="bg-white/95 backdrop-blur-[20px] rounded-[20px] border border-[#BBE4F2] p-5 shadow-[0_8px_24px_rgba(8,145,178,0.06)] space-y-3.5">
                     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -710,6 +912,22 @@ export const AnalyzePage: React.FC = () => {
                       <span className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-[#06B6D4]/70 z-10 pointer-events-none" />
                       <span className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-[#06B6D4]/70 z-10 pointer-events-none" />
                       
+=======
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-white rounded-2xl border border-[#9ecae1] p-5 shadow-xs space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-[15px] font-bold text-[#1E2A38]">Annotated Particles</h4>
+                      <div className="flex items-center space-x-2 text-[11px] font-semibold text-[#6b7a90]">
+                        <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#2ECC91]" title="High Conf" />
+                        <span>≥0.8</span>
+                        <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#F5B942]" title="Med Conf" />
+                        <span>0.5–0.8</span>
+                        <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#FF6B6B]" title="Low/Flag" />
+                        <span>&lt;0.5</span>
+                      </div>
+                    </div>
+                    <div className="aspect-square bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center border border-[#9ecae1]/50 shadow-inner">
+>>>>>>> origin/main
                       {result.images.annotated ? (
                         <img
                           src={result.images.annotated}
@@ -722,6 +940,7 @@ export const AnalyzePage: React.FC = () => {
                     </div>
                   </div>
 
+<<<<<<< HEAD
                   <div className="bg-white/95 backdrop-blur-[20px] rounded-[20px] border border-[#BBE4F2] p-5 shadow-[0_8px_24px_rgba(8,145,178,0.06)] space-y-3.5">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
@@ -739,11 +958,19 @@ export const AnalyzePage: React.FC = () => {
                       <span className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-[#06B6D4]/70 z-10 pointer-events-none" />
                       <span className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-[#06B6D4]/70 z-10 pointer-events-none" />
 
+=======
+                  <div className="bg-white rounded-2xl border border-[#9ecae1] p-5 shadow-xs space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-[15px] font-bold text-[#1E2A38]">Preprocessed Input</h4>
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#6b7a90]">640×640 CLAHE</span>
+                    </div>
+                    <div className="aspect-square bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center border border-[#9ecae1]/50 shadow-inner">
+>>>>>>> origin/main
                       {result.images.preprocessed ? (
                         <img
                           src={result.images.preprocessed}
                           alt="Preprocessed Input"
-                          className="w-full h-full object-contain filter desaturate-30"
+                          className="w-full h-full object-contain"
                         />
                       ) : (
                         <p className="text-[12px] text-slate-400">No preprocessed image</p>
@@ -770,41 +997,75 @@ export const AnalyzePage: React.FC = () => {
               {activeTab === 'concentration' && (
                 <div className="space-y-4">
                   {calQuality === 0.0 ? (
+<<<<<<< HEAD
                     <div className="p-8 bg-gradient-to-br from-white to-[#FEECEB]/60 border border-[#EF4444]/40 rounded-[20px] text-center space-y-3 shadow-[0_4px_20px_rgba(239,68,68,0.08)]">
                       <div className="w-12 h-12 rounded-2xl bg-[#FEECEB] border border-[#EF4444]/30 flex items-center justify-center text-[#DC2626] mx-auto shadow-xs">
                         <AlertTriangle className="w-6 h-6" />
                       </div>
                       <h4 className="text-section-title text-[#0A2540]">Concentration Calculation Blocked</h4>
                       <p className="text-body text-[#2C637A] max-w-md mx-auto">
+=======
+                    <div className="p-6 bg-[#FF6B6B]/10 border border-[#FF6B6B]/30 rounded-2xl text-center space-y-2">
+                      <AlertTriangle className="w-8 h-8 text-[#FF6B6B] mx-auto" />
+                      <h4 className="text-[16px] font-bold text-[#1E2A38]">Concentration Calculation Blocked</h4>
+                      <p className="text-[13px] text-[#6b7a90] max-w-md mx-auto">
+>>>>>>> origin/main
                         Calculating particles per liter requires an active micro-scale calibration factor. Please recalibrate in the Calibration Portal.
                       </p>
                     </div>
                   ) : (
+<<<<<<< HEAD
                     <div className="bg-white/95 backdrop-blur-[20px] rounded-[20px] border border-[#BBE4F2] p-6 space-y-5 shadow-[0_8px_24px_rgba(8,145,178,0.06)]">
                       <div className="flex items-center space-x-2 border-b border-[#BBE4F2]/50 pb-3">
                         <FlaskConical className="w-5 h-5 text-[#0891B2]" />
                         <h3 className="text-section-title">Sample Concentration Calculator</h3>
+=======
+                    <div className="bg-white rounded-2xl border border-[#9ecae1] p-6 space-y-5 shadow-xs">
+                      <div className="flex items-center space-x-2">
+                        <FlaskConical className="w-5 h-5 text-[#4a90d9]" />
+                        <h3 className="text-[16px] font-bold text-[#1E2A38]">Sample Concentration Calculator</h3>
+>>>>>>> origin/main
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
+<<<<<<< HEAD
                           <label className="text-caption block mb-1.5">Sample Volume (mL)</label>
+=======
+                          <label className="text-[11px] font-bold uppercase tracking-wider text-[#6b7a90] block mb-1">
+                            Sample Volume (mL)
+                          </label>
+>>>>>>> origin/main
                           <input
                             type="number"
                             value={sampleVolumeMl}
                             onChange={(e) => setSampleVolumeMl(Number(e.target.value))}
+<<<<<<< HEAD
                             className="w-full px-4 py-2.5 bg-[#EAF7FC]/40 border border-[#BBE4F2] rounded-xl text-[14px] font-bold text-[#0A2540] tabular-nums focus:outline-none focus:border-[#0891B2] focus:bg-white transition-all shadow-inner"
+=======
+                            className="w-full px-4 py-2.5 bg-white border border-[#D0DCE8] rounded-xl text-[14px] font-bold text-[#1E2A38] tabular-nums focus:outline-none focus:border-[#4a90d9]"
+>>>>>>> origin/main
                           />
                         </div>
 
                         <div>
+<<<<<<< HEAD
                           <label className="text-caption block mb-1.5">Dilution Factor</label>
+=======
+                          <label className="text-[11px] font-bold uppercase tracking-wider text-[#6b7a90] block mb-1">
+                            Dilution Factor
+                          </label>
+>>>>>>> origin/main
                           <input
                             type="number"
                             step="0.1"
                             value={dilutionFactor}
                             onChange={(e) => setDilutionFactor(Number(e.target.value))}
+<<<<<<< HEAD
                             className="w-full px-4 py-2.5 bg-[#EAF7FC]/40 border border-[#BBE4F2] rounded-xl text-[14px] font-bold text-[#0A2540] tabular-nums focus:outline-none focus:border-[#0891B2] focus:bg-white transition-all shadow-inner"
+=======
+                            className="w-full px-4 py-2.5 bg-white border border-[#D0DCE8] rounded-xl text-[14px] font-bold text-[#1E2A38] tabular-nums focus:outline-none focus:border-[#4a90d9]"
+>>>>>>> origin/main
                           />
                         </div>
                       </div>
@@ -812,13 +1073,18 @@ export const AnalyzePage: React.FC = () => {
                       <button
                         onClick={handleCalculateConcentration}
                         disabled={calcLoading}
+<<<<<<< HEAD
                         className="px-6 py-2.5 btn-primary-sci text-[13.5px] flex items-center space-x-2 cursor-pointer"
+=======
+                        className="px-6 py-2.5 bg-[#4a90d9] hover:bg-[#3a7bc0] active:scale-95 text-white text-[13px] font-bold rounded-full shadow-xs transition-all flex items-center space-x-2"
+>>>>>>> origin/main
                       >
                         <Calculator className="w-4 h-4" />
                         <span>Calculate Concentration</span>
                       </button>
 
                       {calcConcentration !== null && (
+<<<<<<< HEAD
                         <div className="p-5 bg-gradient-to-r from-white via-[#E6FBF2]/80 to-white border border-[#10B981]/40 rounded-[16px] flex items-center justify-between shadow-[0_4px_16px_rgba(16,185,129,0.1)]">
                           <div>
                             <p className="text-caption text-[#059669]">Calculated Concentration</p>
@@ -828,6 +1094,19 @@ export const AnalyzePage: React.FC = () => {
                           </div>
                           <div className="w-12 h-12 rounded-2xl bg-[#E6FBF2] border border-[#10B981]/30 flex items-center justify-center text-[#059669] shadow-xs">
                             <CheckCircle2 className="w-7 h-7 text-[#059669]" />
+=======
+                        <div className="p-4 bg-[#2ECC91]/15 border border-[#2ECC91]/30 rounded-xl flex items-center justify-between">
+                          <div>
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-[#1E2A38]">
+                              Calculated Concentration
+                            </p>
+                            <p className="text-[28px] font-extrabold text-[#1E2A38] tabular-nums">
+                              {calcConcentration} <span className="text-[15px] font-medium text-[#6b7a90]">particles / L</span>
+                            </p>
+                          </div>
+                          <div className="w-10 h-10 rounded-full bg-[#2ECC91]/25 flex items-center justify-center text-[#2ECC91]">
+                            <CheckCircle2 className="w-6 h-6 text-[#2ECC91]" />
+>>>>>>> origin/main
                           </div>
                         </div>
                       )}

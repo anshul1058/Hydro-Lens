@@ -38,3 +38,4 @@ data/processed/
 runs/
 runs_train.log
 yolov8n.pt
+/weights/

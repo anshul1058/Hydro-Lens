@@ -12,12 +12,16 @@ import {
   Calculator,
   FileJson,
   Sparkles,
+<<<<<<< HEAD
   Scan,
   Microscope,
   Layers,
   Crosshair,
   CircleDot,
   Check
+=======
+  Download
+>>>>>>> origin/main
 } from 'lucide-react';
 import { useCalibration } from '../hooks/useCalibration';
 import { useAnalysis } from '../hooks/useAnalysis';
@@ -160,6 +164,7 @@ export const AnalyzePage: React.FC = () => {
 
   const calQuality = calibrationStatus?.quality ?? 0.0;
 
+<<<<<<< HEAD
   // Retrieve existing references for the two demo cards
   const microplasticRef = references.find((r) => r.id === 'demo_microplastic_sample.jpg') || {
     id: 'demo_microplastic_sample.jpg',
@@ -172,6 +177,13 @@ export const AnalyzePage: React.FC = () => {
     label: 'Blank Filter Control',
     url: '/api/references/file/blank_filter_control.png'
   };
+=======
+  // Sample micrographs served from public/testing/ — click downloads them
+  const demoImages = [
+    { file: 'WhatsApp Image 2026-09-27 at 6.44.57 PM.jpeg', label: 'Test Sample 01' },
+    { file: 'WhatsApp Image 2026-09-27 at 6.49.43 PM.jpeg', label: 'Test Sample 02' }
+  ];
+>>>>>>> origin/main
 
   return (
     <div className="space-y-7 relative">
@@ -467,7 +479,58 @@ export const AnalyzePage: React.FC = () => {
                 </button>
               </div>
             </div>
+<<<<<<< HEAD
           </section>
+=======
+          )}
+
+          {/* Demo Test Images — click a card to download the micrograph */}
+          <div className="space-y-2">
+            <label className="text-caption block">Demo Test Images</label>
+            <div className="grid grid-cols-2 gap-2">
+              {demoImages.map((img) => (
+                <a
+                  key={img.file}
+                  href={`/testing/${encodeURIComponent(img.file)}`}
+                  download={img.file}
+                  className="p-2 rounded-[14px] border border-[#B9DFEA] bg-white/60 hover:bg-white hover:border-[#6BBFD8] hover:shadow-xs transition-all flex flex-col items-center text-center group"
+                  title={`Download ${img.label}`}
+                >
+                  <img
+                    src={`/testing/${encodeURIComponent(img.file)}`}
+                    alt={img.label}
+                    className="w-full h-16 rounded-lg object-cover border border-[#B9DFEA] bg-slate-200 mb-1.5"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                  <span className="text-[11px] font-semibold text-[#397C91]">{img.label}</span>
+                  <span className="text-[10px] text-[#5294A8] flex items-center gap-1 group-hover:text-[#3FA7C4]">
+                    <Download className="w-3 h-3" />
+                    Download
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Run Analysis Action Button */}
+          <button
+            onClick={handleStartAnalysis}
+            disabled={analyzeLoading || (sourceMode === 'upload' && !selectedFile)}
+            className="w-full py-3 bg-[#6BBFD8] hover:bg-[#5AAEC7] disabled:opacity-50 text-white font-semibold rounded-full shadow-md transition-all flex items-center justify-center space-x-2 text-[14px]"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>{analyzeLoading ? 'Processing Pipeline...' : 'Run Microplastics Screening'}</span>
+          </button>
+
+          {analyzeError && (
+            <div className="p-3 bg-[#F28B8B]/20 border border-[#F28B8B]/40 rounded-xl text-[12px] text-[#397C91] flex items-center space-x-2">
+              <AlertTriangle className="w-4 h-4 text-[#F28B8B] shrink-0" />
+              <span>{analyzeError}</span>
+            </div>
+          )}
+>>>>>>> origin/main
         </div>
 
         {/* RIGHT Column: Metrics Cards & Results */}

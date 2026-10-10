@@ -60,8 +60,8 @@ paths:
 report:
   operator: "Hydro Lens Lab Operator"
   software_version: "HydroLens v1.0.0"
-  model_version: "YOLOv8n (fine-tuned) v1.0"
-  model_parameters: "3.2 M"
+  model_version: "YOLOv8n 5-class v2.0"
+  model_parameters: "3.0 M"
   hardware: "CPU (host machine)"
   training_data: "2,980 annotated particles across 5 morphological classes (fluorescence + sewage microscopy)"
   recovery_rate: null          # spike-recovery %, null = not measured

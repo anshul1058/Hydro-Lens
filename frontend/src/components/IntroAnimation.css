@@ -1,0 +1,452 @@
+/* ═══════════════════════════════════════════════════════════════
+   IntroAnimation.css — HydroLens Cinematic Opening
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 1. Overlay Container ────────────────────────────────────── */
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* Deep oceanic gradient — starts dark, lightens */
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 60%, rgba(20, 60, 80, 0.85) 0%, transparent 70%),
+    linear-gradient(175deg, #061820 0%, #0a2a38 30%, #0f3d50 60%, #1a5568 100%);
+  will-change: opacity;
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.intro-overlay.intro-exiting {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── 2. Scientific Grid Layer ────────────────────────────────── */
+.intro-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  animation: intro-grid-reveal 1.6s ease-out 0.2s forwards;
+}
+
+.intro-grid svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes intro-grid-reveal {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* ── 3. Microscope Lens / Scanner Ring ───────────────────────── */
+.intro-lens {
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(107, 191, 216, 0.15);
+  box-shadow:
+    inset 0 0 60px rgba(107, 191, 216, 0.06),
+    0 0 80px rgba(107, 191, 216, 0.04);
+  opacity: 0;
+  animation: intro-lens-appear 1.8s ease-out 0.3s forwards;
+}
+
+.intro-lens::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(107, 191, 216, 0.1);
+}
+
+.intro-lens::after {
+  content: '';
+  position: absolute;
+  inset: 20px;
+  border-radius: 50%;
+  border: 1px dashed rgba(107, 191, 216, 0.08);
+  animation: intro-lens-rotate 20s linear infinite;
+}
+
+@keyframes intro-lens-appear {
+  0%   { opacity: 0; transform: scale(0.7); }
+  60%  { opacity: 1; transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes intro-lens-rotate {
+  to { transform: rotate(360deg); }
+}
+
+/* ── 4. Scanning Beam ────────────────────────────────────────── */
+.intro-scan-beam {
+  position: absolute;
+  width: 260px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(107, 191, 216, 0.5), rgba(101, 201, 154, 0.6), rgba(107, 191, 216, 0.5), transparent);
+  border-radius: 1px;
+  opacity: 0;
+  animation: intro-scan-sweep 2s ease-in-out 0.6s forwards;
+  box-shadow: 0 0 12px rgba(107, 191, 216, 0.3);
+}
+
+@keyframes intro-scan-sweep {
+  0%   { opacity: 0; transform: translateY(-80px); }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(80px); }
+}
+
+/* ── 5. Floating Microplastic Particles ──────────────────────── */
+.intro-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  animation: intro-particles-fade 2s ease-out 0.4s forwards;
+}
+
+@keyframes intro-particles-fade {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.intro-particle {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform, opacity;
+}
+
+/* Individual particle animations — staggered, unique trajectories */
+.intro-particle:nth-child(1)  { width: 4px; height: 4px; background: rgba(107,191,216,0.5); top: 20%; left: 15%; animation: p-float-1 7s ease-in-out infinite; }
+.intro-particle:nth-child(2)  { width: 6px; height: 6px; background: rgba(101,201,154,0.4); top: 35%; left: 78%; animation: p-float-2 9s ease-in-out 0.5s infinite; }
+.intro-particle:nth-child(3)  { width: 3px; height: 3px; background: rgba(107,191,216,0.6); top: 65%; left: 22%; animation: p-float-3 8s ease-in-out 1s infinite; }
+.intro-particle:nth-child(4)  { width: 5px; height: 5px; background: rgba(123,104,238,0.35); top: 50%; left: 60%; animation: p-float-4 11s ease-in-out 0.3s infinite; }
+.intro-particle:nth-child(5)  { width: 3px; height: 3px; background: rgba(101,201,154,0.5); top: 75%; left: 45%; animation: p-float-1 10s ease-in-out 0.7s infinite; }
+.intro-particle:nth-child(6)  { width: 7px; height: 7px; background: rgba(107,191,216,0.25); top: 15%; left: 55%; animation: p-float-2 12s ease-in-out 0.2s infinite; border-radius: 30%; }
+.intro-particle:nth-child(7)  { width: 4px; height: 4px; background: rgba(101,201,154,0.4); top: 80%; left: 70%; animation: p-float-3 9s ease-in-out 1.2s infinite; }
+.intro-particle:nth-child(8)  { width: 5px; height: 5px; background: rgba(123,104,238,0.3); top: 25%; left: 40%; animation: p-float-4 8s ease-in-out 0.8s infinite; border-radius: 20%; }
+.intro-particle:nth-child(9)  { width: 3px; height: 3px; background: rgba(107,191,216,0.45); top: 55%; left: 85%; animation: p-float-1 11s ease-in-out 1.5s infinite; }
+.intro-particle:nth-child(10) { width: 6px; height: 6px; background: rgba(101,201,154,0.3); top: 40%; left: 10%; animation: p-float-2 10s ease-in-out 0.4s infinite; border-radius: 40%; }
+.intro-particle:nth-child(11) { width: 2px; height: 2px; background: rgba(107,191,216,0.55); top: 70%; left: 32%; animation: p-float-3 7.5s ease-in-out 0.6s infinite; }
+.intro-particle:nth-child(12) { width: 4px; height: 4px; background: rgba(123,104,238,0.25); top: 10%; left: 90%; animation: p-float-4 9.5s ease-in-out 1.1s infinite; }
+
+@keyframes p-float-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+  25%      { transform: translate(18px, -24px) scale(1.15); opacity: 1; }
+  50%      { transform: translate(-12px, -40px) scale(0.9); opacity: 0.7; }
+  75%      { transform: translate(22px, -16px) scale(1.1); opacity: 0.9; }
+}
+
+@keyframes p-float-2 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.5; }
+  33%      { transform: translate(-20px, -30px) rotate(120deg); opacity: 0.9; }
+  66%      { transform: translate(14px, -50px) rotate(240deg); opacity: 0.6; }
+}
+
+@keyframes p-float-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.7; }
+  40%      { transform: translate(16px, -20px) scale(1.2); opacity: 0.4; }
+  80%      { transform: translate(-10px, -35px) scale(0.85); opacity: 1; }
+}
+
+@keyframes p-float-4 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.45; }
+  20%      { transform: translate(-15px, -18px) rotate(72deg); opacity: 0.8; }
+  50%      { transform: translate(20px, -42px) rotate(180deg); opacity: 0.5; }
+  80%      { transform: translate(-8px, -10px) rotate(288deg); opacity: 0.9; }
+}
+
+/* ── 6. Central Lens Flare / Glow Pulse ──────────────────────── */
+.intro-glow {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(107,191,216,0.2) 0%, rgba(101,201,154,0.08) 40%, transparent 70%);
+  opacity: 0;
+  animation: intro-glow-pulse 2.4s ease-in-out 0.5s forwards;
+  filter: blur(30px);
+}
+
+@keyframes intro-glow-pulse {
+  0%   { opacity: 0; transform: scale(0.5); }
+  40%  { opacity: 1; transform: scale(1.3); }
+  60%  { opacity: 0.7; transform: scale(1.1); }
+  80%  { opacity: 0.9; transform: scale(1.2); }
+  100% { opacity: 0.6; transform: scale(1); }
+}
+
+/* ── 7. Brand Wordmark — "HydroLens" ─────────────────────────── */
+.intro-brand {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.intro-wordmark {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  user-select: none;
+}
+
+.intro-letter {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: clamp(42px, 8vw, 72px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: transparent;
+  background: linear-gradient(135deg, #e2f4f8 0%, #6BBFD8 45%, #65C99A 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  opacity: 0;
+  transform: translateY(20px) scale(0.8);
+  animation: intro-letter-reveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+  filter: drop-shadow(0 2px 12px rgba(107, 191, 216, 0.25));
+}
+
+/* Staggered letter reveals — total time ~1.2s starting at 0.8s */
+.intro-letter:nth-child(1)  { animation-delay: 0.8s; }
+.intro-letter:nth-child(2)  { animation-delay: 0.88s; }
+.intro-letter:nth-child(3)  { animation-delay: 0.96s; }
+.intro-letter:nth-child(4)  { animation-delay: 1.04s; }
+.intro-letter:nth-child(5)  { animation-delay: 1.12s; }
+/* "L" — slight pause to mark second word */
+.intro-letter:nth-child(6)  { animation-delay: 1.28s; }
+.intro-letter:nth-child(7)  { animation-delay: 1.36s; }
+.intro-letter:nth-child(8)  { animation-delay: 1.44s; }
+.intro-letter:nth-child(9)  { animation-delay: 1.52s; }
+
+@keyframes intro-letter-reveal {
+  0%   { opacity: 0; transform: translateY(20px) scale(0.8); filter: blur(4px) drop-shadow(0 2px 12px rgba(107, 191, 216, 0.25)); }
+  60%  { opacity: 1; transform: translateY(-3px) scale(1.02); filter: blur(0px) drop-shadow(0 2px 12px rgba(107, 191, 216, 0.25)); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px) drop-shadow(0 2px 12px rgba(107, 191, 216, 0.25)); }
+}
+
+/* ── 8. Subtitle ─────────────────────────────────────────────── */
+.intro-subtitle {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: clamp(11px, 2vw, 14px);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: rgba(107, 191, 216, 0.7);
+  opacity: 0;
+  transform: translateY(10px);
+  animation: intro-subtitle-reveal 0.8s ease-out 1.7s forwards;
+}
+
+@keyframes intro-subtitle-reveal {
+  0%   { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 9. Logo Above Wordmark ─────────────────────────── */
+.intro-icon-container {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px;
+  border: 1px solid rgba(158, 202, 225, 0.6);
+  box-shadow: 0 0 24px rgba(74, 144, 217, 0.4), 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation: intro-icon-reveal 0.7s ease-out 0.5s forwards;
+}
+
+.intro-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.intro-icon {
+  width: 48px;
+  height: 48px;
+  opacity: 0;
+  animation: intro-icon-reveal 0.7s ease-out 0.5s forwards;
+  filter: drop-shadow(0 0 16px rgba(107, 191, 216, 0.4));
+}
+
+@keyframes intro-icon-reveal {
+  0%   { opacity: 0; transform: scale(0.5) rotate(-15deg); }
+  70%  { opacity: 1; transform: scale(1.05) rotate(2deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+/* ── 10. Horizontal Reveal Line Under Wordmark ───────────────── */
+.intro-line {
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(107,191,216,0.6), rgba(101,201,154,0.6), rgba(107,191,216,0.6), transparent);
+  border-radius: 1px;
+  animation: intro-line-expand 0.8s ease-out 1.6s forwards;
+  box-shadow: 0 0 8px rgba(107, 191, 216, 0.3);
+}
+
+@keyframes intro-line-expand {
+  0%   { width: 0; opacity: 0; }
+  100% { width: min(280px, 60vw); opacity: 1; }
+}
+
+/* ── 11. Skip Button ─────────────────────────────────────────── */
+.intro-skip {
+  position: absolute;
+  bottom: 32px;
+  right: 32px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: rgba(107, 191, 216, 0.65);
+  background: rgba(107, 191, 216, 0.06);
+  border: 1px solid rgba(107, 191, 216, 0.15);
+  border-radius: 20px;
+  cursor: pointer;
+  opacity: 0;
+  animation: intro-skip-appear 0.5s ease-out 0.8s forwards;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.intro-skip:hover {
+  color: rgba(107, 191, 216, 0.95);
+  background: rgba(107, 191, 216, 0.12);
+  border-color: rgba(107, 191, 216, 0.3);
+}
+
+.intro-skip:focus-visible {
+  outline: 2px solid rgba(107, 191, 216, 0.5);
+  outline-offset: 2px;
+}
+
+.intro-skip svg {
+  width: 14px;
+  height: 14px;
+}
+
+@keyframes intro-skip-appear {
+  0%   { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 12. Progress Bar ────────────────────────────────────────── */
+.intro-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(107,191,216,0.6), rgba(101,201,154,0.7));
+  border-radius: 0 1px 0 0;
+  animation: intro-progress-fill 3.5s linear forwards;
+  box-shadow: 0 0 8px rgba(107, 191, 216, 0.3);
+}
+
+@keyframes intro-progress-fill {
+  0%   { width: 0; }
+  100% { width: 100%; }
+}
+
+/* ── 13. Corner Decoration — Crosshairs ──────────────────────── */
+.intro-crosshair {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  opacity: 0;
+  animation: intro-crosshair-show 0.6s ease-out 0.3s forwards;
+}
+
+.intro-crosshair--tl { top: 24px; left: 24px; }
+.intro-crosshair--tr { top: 24px; right: 24px; transform: scaleX(-1); }
+.intro-crosshair--bl { bottom: 48px; left: 24px; transform: scaleY(-1); }
+.intro-crosshair--br { bottom: 48px; right: 24px; transform: scale(-1); }
+
+@keyframes intro-crosshair-show {
+  0%   { opacity: 0; }
+  100% { opacity: 0.3; }
+}
+
+/* ── 14. Reduced-Motion Accessibility ────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .intro-overlay {
+    transition: opacity 0.3s ease;
+  }
+
+  .intro-letter,
+  .intro-subtitle,
+  .intro-icon,
+  .intro-line,
+  .intro-skip,
+  .intro-glow,
+  .intro-lens,
+  .intro-scan-beam,
+  .intro-particles,
+  .intro-grid,
+  .intro-crosshair {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .intro-line {
+    width: min(280px, 60vw) !important;
+  }
+
+  .intro-lens::after {
+    animation: none !important;
+  }
+
+  .intro-particle {
+    animation: none !important;
+    opacity: 0.5 !important;
+  }
+
+  .intro-progress {
+    animation-duration: 1.5s !important;
+  }
+}
+
+/* ── 15. Mobile Adjustments ──────────────────────────────────── */
+@media (max-width: 640px) {
+  .intro-lens {
+    width: 220px;
+    height: 220px;
+  }
+
+  .intro-skip {
+    bottom: 24px;
+    right: 24px;
+    padding: 6px 14px;
+    font-size: 11px;
+  }
+
+  .intro-crosshair--bl { bottom: 40px; }
+  .intro-crosshair--br { bottom: 40px; }
+
+  .intro-icon {
+    width: 36px;
+    height: 36px;
+  }
+}

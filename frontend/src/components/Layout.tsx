@@ -98,6 +98,15 @@ export const Layout: React.FC<LayoutProps> = () => {
 
         {/* Right Side Status & Quick Calibration Button */}
         <div className="flex items-center space-x-3">
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('hydrolens:replay-intro'))}
+            className="hidden lg:flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-white/80 hover:bg-white text-[#0284C7] hover:text-[#0369A1] border border-[#BBE4F2] text-[12px] font-semibold transition-all hover:shadow-xs cursor-pointer"
+            title="Replay 3D Intro Animation"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#06B6D4]" />
+            <span>Replay 3D Intro</span>
+          </button>
+
           <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-full bg-[#E6FBF2] text-[#059669] border border-[#10B981]/35 text-[12px] font-bold shadow-xs">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>

@@ -4,9 +4,10 @@ interface MetricCardProps {
   label: string;
   value: React.ReactNode;
   subtitle?: string;
-  valueColor?: 'default' | 'mint' | 'amber' | 'rose' | 'periwinkle';
+  valueColor?: 'default' | 'mint' | 'amber' | 'rose' | 'periwinkle' | 'rust';
   icon?: React.ReactNode;
   badge?: React.ReactNode;
+  index?: number;
 }
 
 export const MetricCard: React.FC<MetricCardProps> = ({
@@ -16,40 +17,70 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   valueColor = 'default',
   icon,
   badge,
+  index = 0
 }) => {
+  // Real water bubble palette: Deep Navy Ink (#0A2540), Mint (#059669), Amber (#D97706), Sky/Ocean (#0284C7)
   const colorMap = {
-    default: 'text-[#1E2A38]',
-    mint: 'text-[#2ECC91]',
-    amber: 'text-[#F5B942]',
-    rose: 'text-[#FF6B6B]',
-    periwinkle: 'text-[#4a90d9]',
+    default: 'text-[#0A2540]',
+    mint: 'text-[#059669]',
+    amber: 'text-[#D97706]',
+    rose: 'text-[#E11D48]',
+    rust: 'text-[#DC2626]',
+    periwinkle: 'text-[#0284C7]'
   };
 
+  const tintMap = {
+    default: '',
+    mint: 'bubble-tint-mint',
+    amber: 'bubble-tint-amber',
+    rose: 'bubble-tint-rust',
+    rust: 'bubble-tint-rust',
+    periwinkle: 'bubble-tint-periwinkle'
+  };
+
+  const floatDelayClass = `bubble-float-${(index ?? 0) % 5}`;
+
   return (
-    <div className="dashboard-card bg-white border border-[#9ecae1]/70 hover:border-[#4a90d9] shadow-[0_4px_16px_rgba(74,144,217,0.06)] rounded-2xl p-5 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(74,144,217,0.12)]">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6b7a90]">
-          {label}
-        </span>
+    <div
+      className={`group relative bubble-3d-metric ${floatDelayClass} ${tintMap[valueColor]} cursor-default`}
+      role="region"
+      aria-label={`${label}: ${typeof value === 'string' || typeof value === 'number' ? value : ''} ${subtitle ?? ''}`}
+    >
+      {/* Specular curved light highlight on top-left (overhead sunlight bounce on water surface) */}
+      <div className="bubble-highlight-primary" aria-hidden="true" />
+
+      {/* Secondary ground ambient reflection / rim light at bottom-right */}
+      <div className="bubble-reflection-secondary" aria-hidden="true" />
+
+      {/* Bubble Content Container */}
+      <div className="relative z-10 flex flex-col items-center justify-center text-center w-full px-3 py-3 select-none">
+        {/* Metric Icon Chip */}
         {icon && (
-          <div className="w-8 h-8 rounded-lg bg-[#eff3ff] border border-[#9ecae1]/50 flex items-center justify-center text-[#4a90d9]">
+          <div className="w-6 h-6 rounded-full mb-1 flex items-center justify-center bg-white/85 shadow-2xs border border-[#BAE6FD] text-[#0284C7] transition-transform duration-300 group-hover:scale-110">
             {icon}
           </div>
         )}
-      </div>
 
-      <div className="flex items-baseline space-x-2 my-1">
-        <span className={`text-[24px] font-bold tabular-nums leading-tight tracking-tight ${colorMap[valueColor]}`}>
-          {value}
+        {/* Metric Label */}
+        <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.08em] text-[#0369A1] group-hover:text-[#0A2540] transition-colors leading-tight px-1">
+          {label}
         </span>
-        {badge}
-      </div>
 
-      {subtitle && (
-        <p className="text-[12px] text-[#6b7a90] font-medium mt-1 leading-snug">
-          {subtitle}
-        </p>
-      )}
+        {/* Prominent Value */}
+        <div className="my-1 flex items-baseline justify-center gap-1 max-w-[92%] px-1">
+          <span className={`text-[21px] sm:text-[24px] font-extrabold tabular-nums tracking-tight leading-none truncate ${colorMap[valueColor]}`}>
+            {value}
+          </span>
+          {badge}
+        </div>
+
+        {/* Subtitle / Unit / Descriptor */}
+        {subtitle && (
+          <span className="text-[11px] font-medium text-[#4A7F96] group-hover:text-[#0C2B42] transition-colors leading-tight truncate max-w-[90%] px-1">
+            {subtitle}
+          </span>
+        )}
+      </div>
     </div>
   );
 };

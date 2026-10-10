@@ -17,43 +17,101 @@ interface BeadChartProps {
   }[];
 }
 
+interface TooltipPayloadItem {
+  payload: {
+    target: string;
+    Nominal: number;
+    Measured: number;
+    errorPct: number;
+  };
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayloadItem[];
+  label?: string;
+}
+
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
+  if (active && payload && payload.length > 0) {
+    const pData = payload[0].payload;
+    return (
+      <div className="bg-white/98 backdrop-blur-md p-3.5 rounded-xl border border-[#BBE4F2] shadow-[0_8px_24px_rgba(8,145,178,0.12)] text-[12px] space-y-1.5 min-w-[170px]">
+        <p className="font-bold text-[#0A2540] border-b border-[#EAF7FC] pb-1">
+          Bead Target: {label}
+        </p>
+        <div className="flex items-center justify-between space-x-3 text-[#0369A1]">
+          <span className="font-medium">Nominal Size:</span>
+          <span className="font-bold tabular-nums">{pData.Nominal} µm</span>
+        </div>
+        <div className="flex items-center justify-between space-x-3 text-[#0891B2]">
+          <span className="font-medium">Measured Size:</span>
+          <span className="font-bold tabular-nums">{pData.Measured} µm</span>
+        </div>
+        <div className="flex items-center justify-between space-x-3 text-[#56889E] pt-1 border-t border-[#EAF7FC]">
+          <span>Deviation / Error:</span>
+          <span
+            className={`font-bold tabular-nums ${
+              Math.abs(pData.errorPct) > 10 ? 'text-[#DC2626]' : 'text-[#059669]'
+            }`}
+          >
+            {pData.errorPct > 0 ? `+${pData.errorPct}` : pData.errorPct}%
+          </span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 export const BeadChart: React.FC<BeadChartProps> = ({ beads }) => {
   const data = beads.map((b) => ({
     target: `${b.nominal} µm`,
     Nominal: b.nominal,
     Measured: b.measured,
-    errorPct: (((b.measured - b.nominal) / b.nominal) * 100).toFixed(1)
+    errorPct: Number((((b.measured - b.nominal) / b.nominal) * 100).toFixed(1))
   }));
 
   return (
-    <div className="w-full h-64">
+    <div className="w-full h-72">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(185,223,234,0.4)" vertical={false} />
+        <BarChart data={data} margin={{ top: 15, right: 20, left: -10, bottom: 5 }} barGap={6}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(187,228,242,0.6)" vertical={false} />
           <XAxis
             dataKey="target"
             tickLine={false}
-            axisLine={{ stroke: '#B9DFEA' }}
-            tick={{ fill: '#5294A8', fontSize: 12 }}
+            axisLine={{ stroke: '#BBE4F2' }}
+            tick={{ fill: '#2C637A', fontSize: 12, fontWeight: 600 }}
           />
           <YAxis
             tickLine={false}
             axisLine={false}
-            tick={{ fill: '#5294A8', fontSize: 12 }}
+            tick={{ fill: '#4A7F96', fontSize: 12 }}
             unit=" µm"
+            domain={[0, 'dataMax + 15']}
           />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: 'rgba(232, 248, 252, 0.95)',
-              border: '1px solid #B9DFEA',
-              borderRadius: '10px',
-              fontSize: '13px',
-              color: '#397C91'
-            }}
+          <Tooltip content={<CustomTooltip />} />
+          <Legend
+            wrapperStyle={{ paddingTop: '12px', fontSize: '12px', fontWeight: 600 }}
           />
-          <Legend wrapperStyle={{ paddingTop: '10px', fontSize: '12px' }} />
-          <Bar dataKey="Nominal" fill="#C5ECF6" radius={[4, 4, 0, 0]} name="Nominal Size (µm)" />
-          <Bar dataKey="Measured" fill="#6BBFD8" radius={[4, 4, 0, 0]} name="Measured Size (µm)" />
+          {/* Nominal reference bar (light sky blue) */}
+          <Bar
+            dataKey="Nominal"
+            name="Nominal Reference (µm)"
+            fill="#BAE6FD"
+            stroke="#38BDF8"
+            strokeWidth={1.5}
+            radius={[6, 6, 0, 0]}
+          />
+          {/* Measured size bar (ocean cyan) */}
+          <Bar
+            dataKey="Measured"
+            name="Measured Size (µm)"
+            fill="#0891B2"
+            stroke="#0369A1"
+            strokeWidth={1.5}
+            radius={[6, 6, 0, 0]}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>

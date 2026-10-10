@@ -6,10 +6,10 @@ import yaml
 import numpy as np
 import cv2
 from typing import Optional, List, Dict, Any
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Request
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Request, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, Response
 from pydantic import BaseModel
 
 from src.preprocess import preprocess_image, load_image_rgb
@@ -17,6 +17,7 @@ from src.detect import Detector
 from src.size import compute_particle_sizes
 from src.calibrate import CalibrationManager
 from src.confidence import compute_sample_confidence
+from src.pdf_report import generate_pdf_report
 from src.utils import (
     draw_annotations,
     compute_size_distribution,
@@ -56,6 +57,16 @@ async def general_exception_handler(request: Request, exc: Exception):
 # Cached singletons
 detector_instance: Optional[Detector] = None
 cal_manager_instance: Optional[CalibrationManager] = None
+
+# Recent analysis results (sample_id -> payload) for on-demand PDF generation
+ANALYSIS_CACHE_MAX = 10
+analysis_cache: Dict[str, Dict[str, Any]] = {}
+
+
+def cache_analysis(sample_id: str, payload: Dict[str, Any]) -> None:
+    analysis_cache[sample_id] = payload
+    while len(analysis_cache) > ANALYSIS_CACHE_MAX:
+        analysis_cache.pop(next(iter(analysis_cache)))
 
 def get_config() -> Dict[str, Any]:
     cfg_path = "config.yaml"
@@ -272,7 +283,7 @@ async def analyze_sample(
 
     latency_sec = float(round(time.time() - start_time, 3))
 
-    return {
+    resp = {
         "sample_id": sample_id,
         "latency_sec": latency_sec,
         "total_count": len(final_detections),
@@ -292,6 +303,13 @@ async def analyze_sample(
         "detector_fallback": detector.fallback_mode,
         "detector_load_error": detector.load_error_message
     }
+    cache_analysis(sample_id, {
+        "result": resp,
+        "calibration": cal_record,
+        "cal_quality": quality,
+        "cal_valid": is_valid,
+    })
+    return resp
 
 @app.post("/api/calibration/factor-fft")
 async def compute_factor_fft_endpoint(
@@ -420,6 +438,52 @@ def calculate_concentration_endpoint(req: ConcentrationRequest):
         "blocked": False,
         "message": "Calculated successfully"
     }
+
+@app.get("/api/report/pdf/{sample_id}")
+def download_report_pdf(
+    sample_id: str,
+    sample_volume_ml: Optional[float] = Query(None, gt=0),
+    dilution_factor: float = Query(1.0, gt=0),
+    download: bool = Query(False)
+):
+    """Generate the 12-section PDF screening report for a recent analysis."""
+    entry = analysis_cache.get(sample_id)
+    if entry is None:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": {"code": "REPORT_NOT_FOUND",
+                              "message": f"No cached analysis for sample "
+                                         f"'{sample_id}'. Re-run the analysis "
+                                         f"and try again."}}
+        )
+    try:
+        pdf_bytes = generate_pdf_report(
+            result=entry["result"],
+            config=get_config(),
+            calibration=entry.get("calibration"),
+            cal_quality=entry.get("cal_quality", 0.0),
+            cal_valid=entry.get("cal_valid", False),
+            sample_volume_ml=sample_volume_ml,
+            dilution_factor=dilution_factor,
+            report_id=f"RPT-{sample_id}",
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail={"error": {"code": "PDF_GENERATION_FAILED",
+                              "message": f"Could not build PDF report: {e}"}}
+        )
+
+    filename = f"HydroLens_Report_{sample_id}.pdf"
+    disposition = "attachment" if download else "inline"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'{disposition}; filename="{filename}"',
+            "Content-Length": str(len(pdf_bytes)),
+        },
+    )
 
 # Serve the built React frontend (registered last so /api routes win).
 _DIST = os.path.join(

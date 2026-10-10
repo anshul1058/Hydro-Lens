@@ -4,6 +4,7 @@ export interface SizePx {
   ecd: number;
   area: number;
   aspect_ratio: number;
+  circularity?: number;
 }
 
 export interface SizeUm {

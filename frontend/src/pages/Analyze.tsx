@@ -11,11 +11,18 @@ import {
   Table as TableIcon,
   Calculator,
   FileJson,
-  Sparkles,
+  FileText,
+  Download,
+  Sparkles
 } from 'lucide-react';
 import { useCalibration } from '../hooks/useCalibration';
 import { useAnalysis } from '../hooks/useAnalysis';
-import { getReferences, calculateConcentration } from '../api/client';
+import {
+  getReferences,
+  calculateConcentration,
+  getReportPdfUrl,
+  downloadReportPdf
+} from '../api/client';
 import { StatusStrip } from '../components/StatusStrip';
 import { MetricCard } from '../components/MetricCard';
 import { Dropzone } from '../components/Dropzone';
@@ -41,6 +48,10 @@ export const AnalyzePage: React.FC = () => {
   const [dilutionFactor, setDilutionFactor] = useState<number>(1.0);
   const [calcConcentration, setCalcConcentration] = useState<number | null>(null);
   const [calcLoading, setCalcLoading] = useState<boolean>(false);
+
+  // PDF report state
+  const [pdfLoading, setPdfLoading] = useState<boolean>(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   useEffect(() => {
     getReferences()
@@ -99,6 +110,34 @@ export const AnalyzePage: React.FC = () => {
   };
 
   const calQuality = calibrationStatus?.quality ?? 0.0;
+
+  const reportOpts = () => ({
+    sampleVolumeMl: sampleVolumeMl > 0 ? sampleVolumeMl : undefined,
+    dilutionFactor: dilutionFactor > 0 ? dilutionFactor : undefined
+  });
+
+  const handleViewReport = () => {
+    if (!result) return;
+    setPdfError(null);
+    window.open(
+      getReportPdfUrl(result.sample_id, reportOpts()),
+      '_blank',
+      'noopener'
+    );
+  };
+
+  const handleDownloadReport = async () => {
+    if (!result) return;
+    setPdfLoading(true);
+    setPdfError(null);
+    try {
+      await downloadReportPdf(result.sample_id, reportOpts());
+    } catch (err) {
+      setPdfError(err instanceof Error ? err.message : 'PDF download failed.');
+    } finally {
+      setPdfLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -317,6 +356,52 @@ export const AnalyzePage: React.FC = () => {
                     </li>
                   ))}
                 </ul>
+              )}
+            </div>
+          )}
+
+          {/* PDF Report: view + download after detection */}
+          {result && (
+            <div className="bg-[#E8F8FC]/85 backdrop-blur-[20px] rounded-[18px] border border-[#B9DFEA] p-4 shadow-[0_8px_24px_rgba(57,124,145,0.08)] space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-full bg-[#6BBFD8]/20 flex items-center justify-center shrink-0">
+                    <FileText className="w-5 h-5 text-[#397C91]" />
+                  </div>
+                  <div>
+                    <p className="text-[14px] font-semibold text-[#397C91]">
+                      Screening Report Ready
+                    </p>
+                    <p className="text-[12px] text-[#5294A8]">
+                      12-section PDF report for {result.sample_id}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={handleViewReport}
+                    className="px-4 py-2 bg-white hover:bg-[#6BBFD8]/15 border border-[#6BBFD8] text-[#397C91] text-[13px] font-semibold rounded-full shadow-xs transition-all flex items-center space-x-2"
+                  >
+                    <Eye className="w-4 h-4" />
+                    <span>View Report</span>
+                  </button>
+                  <button
+                    onClick={handleDownloadReport}
+                    disabled={pdfLoading}
+                    className="px-4 py-2 bg-[#6BBFD8] hover:bg-[#5AAEC7] disabled:opacity-50 text-white text-[13px] font-semibold rounded-full shadow-xs transition-all flex items-center space-x-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>{pdfLoading ? 'Preparing PDF...' : 'Download PDF'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {pdfError && (
+                <div className="p-2.5 bg-[#F28B8B]/20 border border-[#F28B8B]/40 rounded-xl text-[12px] text-[#397C91] flex items-center space-x-2">
+                  <AlertTriangle className="w-4 h-4 text-[#F28B8B] shrink-0" />
+                  <span>{pdfError}</span>
+                </div>
               )}
             </div>
           )}

@@ -119,3 +119,61 @@ export async function calculateConcentration(
   });
   return handleResponse<ConcentrationResponse>(res);
 }
+
+export interface ReportPdfOptions {
+  sampleVolumeMl?: number;
+  dilutionFactor?: number;
+  download?: boolean;
+}
+
+export function getReportPdfUrl(
+  sampleId: string,
+  opts: ReportPdfOptions = {}
+): string {
+  const params = new URLSearchParams();
+  if (opts.sampleVolumeMl != null && opts.sampleVolumeMl > 0) {
+    params.set('sample_volume_ml', String(opts.sampleVolumeMl));
+  }
+  if (opts.dilutionFactor != null && opts.dilutionFactor > 0) {
+    params.set('dilution_factor', String(opts.dilutionFactor));
+  }
+  if (opts.download) {
+    params.set('download', 'true');
+  }
+  const qs = params.toString();
+  return `${BASE_URL}/api/report/pdf/${encodeURIComponent(sampleId)}${qs ? `?${qs}` : ''}`;
+}
+
+export async function downloadReportPdf(
+  sampleId: string,
+  opts: ReportPdfOptions = {}
+): Promise<void> {
+  const res = await fetch(
+    getReportPdfUrl(sampleId, { ...opts, download: true })
+  );
+  if (!res.ok) {
+    let errorPayload: ApiErrorPayload;
+    try {
+      errorPayload = await res.json();
+    } catch {
+      errorPayload = {
+        error: {
+          code: `HTTP_${res.status}`,
+          message: res.statusText || 'Could not generate the PDF report.'
+        }
+      };
+    }
+    throw new Error(
+      errorPayload.error?.message || `Report request failed (${res.status})`
+    );
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `HydroLens_Report_${sampleId}.pdf`;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}

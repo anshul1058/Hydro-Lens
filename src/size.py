@@ -49,6 +49,7 @@ def compute_particle_sizes(
         feret_max_px = float(max(roi_w, roi_h))
         feret_min_px = float(min(roi_w, roi_h))
         area_px = float(roi_w * roi_h)
+        contour_perimeter: Optional[float] = None
 
         if roi.size > 0 and roi_w > 2 and roi_h > 2:
             try:
@@ -69,6 +70,7 @@ def compute_particle_sizes(
                     c_area = cv2.contourArea(largest_contour)
                     if c_area > 4:
                         area_px = float(c_area)
+                        contour_perimeter = float(cv2.arcLength(largest_contour, True))
                         rect = cv2.minAreaRect(largest_contour)
                         rect_w, rect_h = rect[1]
                         if rect_w > 0 and rect_h > 0:
@@ -80,12 +82,21 @@ def compute_particle_sizes(
         ecd_px = 2.0 * math.sqrt(area_px / math.pi)
         aspect_ratio = feret_max_px / max(feret_min_px, 1e-5)
 
+        if contour_perimeter is not None and contour_perimeter > 0:
+            circularity = 4.0 * math.pi * area_px / (contour_perimeter ** 2)
+        else:
+            # Rectangular fallback: 4*pi*A / P^2 of the bounding rectangle
+            perim_px = 2.0 * (roi_w + roi_h)
+            circularity = 4.0 * math.pi * area_px / (perim_px ** 2)
+        circularity = float(min(1.0, max(0.0, circularity)))
+
         det_copy["size_px"] = {
             "feret_max": round(feret_max_px, 2),
             "feret_min": round(feret_min_px, 2),
             "ecd": round(ecd_px, 2),
             "area": round(area_px, 2),
-            "aspect_ratio": round(aspect_ratio, 2)
+            "aspect_ratio": round(aspect_ratio, 2),
+            "circularity": round(circularity, 3)
         }
 
         if um_per_px is not None and um_per_px > 0:

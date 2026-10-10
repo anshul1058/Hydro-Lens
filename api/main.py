@@ -398,7 +398,7 @@ def get_diagnostics():
             "version": "1.0.0",
             "architecture": "YOLOv8n (Nano)",
             "framework": "Ultralytics YOLOv8 / PyTorch",
-            "parameters": "3.2 M",
+            "parameters": "3.0 M",
             "model_size": "~6 MB (.pt)",
             "input_resolution": "640×640 RGB",
             "latency": "1.2 s (Laptop CPU)",

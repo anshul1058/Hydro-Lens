@@ -102,3 +102,14 @@ Full table + class-merge map: `docs/DATASET.md` → "Post-Hackathon 5-Class Retr
 - **Held-out test (301 images): P 0.790 · R 0.746 · mAP50 0.832 · mAP50-95 0.670** vs baseline 0.773 / 0.776 / 0.846 / 0.676 — worse on both mAP metrics, better only on precision
 - **Verdict: KEEP.** `models/best.pt` untouched (still the 40-epoch Mac model); 100-epoch artifacts left in `training/hydro_lens_v1_100ep/` (`test_metrics.json`, `comparison.json`, `training_curves.png`)
 - Read: more epochs on the same data overfit — val climbs, test drops. Next lever is data (5-class Roboflow sets), not epochs
+
+## 2026-10-10 — Phase 3: 5-Class Detector Retrain (R2 + R4 + R5) — eval DONE, not deployed
+
+- Notebook: `training/train_multiclass_phase2.ipynb` (runner: `training/run_notebook.py train_multiclass_phase2.ipynb`)
+- Dataset: `data/processed_multi/` built by `training/prepare_multi_dataset.py` — R2 all-plastic + R4 microplastic-final (OBB→HBB) + R5 annotations (11→5 classes), dirt dropped, group-aware 85/10/5 split (7,662 original-image groups — no leakage), **11,585 train / 1,364 val / 682 test**, `nc: 5` (fragment/fiber/film/foam/pellet)
+- Hyperparams: YOLOv8n, **50 epochs**, patience 20, batch 16, imgsz 640, seed 42; fine-tuned from `models/best.pt` (detection head rebuilt for nc=5)
+- Windows fix: DataLoader spawn deadlocks in Jupyter → `workers=0` on both train and val
+- **Held-out test (682 images): P 0.8188 · R 0.806 · mAP50 0.8367 · mAP50-95 0.4822**
+- Per-class mAP50: fragment 0.9052 · fiber 0.8173 · film 0.8164 · pellet 0.8078 — **foam not evaluated**: zero foam boxes in the held-out test split (test labels: 0×969, 1×406, 2×122, 4×150)
+- Artifacts: `training/multiclass_phase2_v1/` (`train/weights/best.pt` 6.25 MB, `results.csv`, `comparison.json`, `training_curves.png`)
+- **Verdict: NOT deployed.** `models/best.pt` untouched (still the binary 1-class model). Promoting the 5-class weights is a separate decision — Decision 1 above flags the class-name/order contract in `config.yaml` must match the new 5-class `data.yaml` on promotion

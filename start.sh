@@ -6,12 +6,27 @@ PID_FILE=".backend.pid"
 LOG_FILE="backend.log"
 PORT="${PORT:-8000}"
 
+# Prefer the project venv (system python lacks torch/ultralytics)
+if [ -x ".venv/Scripts/python.exe" ]; then
+  PYTHON=".venv/Scripts/python.exe"   # Windows venv
+elif [ -x ".venv/bin/python" ]; then
+  PYTHON=".venv/bin/python"           # Linux/macOS venv
+else
+  PYTHON="python"
+fi
+
+# The API serves frontend/dist at "/" — build it if missing
+if [ ! -f frontend/dist/index.html ]; then
+  echo "frontend/dist missing — building..."
+  npm run build --prefix frontend
+fi
+
 start() {
   if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
     echo "Backend already running (pid $(cat "$PID_FILE"))"
     exit 0
   fi
-  nohup python -m uvicorn api.main:app --host 127.0.0.1 --port "$PORT" --reload \
+  nohup "$PYTHON" -m uvicorn api.main:app --host 127.0.0.1 --port "$PORT" --reload \
     >"$LOG_FILE" 2>&1 &
   PID=$!
   echo "$PID" >"$PID_FILE"

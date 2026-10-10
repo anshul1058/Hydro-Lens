@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Sliders, ShieldCheck, Cpu, Clock, CheckCircle2, AlertTriangle, ArrowRight, Sparkles, Scale, Info } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, AlertTriangle, ArrowRight, Sparkles, Scale, Info } from 'lucide-react';
 import { useCalibration } from '../hooks/useCalibration';
 import { computeFactorFft, computeFactorManual, saveCalibration } from '../api/client';
-import { MetricCard } from '../components/MetricCard';
+import { MetricSpheres } from '../components/MetricSpheres';
 import { BeadChart } from '../components/BeadChart';
 import microscopeTechImg from '../assets/hero_lab_microscope.jpg';
 
@@ -109,54 +109,13 @@ export const CalibrationPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* 4 Floating 3D Calibration Bubbles */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 my-2">
-        <MetricCard
-          label="Scale Factor"
-          value={`${computedFactor.toFixed(3)}`}
-          subtitle="µm / pixel"
-          valueColor="periwinkle"
-          icon={<Sliders className="w-3.5 h-3.5" />}
-          index={0}
-        />
-
-        <MetricCard
-          label="Magnification"
-          value={magnification}
-          subtitle="Objective Optical Zoom"
-          valueColor="default"
-          icon={<Cpu className="w-3.5 h-3.5" />}
-          index={1}
-        />
-
-        <MetricCard
-          label="Status"
-          value={
-            calLoading ? (
-              'Loading...'
-            ) : quality === 1.0 ? (
-              <span className="text-[13px] sm:text-[14px] font-bold text-[#059669]">VALID &amp; ACTIVE</span>
-            ) : quality === 0.5 ? (
-              <span className="text-[13px] sm:text-[14px] font-bold text-[#D97706]">STALE (&gt;7d)</span>
-            ) : (
-              <span className="text-[13px] sm:text-[14px] font-bold text-[#9B3418]">REQUIRED</span>
-            )
-          }
-          subtitle={calibrationStatus?.reason ?? 'Check System Status'}
-          valueColor={quality === 1.0 ? 'mint' : quality === 0.5 ? 'amber' : 'rust'}
-          icon={<ShieldCheck className="w-3.5 h-3.5" />}
-          index={2}
-        />
-
-        <MetricCard
-          label="Expiry"
-          value={record?.expires ? record.expires.substring(0, 10) : 'N/A'}
-          subtitle="7-Day Safety Rule"
-          valueColor="default"
-          icon={<Clock className="w-3.5 h-3.5" />}
-          index={3}
-        />
-      </div>
+      {/* 3D Glassmorphic Metric Spheres */}
+      <MetricSpheres
+        scaleFactor={Number(computedFactor.toFixed(3))}
+        magnification={magnification}
+        status={calLoading ? 'Loading...' : quality === 1.0 ? 'VALID' : 'REQUIRED'}
+        expiry={record?.expires ? record.expires.substring(0, 10) : 'N/A'}
+      />
 
       {/* Notification Toast/Message */}
       {message && (

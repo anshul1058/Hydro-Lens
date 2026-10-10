@@ -10,7 +10,7 @@ const steps: { id: PipelineStep; label: string }[] = [
   { id: 'preprocessing', label: 'Preprocessing' },
   { id: 'inference', label: 'Inference' },
   { id: 'sizing', label: 'Sizing' },
-  { id: 'confidence', label: 'Confidence' }
+  { id: 'confidence', label: 'Confidence' },
 ];
 
 export const Stepper: React.FC<StepperProps> = ({ currentStep }) => {
@@ -34,7 +34,7 @@ export const Stepper: React.FC<StepperProps> = ({ currentStep }) => {
   const currentIndex = getStepIndex(currentStep);
 
   return (
-    <div className="w-full bg-[#E8F8FC]/85 backdrop-blur-[20px] rounded-[18px] border border-[#B9DFEA] p-4 shadow-[0_4px_20px_rgba(57,124,145,0.06)] mb-6">
+    <div className="w-full bg-white rounded-2xl border border-[#9ecae1] p-4 shadow-[0_4px_20px_rgba(74,144,217,0.06)] mb-6">
       <div className="flex items-center justify-between max-w-2xl mx-auto px-4">
         {steps.map((step, idx) => {
           const isDone = currentIndex > idx || currentStep === 'complete';
@@ -44,12 +44,12 @@ export const Stepper: React.FC<StepperProps> = ({ currentStep }) => {
             <React.Fragment key={step.id}>
               <div className="flex items-center space-x-2">
                 <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-semibold transition-all ${
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold transition-all ${
                     isDone
-                      ? 'bg-[#65C99A] text-white'
+                      ? 'bg-[#2ECC91] text-white'
                       : isCurrent
-                      ? 'bg-[#6BBFD8] text-white shadow-xs animate-pulse'
-                      : 'bg-[#B9DFEA]/60 text-[#5294A8]'
+                      ? 'bg-[#4a90d9] text-white shadow-xs animate-pulse'
+                      : 'bg-[#eff3ff] text-[#6b7a90] border border-[#D0DCE8]'
                   }`}
                 >
                   {isDone ? (
@@ -61,8 +61,8 @@ export const Stepper: React.FC<StepperProps> = ({ currentStep }) => {
                   )}
                 </div>
                 <span
-                  className={`text-[13px] font-medium ${
-                    isDone || isCurrent ? 'text-[#397C91]' : 'text-[#5294A8]'
+                  className={`text-[13px] font-semibold ${
+                    isDone || isCurrent ? 'text-[#1E2A38]' : 'text-[#6b7a90]'
                   }`}
                 >
                   {step.label}
@@ -71,7 +71,7 @@ export const Stepper: React.FC<StepperProps> = ({ currentStep }) => {
               {idx < steps.length - 1 && (
                 <div
                   className={`flex-1 h-0.5 mx-3 transition-all ${
-                    currentIndex > idx ? 'bg-[#65C99A]' : 'bg-[#B9DFEA]/60'
+                    currentIndex > idx ? 'bg-[#2ECC91]' : 'bg-[#D0DCE8]'
                   }`}
                 />
               )}

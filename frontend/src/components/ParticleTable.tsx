@@ -64,63 +64,63 @@ export const ParticleTable: React.FC<ParticleTableProps> = ({ detections }) => {
 
   if (detections.length === 0) {
     return (
-      <div className="p-8 text-center bg-[#E8F8FC]/60 rounded-[14px] border border-[#B9DFEA]">
-        <p className="text-[14px] text-[#5294A8]">No particles detected in current sample.</p>
+      <div className="p-8 text-center bg-white rounded-2xl border border-[#9ecae1]">
+        <p className="text-[14px] text-[#6b7a90] font-medium">No particles detected in current sample.</p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-[14px] border border-[#B9DFEA] bg-[#E8F8FC]/80 backdrop-blur-[10px]">
+    <div className="overflow-x-auto rounded-2xl border border-[#9ecae1] bg-white shadow-xs">
       <table className="w-full text-left border-collapse text-[13px]">
         <thead>
-          <tr className="bg-[#E8F8FC] border-b border-[#B9DFEA] text-[#5294A8] text-[11px] font-semibold uppercase tracking-[0.06em]">
-            <th onClick={() => handleSort('id')} className="py-3 px-4 cursor-pointer hover:bg-white/80 transition-all">
+          <tr className="bg-[#eff3ff] border-b border-[#9ecae1] text-[#6b7a90] text-[11px] font-bold uppercase tracking-wider">
+            <th onClick={() => handleSort('id')} className="py-3.5 px-4 cursor-pointer hover:bg-white/80 transition-all">
               <div className="flex items-center space-x-1">
                 <span>ID</span>
                 <ArrowUpDown className="w-3 h-3" />
               </div>
             </th>
-            <th onClick={() => handleSort('class_name')} className="py-3 px-4 cursor-pointer hover:bg-white/80 transition-all">
+            <th onClick={() => handleSort('class_name')} className="py-3.5 px-4 cursor-pointer hover:bg-white/80 transition-all">
               <div className="flex items-center space-x-1">
                 <span>Class</span>
                 <ArrowUpDown className="w-3 h-3" />
               </div>
             </th>
-            <th onClick={() => handleSort('confidence')} className="py-3 px-4 cursor-pointer hover:bg-white/80 transition-all">
+            <th onClick={() => handleSort('confidence')} className="py-3.5 px-4 cursor-pointer hover:bg-white/80 transition-all">
               <div className="flex items-center space-x-1">
                 <span>Confidence</span>
                 <ArrowUpDown className="w-3 h-3" />
               </div>
             </th>
-            <th onClick={() => handleSort('feret_max')} className="py-3 px-4 cursor-pointer hover:bg-white/80 transition-all">
+            <th onClick={() => handleSort('feret_max')} className="py-3.5 px-4 cursor-pointer hover:bg-white/80 transition-all">
               <div className="flex items-center space-x-1">
                 <span>Feret Max/Min (µm)</span>
                 <ArrowUpDown className="w-3 h-3" />
               </div>
             </th>
-            <th onClick={() => handleSort('ecd')} className="py-3 px-4 cursor-pointer hover:bg-white/80 transition-all">
+            <th onClick={() => handleSort('ecd')} className="py-3.5 px-4 cursor-pointer hover:bg-white/80 transition-all">
               <div className="flex items-center space-x-1">
                 <span>ECD (µm)</span>
                 <ArrowUpDown className="w-3 h-3" />
               </div>
             </th>
-            <th onClick={() => handleSort('aspect_ratio')} className="py-3 px-4 cursor-pointer hover:bg-white/80 transition-all">
+            <th onClick={() => handleSort('aspect_ratio')} className="py-3.5 px-4 cursor-pointer hover:bg-white/80 transition-all">
               <div className="flex items-center space-x-1">
                 <span>Aspect Ratio</span>
                 <ArrowUpDown className="w-3 h-3" />
               </div>
             </th>
-            <th onClick={() => handleSort('needs_lab')} className="py-3 px-4 cursor-pointer hover:bg-white/80 transition-all">
+            <th onClick={() => handleSort('needs_lab')} className="py-3.5 px-4 cursor-pointer hover:bg-white/80 transition-all">
               <div className="flex items-center space-x-1">
                 <span>Needs Lab</span>
                 <ArrowUpDown className="w-3 h-3" />
               </div>
             </th>
-            <th className="py-3 px-4">Reasons</th>
+            <th className="py-3.5 px-4">Reasons</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#B9DFEA]/60 text-[#397C91]">
+        <tbody className="divide-y divide-[#D0DCE8]/60 text-[#1E2A38]">
           {sortedDetections.map((det) => {
             const feretMax = det.size_um?.feret_max ?? det.size_px?.feret_max;
             const feretMin = det.size_um?.feret_min ?? det.size_px?.feret_min;
@@ -129,45 +129,45 @@ export const ParticleTable: React.FC<ParticleTableProps> = ({ detections }) => {
             const isUncalibrated = det.size_um?.ecd === null;
 
             return (
-              <tr key={det.id} className="hover:bg-white/60 transition-all">
-                <td className="py-2.5 px-4 font-semibold tabular-nums text-[#3FA7C4]">#{det.id}</td>
-                <td className="py-2.5 px-4">
-                  <span className="capitalize px-2 py-0.5 rounded-md text-[12px] font-medium bg-[#6BBFD8]/20 text-[#397C91]">
+              <tr key={det.id} className="hover:bg-[#eff3ff]/50 transition-colors">
+                <td className="py-3 px-4 font-bold tabular-nums text-[#4a90d9]">#{det.id}</td>
+                <td className="py-3 px-4">
+                  <span className="capitalize px-2.5 py-1 rounded-md text-[12px] font-semibold bg-[#4a90d9]/10 text-[#1E2A38] border border-[#9ecae1]/50">
                     {det.class_name}
                   </span>
                 </td>
-                <td className="py-2.5 px-4 tabular-nums font-medium">
+                <td className="py-3 px-4 tabular-nums font-semibold">
                   {(det.confidence * 100).toFixed(1)}%
                 </td>
-                <td className="py-2.5 px-4 tabular-nums">
+                <td className="py-3 px-4 tabular-nums text-[#6b7a90]">
                   {isUncalibrated ? (
-                    <span className="text-[#5294A8] italic">Blocked</span>
+                    <span className="text-[#6b7a90] italic">Blocked</span>
                   ) : (
                     `${feretMax ?? '-'} / ${feretMin ?? '-'}`
                   )}
                 </td>
-                <td className="py-2.5 px-4 tabular-nums font-semibold">
+                <td className="py-3 px-4 tabular-nums font-bold text-[#1E2A38]">
                   {isUncalibrated ? (
-                    <span className="text-[#5294A8] italic">Blocked</span>
+                    <span className="text-[#6b7a90] italic">Blocked</span>
                   ) : (
                     `${ecd ?? '-'} µm`
                   )}
                 </td>
-                <td className="py-2.5 px-4 tabular-nums">{aspect.toFixed(2)}</td>
-                <td className="py-2.5 px-4">
+                <td className="py-3 px-4 tabular-nums text-[#6b7a90]">{aspect.toFixed(2)}</td>
+                <td className="py-3 px-4">
                   {det.needs_lab_confirmation ? (
-                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#F28B8B]/25 text-[#397C91]">
-                      <AlertTriangle className="w-3 h-3 text-[#F28B8B]" />
+                    <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FF6B6B]/15 text-[#FF6B6B] border border-[#FF6B6B]/30">
+                      <AlertTriangle className="w-3 h-3" />
                       <span>REQUIRED</span>
                     </span>
                   ) : (
-                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#65C99A]/25 text-[#397C91]">
-                      <CheckCircle2 className="w-3 h-3 text-[#65C99A]" />
-                      <span>NO</span>
+                    <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#2ECC91]/15 text-[#2ECC91] border border-[#2ECC91]/30">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>PASSED</span>
                     </span>
                   )}
                 </td>
-                <td className="py-2.5 px-4 text-[12px] text-[#5294A8]">
+                <td className="py-3 px-4 text-[12px] text-[#6b7a90]">
                   {det.lab_confirmation_reasons && det.lab_confirmation_reasons.length > 0
                     ? det.lab_confirmation_reasons.join(', ')
                     : '—'}

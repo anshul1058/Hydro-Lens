@@ -29,23 +29,23 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, sampleId }) => {
   };
 
   return (
-    <div className="w-full bg-[#1F3E48] rounded-[18px] border border-[#397C91]/30 p-5 shadow-lg overflow-hidden flex flex-col text-[#E8F8FC]">
-      <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#397C91]/40">
-        <span className="text-[12px] font-mono uppercase tracking-[0.06em] text-[#A2D8E6]">
+    <div className="w-full bg-[#1E2A38] rounded-2xl border border-[#9ecae1]/40 p-5 shadow-lg overflow-hidden flex flex-col text-white">
+      <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
+        <span className="text-[12px] font-mono font-semibold uppercase tracking-wider text-[#9ecae1]">
           JSON Report Export • {sampleId}
         </span>
         <div className="flex items-center space-x-2">
           <button
             onClick={handleCopy}
-            className="px-3 py-1.5 rounded-lg bg-[#2B5462] hover:bg-[#346272] text-[#E8F8FC] text-[12px] font-medium transition-all flex items-center space-x-1.5"
+            className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[12px] font-semibold transition-all flex items-center space-x-1.5"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-[#65C99A]" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-[#2ECC91]" /> : <Copy className="w-3.5 h-3.5" />}
             <span>{copied ? 'Copied' : 'Copy'}</span>
           </button>
 
           <button
             onClick={handleDownload}
-            className="px-4 py-1.5 rounded-lg bg-[#6BBFD8] hover:bg-[#5AAEC7] text-white text-[12px] font-semibold shadow-xs transition-all flex items-center space-x-1.5"
+            className="px-4 py-1.5 rounded-lg bg-[#4a90d9] hover:bg-[#3a7bc0] active:scale-95 text-white text-[12px] font-semibold shadow-xs transition-all flex items-center space-x-1.5"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Download JSON</span>
@@ -53,7 +53,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, sampleId }) => {
         </div>
       </div>
 
-      <pre className="text-[12px] font-mono bg-[#162D35] p-4 rounded-xl overflow-x-auto max-h-[420px] text-[#65C99A] leading-relaxed">
+      <pre className="text-[12px] font-mono bg-black/30 p-4 rounded-xl overflow-x-auto max-h-[420px] text-[#2ECC91] leading-relaxed">
         {jsonStr}
       </pre>
     </div>

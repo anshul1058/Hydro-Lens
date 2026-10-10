@@ -12,7 +12,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
   onFileSelect,
   selectedFile,
   onClear,
-  disabled = false
+  disabled = false,
 }) => {
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -46,21 +46,21 @@ export const Dropzone: React.FC<DropzoneProps> = ({
 
   if (selectedFile) {
     return (
-      <div className="w-full bg-[#E8F8FC] border border-[#6BBFD8]/40 rounded-[14px] p-4 flex items-center justify-between shadow-xs">
+      <div className="w-full bg-[#eff3ff]/70 border border-[#4a90d9]/40 rounded-xl p-4 flex items-center justify-between shadow-xs">
         <div className="flex items-center space-x-3 overflow-hidden">
-          <div className="w-10 h-10 rounded-lg bg-[#6BBFD8]/20 flex items-center justify-center text-[#3FA7C4] shrink-0">
+          <div className="w-10 h-10 rounded-lg bg-[#4a90d9]/15 flex items-center justify-center text-[#4a90d9] shrink-0 border border-[#9ecae1]">
             <FileImage className="w-5 h-5" />
           </div>
           <div className="truncate">
-            <p className="text-[13px] font-semibold text-[#397C91] truncate">{selectedFile.name}</p>
-            <p className="text-[11px] text-[#5294A8]">
+            <p className="text-[13px] font-bold text-[#1E2A38] truncate">{selectedFile.name}</p>
+            <p className="text-[11px] text-[#6b7a90] font-medium">
               {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
             </p>
           </div>
         </div>
         <button
           onClick={onClear}
-          className="p-1.5 rounded-full hover:bg-[#B9DFEA]/60 text-[#5294A8] transition-all"
+          className="p-1.5 rounded-full hover:bg-white text-[#6b7a90] hover:text-[#FF6B6B] transition-colors"
           title="Remove file"
         >
           <X className="w-4 h-4" />
@@ -75,10 +75,10 @@ export const Dropzone: React.FC<DropzoneProps> = ({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onClick={() => !disabled && fileInputRef.current?.click()}
-      className={`w-full border-2 border-dashed rounded-[14px] p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center ${
+      className={`w-full border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center ${
         isDragOver
-          ? 'border-[#6BBFD8] bg-[#6BBFD8]/15'
-          : 'border-[#B9DFEA] hover:border-[#6BBFD8] bg-[#E8F8FC]/60 hover:bg-[#E8F8FC]'
+          ? 'border-[#4a90d9] bg-[#4a90d9]/10'
+          : 'border-[#9ecae1] hover:border-[#4a90d9] bg-[#eff3ff]/50 hover:bg-[#eff3ff]'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       <input
@@ -89,13 +89,13 @@ export const Dropzone: React.FC<DropzoneProps> = ({
         className="hidden"
         disabled={disabled}
       />
-      <div className="w-12 h-12 rounded-full bg-[#6BBFD8]/20 flex items-center justify-center text-[#3FA7C4] mb-3">
+      <div className="w-12 h-12 rounded-2xl bg-white border border-[#9ecae1] shadow-xs flex items-center justify-center text-[#4a90d9] mb-3">
         <UploadCloud className="w-6 h-6" />
       </div>
-      <p className="text-[14px] font-semibold text-[#397C91] mb-1">
-        Drag &amp; drop optical image or <span className="text-[#3FA7C4]">browse</span>
+      <p className="text-[14px] font-bold text-[#1E2A38] mb-1">
+        Drag &amp; drop optical image or <span className="text-[#4a90d9]">browse</span>
       </p>
-      <p className="text-[12px] text-[#5294A8] uppercase tracking-[0.06em]">
+      <p className="text-[11px] font-semibold text-[#6b7a90] uppercase tracking-wider">
         JPG, PNG, TIFF · max 50 MB
       </p>
     </div>

@@ -1,4 +1,5 @@
 import os
+import re
 import io
 import time
 import base64
@@ -56,7 +57,7 @@ async def general_exception_handler(request: Request, exc: Exception):
     )
 
 # Cached singletons
-detector_instance: Optional[Detector] = None
+detector_cache: Dict[str, Detector] = {}
 cal_manager_instance: Optional[CalibrationManager] = None
 
 # Recent analysis results (sample_id -> payload) for on-demand PDF generation
@@ -76,13 +77,23 @@ def get_config() -> Dict[str, Any]:
             return yaml.safe_load(f)
     return {}
 
-def get_detector() -> Detector:
-    global detector_instance
-    if detector_instance is None:
-        cfg = get_config()
-        weights_path = cfg.get("model", {}).get("weights_path", "models/best.pt")
-        detector_instance = Detector(weights_path=weights_path, config=cfg)
-    return detector_instance
+def resolve_weights_path(cfg: Dict[str, Any], hint: Optional[str]) -> str:
+    """Auto-route to a model by token in the filename / dataset id (see model.routing)."""
+    model_cfg = cfg.get("model", {})
+    default = model_cfg.get("weights_path", "models/best.pt")
+    name = (hint or "").lower()
+    if not name:
+        return default
+    for rule in model_cfg.get("routing") or []:
+        for token in rule.get("match", []):
+            if re.search(rf"(?:^|[^a-z0-9]){re.escape(str(token))}(?:[^a-z0-9]|$)", name):
+                return rule.get("weights_path", default)
+    return default
+
+def get_detector(weights_path: str) -> Detector:
+    if weights_path not in detector_cache:
+        detector_cache[weights_path] = Detector(weights_path=weights_path, config=get_config())
+    return detector_cache[weights_path]
 
 def get_cal_manager() -> CalibrationManager:
     global cal_manager_instance
@@ -220,10 +231,12 @@ async def analyze_sample(
 
     # 1. Preprocess
     prep_res = preprocess_image(source, config)
-    prep_img = prep_res["preprocessed"]
+    prep_img = prep_res["enhanced"]  # full-res enhanced; YOLO letterboxes internally
 
-    # 2. Detector
-    detector = get_detector()
+    # 2. Detector (auto-routed by upload filename / dataset id)
+    hint = file.filename if (file is not None and file.filename) else reference_id
+    weights_path = resolve_weights_path(config, hint)
+    detector = get_detector(weights_path)
     raw_detections = detector.predict(prep_img)
 
     # 3. Calibration check
@@ -322,7 +335,8 @@ async def analyze_sample(
             "annotated": cv2_to_b64(annotated_img)
         },
         "detector_fallback": detector.fallback_mode,
-        "detector_load_error": detector.load_error_message
+        "detector_load_error": detector.load_error_message,
+        "detection_model": weights_path
     }
     cache_analysis(sample_id, {
         "result": resp,

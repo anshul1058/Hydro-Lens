@@ -112,7 +112,8 @@ def preprocess_image(
     4. Letterbox resize to 640x640 RGB
 
     Returns dict with:
-        - 'preprocessed': 640x640x3 uint8 RGB array
+        - 'preprocessed': 640x640x3 uint8 RGB letterbox array (preview)
+        - 'enhanced': full-resolution CLAHE-enhanced RGB (for detect/size/draw)
         - 'original': uint8 RGB array (original dimensions)
         - 'ratio': (ratio_w, ratio_h)
         - 'pad': (dw, dh)
@@ -171,6 +172,7 @@ def preprocess_image(
 
     return {
         "preprocessed": prep_640,
+        "enhanced": enhanced,
         "original": orig_rgb,
         "ratio": ratio,
         "pad": pad,

@@ -5,12 +5,20 @@ app:
   allowed_extensions: [".jpg", ".jpeg", ".png", ".tif", ".tiff"]
 
 model:
+  # Default detector: Phase-3 5-class model (Roboflow R2+R4+R5)
   weights_path: "models/best.pt"
   input_size: 640
-  conf_threshold: 0.25
+  conf_threshold: 0.5
   iou_threshold: 0.45
   max_det: 300
   classes: ["fragment", "fiber", "film", "foam", "pellet"]
+  # Auto-route an upload to a detector by token in its filename / dataset id.
+  # First matching rule wins; otherwise model.weights_path is used.
+  routing:
+    - match: ["d1", "d4"]
+      weights_path: "models/best_v1_binary.pt"   # 100-epoch binary model (D1+D4)
+    - match: ["r2", "r4", "r5", "roboflow"]
+      weights_path: "models/best.pt"             # Phase-3 5-class model (Roboflow)
 
 preprocessing:
   median_blur_kernel: 3

@@ -1,0 +1,295 @@
+{
+  "model_weights": "models/best.pt",
+  "calibration_quality": 0.5,
+  "calibration_factor_um_per_px": 0.417,
+  "conditions": {
+    "nominal": {
+      "measurement_status": "DEFERRED",
+      "failed_gates": [
+        {
+          "name": "calibration_freshness",
+          "passed": false,
+          "severity": "defer",
+          "value": 0.5,
+          "limit": "1.0 (active, <= 7 days)",
+          "message": "Calibration is stale (> 7 days old). Counts are reported; micrometre sizes and concentration are deferred. Recalibrate with a stage micrometer."
+        }
+      ],
+      "quality_metrics": {
+        "sharpness_laplacian_var": 821.99,
+        "luma_mean": 228.56,
+        "clipped_pct": 1.049,
+        "rms_contrast": 0.1154,
+        "factor_um_per_px": 0.417
+      },
+      "particle_count": 3,
+      "mean_ecd_um": null,
+      "size_distribution_reported": false,
+      "concentration": null,
+      "needs_lab_confirmation": true,
+      "latency_sec": 0.037
+    },
+    "defocus_blur": {
+      "measurement_status": "REJECTED",
+      "failed_gates": [
+        {
+          "name": "sharpness",
+          "passed": false,
+          "severity": "reject",
+          "value": 0.31,
+          "limit": ">= 100.0",
+          "message": "Severe optical blur detected (Laplacian variance 0.3 < 100.0). Particle perimeter extraction and sizing are unreliable. Please refocus."
+        },
+        {
+          "name": "contrast",
+          "passed": false,
+          "severity": "reject",
+          "value": 0.0788,
+          "limit": ">= 0.08",
+          "message": "Flat-field image (RMS contrast 0.079 < 0.08). Particle boundaries cannot be distinguished from background."
+        },
+        {
+          "name": "calibration_freshness",
+          "passed": false,
+          "severity": "defer",
+          "value": 0.5,
+          "limit": "1.0 (active, <= 7 days)",
+          "message": "Calibration is stale (> 7 days old). Counts are reported; micrometre sizes and concentration are deferred. Recalibrate with a stage micrometer."
+        }
+      ],
+      "quality_metrics": {
+        "sharpness_laplacian_var": 0.31,
+        "luma_mean": 228.59,
+        "clipped_pct": 0.0,
+        "rms_contrast": 0.0788,
+        "factor_um_per_px": 0.417
+      },
+      "particle_count": 4,
+      "mean_ecd_um": null,
+      "size_distribution_reported": false,
+      "concentration": null,
+      "needs_lab_confirmation": true,
+      "latency_sec": 0.02
+    },
+    "underexposed": {
+      "measurement_status": "REJECTED",
+      "failed_gates": [
+        {
+          "name": "sharpness",
+          "passed": false,
+          "severity": "reject",
+          "value": 34.8,
+          "limit": ">= 100.0",
+          "message": "Severe optical blur detected (Laplacian variance 34.8 < 100.0). Particle perimeter extraction and sizing are unreliable. Please refocus."
+        },
+        {
+          "name": "contrast",
+          "passed": false,
+          "severity": "reject",
+          "value": 0.0193,
+          "limit": ">= 0.08",
+          "message": "Flat-field image (RMS contrast 0.019 < 0.08). Particle boundaries cannot be distinguished from background."
+        },
+        {
+          "name": "calibration_freshness",
+          "passed": false,
+          "severity": "defer",
+          "value": 0.5,
+          "limit": "1.0 (active, <= 7 days)",
+          "message": "Calibration is stale (> 7 days old). Counts are reported; micrometre sizes and concentration are deferred. Recalibrate with a stage micrometer."
+        }
+      ],
+      "quality_metrics": {
+        "sharpness_laplacian_var": 34.8,
+        "luma_mean": 45.38,
+        "clipped_pct": 1.343,
+        "rms_contrast": 0.0193,
+        "factor_um_per_px": 0.417
+      },
+      "particle_count": 3,
+      "mean_ecd_um": null,
+      "size_distribution_reported": false,
+      "concentration": null,
+      "needs_lab_confirmation": true,
+      "latency_sec": 0.02
+    },
+    "overexposed_washout": {
+      "measurement_status": "REJECTED",
+      "failed_gates": [
+        {
+          "name": "exposure",
+          "passed": false,
+          "severity": "reject",
+          "value": 251.95,
+          "limit": "40..240 luma, <= 2.0% clipped",
+          "message": "Lighting outside supported range (mean luminance 251.9, clipped 96.5%). Faint particles are lost or washed out. Adjust illumination."
+        },
+        {
+          "name": "calibration_freshness",
+          "passed": false,
+          "severity": "defer",
+          "value": 0.5,
+          "limit": "1.0 (active, <= 7 days)",
+          "message": "Calibration is stale (> 7 days old). Counts are reported; micrometre sizes and concentration are deferred. Recalibrate with a stage micrometer."
+        }
+      ],
+      "quality_metrics": {
+        "sharpness_laplacian_var": 138.88,
+        "luma_mean": 251.95,
+        "clipped_pct": 96.55,
+        "rms_contrast": 0.1856,
+        "factor_um_per_px": 0.417
+      },
+      "particle_count": 3,
+      "mean_ecd_um": null,
+      "size_distribution_reported": false,
+      "concentration": null,
+      "needs_lab_confirmation": true,
+      "latency_sec": 0.016
+    },
+    "flat_field_low_contrast": {
+      "measurement_status": "REJECTED",
+      "failed_gates": [
+        {
+          "name": "sharpness",
+          "passed": false,
+          "severity": "reject",
+          "value": 6.89,
+          "limit": ">= 100.0",
+          "message": "Severe optical blur detected (Laplacian variance 6.9 < 100.0). Particle perimeter extraction and sizing are unreliable. Please refocus."
+        },
+        {
+          "name": "contrast",
+          "passed": false,
+          "severity": "reject",
+          "value": 0.0079,
+          "limit": ">= 0.08",
+          "message": "Flat-field image (RMS contrast 0.008 < 0.08). Particle boundaries cannot be distinguished from background."
+        },
+        {
+          "name": "calibration_freshness",
+          "passed": false,
+          "severity": "defer",
+          "value": 0.5,
+          "limit": "1.0 (active, <= 7 days)",
+          "message": "Calibration is stale (> 7 days old). Counts are reported; micrometre sizes and concentration are deferred. Recalibrate with a stage micrometer."
+        }
+      ],
+      "quality_metrics": {
+        "sharpness_laplacian_var": 6.89,
+        "luma_mean": 137.94,
+        "clipped_pct": 0.0,
+        "rms_contrast": 0.0079,
+        "factor_um_per_px": 0.417
+      },
+      "particle_count": 2,
+      "mean_ecd_um": null,
+      "size_distribution_reported": false,
+      "concentration": null,
+      "needs_lab_confirmation": true,
+      "latency_sec": 0.019
+    },
+    "scale_mismatch_2x_zoom": {
+      "measurement_status": "REJECTED",
+      "failed_gates": [
+        {
+          "name": "sharpness",
+          "passed": false,
+          "severity": "reject",
+          "value": 30.38,
+          "limit": ">= 100.0",
+          "message": "Severe optical blur detected (Laplacian variance 30.4 < 100.0). Particle perimeter extraction and sizing are unreliable. Please refocus."
+        },
+        {
+          "name": "calibration_freshness",
+          "passed": false,
+          "severity": "defer",
+          "value": 0.5,
+          "limit": "1.0 (active, <= 7 days)",
+          "message": "Calibration is stale (> 7 days old). Counts are reported; micrometre sizes and concentration are deferred. Recalibrate with a stage micrometer."
+        }
+      ],
+      "quality_metrics": {
+        "sharpness_laplacian_var": 30.38,
+        "luma_mean": 228.47,
+        "clipped_pct": 0.004,
+        "rms_contrast": 0.1092,
+        "factor_um_per_px": 0.417
+      },
+      "particle_count": 3,
+      "mean_ecd_um": null,
+      "size_distribution_reported": false,
+      "concentration": null,
+      "needs_lab_confirmation": true,
+      "latency_sec": 0.048
+    },
+    "scale_factor_out_of_range": {
+      "measurement_status": "REJECTED",
+      "failed_gates": [
+        {
+          "name": "scale_factor",
+          "passed": false,
+          "severity": "reject",
+          "value": 5.0,
+          "limit": "0.2..2.5 um/px",
+          "message": "Calibration factor 5.0 um/px is outside the supported optical range (0.2-2.5 um/px). Zoom/magnification likely changed since calibration. Recalibrate with a stage micrometer."
+        },
+        {
+          "name": "calibration_freshness",
+          "passed": false,
+          "severity": "defer",
+          "value": 0.5,
+          "limit": "1.0 (active, <= 7 days)",
+          "message": "Calibration is stale (> 7 days old). Counts are reported; micrometre sizes and concentration are deferred. Recalibrate with a stage micrometer."
+        }
+      ],
+      "quality_metrics": {
+        "sharpness_laplacian_var": 821.99,
+        "luma_mean": 228.56,
+        "clipped_pct": 1.049,
+        "rms_contrast": 0.1154,
+        "factor_um_per_px": 5.0
+      },
+      "particle_count": 3,
+      "mean_ecd_um": null,
+      "size_distribution_reported": false,
+      "concentration": null,
+      "needs_lab_confirmation": false,
+      "latency_sec": 0.019
+    },
+    "blank_filter_control": {
+      "measurement_status": "REJECTED",
+      "failed_gates": [
+        {
+          "name": "contrast",
+          "passed": false,
+          "severity": "reject",
+          "value": 0.0061,
+          "limit": ">= 0.08",
+          "message": "Flat-field image (RMS contrast 0.006 < 0.08). Particle boundaries cannot be distinguished from background."
+        },
+        {
+          "name": "calibration_freshness",
+          "passed": false,
+          "severity": "defer",
+          "value": 0.5,
+          "limit": "1.0 (active, <= 7 days)",
+          "message": "Calibration is stale (> 7 days old). Counts are reported; micrometre sizes and concentration are deferred. Recalibrate with a stage micrometer."
+        }
+      ],
+      "quality_metrics": {
+        "sharpness_laplacian_var": 192.43,
+        "luma_mean": 236.76,
+        "clipped_pct": 0.323,
+        "rms_contrast": 0.0061,
+        "factor_um_per_px": 0.417
+      },
+      "particle_count": 0,
+      "mean_ecd_um": null,
+      "size_distribution_reported": false,
+      "concentration": null,
+      "needs_lab_confirmation": true,
+      "latency_sec": 0.016
+    }
+  }
+}

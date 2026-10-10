@@ -545,6 +545,46 @@ export const AnalyzePage: React.FC = () => {
             </div>
           )}
 
+{/* Capture-condition rejection / deferral banner */}
+          {result?.measurement_status && result.measurement_status !== 'OK' && (
+            <div
+              className={`p-4 rounded-2xl text-[13px] border ${
+                result.measurement_status === 'REJECTED'
+                  ? 'bg-[#FF6B6B]/12 border-[#FF6B6B]/40 text-[#8B1E1E]'
+                  : 'bg-[#F5B942]/12 border-[#F5B942]/40 text-[#6b5200]'
+              }`}
+            >
+              <div className="flex items-start space-x-3">
+                <AlertTriangle
+                  className={`w-5 h-5 shrink-0 mt-0.5 ${
+                    result.measurement_status === 'REJECTED' ? 'text-[#FF6B6B]' : 'text-[#F5B942]'
+                  }`}
+                />
+                <div className="space-y-1">
+                  <span className="font-extrabold uppercase tracking-wide">
+                    {result.measurement_status === 'REJECTED'
+                      ? 'Measurement Rejected — Capture Conditions Unreliable'
+                      : 'Measurement Deferred — Quantitative Results Blocked'}
+                  </span>
+                  <p className="text-[12px] opacity-90">
+                    Particle counts are shown for reference only. Micrometre sizes and concentration are
+                    not reported to avoid false precision.
+                  </p>
+                  <ul className="space-y-0.5 text-[12px]">
+                    {result.capture_quality.gates
+                      .filter((g) => !g.passed)
+                      .map((g) => (
+                        <li key={g.name} className="flex items-start space-x-1.5">
+                          <span className="font-bold">·</span>
+                          <span>{g.message}</span>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Row of 5 Glass Metric Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
             {analyzeLoading ? (
@@ -613,6 +653,73 @@ export const AnalyzePage: React.FC = () => {
               </>
             )}
           </div>
+
+          {/* Capture Quality Telemetry (Addition 1) */}
+          {result?.capture_quality && (
+            <div className="bg-white rounded-2xl border border-[#9ecae1]/50 p-4 shadow-xs">
+              <div className="flex items-center space-x-2 mb-3">
+                <Info className="w-4 h-4 text-[#4a90d9]" />
+                <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b7a90]">
+                  Capture Quality Telemetry
+                </span>
+                <span
+                  className={`ml-auto px-2.5 py-0.5 rounded-full text-[11px] font-extrabold ${
+                    result.capture_quality.status === 'OK'
+                      ? 'bg-[#2ECC91]/15 text-[#1a7a55]'
+                      : result.capture_quality.status === 'DEFERRED'
+                      ? 'bg-[#F5B942]/20 text-[#8a6500]'
+                      : 'bg-[#FF6B6B]/15 text-[#8B1E1E]'
+                  }`}
+                >
+                  {result.capture_quality.status}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                {(
+                  [
+                    {
+                      key: 'sharpness',
+                      label: 'Sharpness',
+                      value: result.capture_quality.metrics.sharpness_laplacian_var.toFixed(1),
+                      unit: 'Laplacian var',
+                      passed: result.capture_quality.gates.find((g) => g.name === 'sharpness')?.passed,
+                    },
+                    {
+                      key: 'exposure',
+                      label: 'Exposure',
+                      value: result.capture_quality.metrics.luma_mean.toFixed(1),
+                      unit: `luma · ${result.capture_quality.metrics.clipped_pct.toFixed(1)}% clip`,
+                      passed: result.capture_quality.gates.find((g) => g.name === 'exposure')?.passed,
+                    },
+                    {
+                      key: 'contrast',
+                      label: 'Contrast',
+                      value: result.capture_quality.metrics.rms_contrast.toFixed(3),
+                      unit: 'RMS contrast',
+                      passed: result.capture_quality.gates.find((g) => g.name === 'contrast')?.passed,
+                    },
+                  ] as const
+                ).map((m) => (
+                  <div
+                    key={m.key}
+                    className={`rounded-xl border p-3 ${
+                      m.passed ? 'border-[#2ECC91]/40 bg-[#2ECC91]/5' : 'border-[#FF6B6B]/40 bg-[#FF6B6B]/5'
+                    }`}
+                  >
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-[#6b7a90]">{m.label}</p>
+                    <p
+                      className={`text-[20px] font-extrabold tabular-nums ${
+                        m.passed ? 'text-[#1a7a55]' : 'text-[#8B1E1E]'
+                      }`}
+                    >
+                      {m.value}
+                    </p>
+                    <p className="text-[10px] text-[#6b7a90]">{m.unit}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Stepper active during loading */}
           {analyzeLoading && <Stepper currentStep={step} />}
@@ -878,14 +985,16 @@ export const AnalyzePage: React.FC = () => {
               {/* Tab 4: Concentration Calculator */}
               {activeTab === 'concentration' && (
                 <div className="space-y-4">
-                  {calQuality === 0.0 ? (
+{calQuality !== 1.0 || result?.measurement_status === 'REJECTED' ? (
                     <div className="p-8 bg-gradient-to-br from-white to-[#FEECEB]/60 border border-[#EF4444]/40 rounded-[20px] text-center space-y-3 shadow-[0_4px_20px_rgba(239,68,68,0.08)]">
                       <div className="w-12 h-12 rounded-2xl bg-[#FEECEB] border border-[#EF4444]/30 flex items-center justify-center text-[#DC2626] mx-auto shadow-xs">
                         <AlertTriangle className="w-6 h-6" />
                       </div>
                       <h4 className="text-section-title text-[#0A2540]">Concentration Calculation Blocked</h4>
                       <p className="text-body text-[#2C637A] max-w-md mx-auto">
-                        Calculating particles per liter requires an active micro-scale calibration factor. Please recalibrate in the Calibration Portal.
+                        {result?.measurement_status === 'REJECTED'
+                          ? 'Capture conditions are outside the supported range (see rejection banner above). Particle concentration cannot be reported without false precision. Fix capture conditions and re-image the sample.'
+                          : 'Calculating particles per liter requires an active in-date micro-scale calibration (≤ 7 days). Please recalibrate in the Calibration Portal.'}
                       </p>
                     </div>
                   ) : (

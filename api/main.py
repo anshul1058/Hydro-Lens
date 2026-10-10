@@ -18,6 +18,7 @@ from src.size import compute_particle_sizes
 from src.calibrate import CalibrationManager
 from src.confidence import compute_sample_confidence
 from src.pdf_report import generate_pdf_report
+from src.quality import assess_capture_quality
 from src.utils import (
     draw_annotations,
     compute_size_distribution,
@@ -232,6 +233,15 @@ async def analyze_sample(
     
     um_per_px = cal_record.get("factor_um_per_px") if (cal_record and is_valid and quality > 0.0) else None
 
+    # 3b. Capture-condition reliability gates (Addition 1)
+    quality_report = assess_capture_quality(
+        orig_rgb=prep_res["original"],
+        calibration=cal_record,
+        cal_quality=quality,
+        config=config
+    )
+    measurement_status = quality_report["status"]
+
     # 4. Sizing
     sized_detections = compute_particle_sizes(
         image=prep_img,
@@ -248,6 +258,15 @@ async def analyze_sample(
         config=config
     )
 
+    # 5b. Surface failed capture gates as pipeline flags
+    for gate in quality_report["gates"]:
+        if not gate["passed"]:
+            flags_list.append({
+                "type": f"capture_{gate['name']}",
+                "message": gate["message"]
+            })
+            needs_lab_flag = True
+
     # 6. Draw annotations
     annotated_img = draw_annotations(
         prep_img,
@@ -255,8 +274,8 @@ async def analyze_sample(
         show_sizes=(um_per_px is not None)
     )
 
-    # 7. Size distribution (blocked if calibration quality == 0.0)
-    if quality > 0.0:
+    # 7. Size distribution (only with active calibration and acceptable capture)
+    if quality == 1.0 and measurement_status != "REJECTED":
         size_dist = compute_size_distribution(final_detections)
     else:
         size_dist = {}
@@ -293,6 +312,8 @@ async def analyze_sample(
         "imaged_area_mm2": imaged_area_mm2,
         "flags": flags_list,
         "breakdown": breakdown,
+        "measurement_status": measurement_status,
+        "capture_quality": quality_report,
         "detections": final_detections,
         "report": report,
         "images": {
@@ -390,6 +411,17 @@ def get_diagnostics():
             {"name": "foam", "description": "Porous cellular structure", "count": 320},
             {"name": "pellet", "description": "Spherical pre-production bead", "count": 210}
         ],
+        "supported_conditions": {
+            "detection_range_um": {"min": 10, "max": 5000},
+            "valid_scale_factor_um_per_px": {"min": 0.2, "max": 2.5},
+            "calibration_validity_days": 7,
+            "capture_gates": {
+                "sharpness": "Laplacian variance >= 100 (defocus blur rejection)",
+                "exposure": "mean luminance 40-240, clipped pixels <= 2%",
+                "contrast": "RMS contrast >= 0.08 over signal pixels (flat-field rejection)"
+            },
+            "policy": "Capture-condition failures REJECT quantitative sizing and concentration; stale calibration DEFERS them. Counts remain reported with explicit reasons."
+        },
         "limitations": [
             {
                 "id": 1,
@@ -420,11 +452,11 @@ def calculate_concentration_endpoint(req: ConcentrationRequest):
     cal_record = cal_mgr.load()
     is_valid, reason, quality = cal_mgr.is_valid(cal_record)
     
-    if quality == 0.0 or req.imaged_area_mm2 <= 0:
+    if quality != 1.0 or req.imaged_area_mm2 <= 0:
         return {
             "concentration": None,
             "blocked": True,
-            "message": "Calibration required — quantitative concentration is blocked"
+            "message": "Active, in-date calibration required — quantitative concentration is blocked until the documented calibration process is completed."
         }
     
     conc = calculate_concentration(

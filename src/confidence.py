@@ -37,6 +37,7 @@ def compute_sample_confidence(
 
     conf_cfg = config.get("confidence", {})
     sizing_cfg = config.get("sizing", {})
+    quality_cfg = config.get("quality", {})
 
     low_det_thresh = conf_cfg.get("low_threshold", 0.5)
     sample_low_thresh = conf_cfg.get("sample_low_threshold", 0.6)
@@ -45,6 +46,7 @@ def compute_sample_confidence(
     flag_size_um = sizing_cfg.get("flag_size_um", 5000)
     flag_aspect_ratio = sizing_cfg.get("flag_aspect_ratio", 10)
     flag_classes = set(sizing_cfg.get("flag_classes", ["film", "foam", "pellet"]))
+    min_ecd_um = quality_cfg.get("min_ecd_um", 10.0)
 
     # 1. Calibration Quality
     if calibration is None:
@@ -140,7 +142,12 @@ def compute_sample_confidence(
 
         size_um = d_copy.get("size_um", {})
         feret_max_um = size_um.get("feret_max") if size_um else None
+        ecd_um = size_um.get("ecd") if size_um else None
         aspect_ratio = size_um.get("aspect_ratio", 1.0) if size_um else 1.0
+
+        if ecd_um is not None and ecd_um < min_ecd_um:
+            particle_needs_lab = True
+            reasons.append(f"ECD {ecd_um:.1f}µm below supported detection range (< {min_ecd_um}µm)")
 
         if feret_max_um is not None and feret_max_um > flag_size_um:
             particle_needs_lab = True

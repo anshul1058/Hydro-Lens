@@ -17,6 +17,18 @@ preprocessing:
   clahe_clip_limit: 2.0
   clahe_tile_grid: [8, 8]
 
+# Capture-condition reliability gates (Addition 1)
+quality:
+  min_laplacian_var: 100.0   # normalized Laplacian variance; below = defocus blur
+  min_luma: 40                # mean luminance; below = severe underexposure
+  max_luma: 240               # above = sensor washout (glare caught by clipping gate)
+  max_clipped_pct: 2.0        # % pixels <15 or >245 intensity
+  min_rms_contrast: 0.08      # RMS over signal pixels (<235); below = flat field
+  min_um_per_px: 0.2          # supported optical scale range (100x-400x objectives)
+  max_um_per_px: 2.5
+  min_ecd_um: 10.0            # documented detection range lower bound
+  max_ecd_um: 5000.0          # 5 mm upper bound
+
 calibration:
   validity_days: 7
   bead_nominal_um: [10, 50, 100]

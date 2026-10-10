@@ -109,6 +109,31 @@ export interface AnalyzeImages {
   annotated: string;
 }
 
+export interface QualityGate {
+  name: string;
+  passed: boolean;
+  severity: 'reject' | 'defer';
+  value: number | null;
+  limit: string;
+  message: string;
+}
+
+export interface CaptureQualityMetrics {
+  sharpness_laplacian_var: number;
+  luma_mean: number;
+  clipped_pct: number;
+  rms_contrast: number;
+  factor_um_per_px: number | null;
+}
+
+export interface CaptureQualityReport {
+  status: 'OK' | 'DEFERRED' | 'REJECTED';
+  metrics: CaptureQualityMetrics;
+  gates: QualityGate[];
+}
+
+export type MeasurementStatus = 'OK' | 'DEFERRED' | 'REJECTED';
+
 export interface AnalyzeResponse {
   sample_id: string;
   latency_sec: number;
@@ -119,6 +144,8 @@ export interface AnalyzeResponse {
   imaged_area_mm2: number;
   flags: FlagItem[];
   breakdown: Breakdown;
+  measurement_status: MeasurementStatus;
+  capture_quality: CaptureQualityReport;
   detections: Detection[];
   report: ReportJson;
   images: AnalyzeImages;

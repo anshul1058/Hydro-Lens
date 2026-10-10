@@ -55,11 +55,18 @@ def test_sizing():
     assert sz_um["feret_max"] > 0
     assert sz_um["ecd"] > 0
 
-def test_calibration_manager():
-    mgr = CalibrationManager(cal_file="data/calibration/calibration.json")
-    cal = mgr.load()
-    assert cal is not None
-    is_valid, reason, quality = mgr.is_valid(cal)
+def test_calibration_manager(tmp_path):
+    # Use a synthetic fresh record (the checked-in calibration.json is date-expiring)
+    mgr = CalibrationManager(cal_file=str(tmp_path / "cal.json"))
+    from datetime import datetime, timedelta, timezone
+    now = datetime.now(timezone.utc)
+    record = {
+        "valid": True,
+        "factor_um_per_px": 0.417,
+        "timestamp": now.isoformat(),
+        "expires": (now + timedelta(days=7)).isoformat(),
+    }
+    is_valid, reason, quality = mgr.is_valid(record)
     assert is_valid is True
     assert quality == 1.0
 

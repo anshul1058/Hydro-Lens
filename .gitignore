@@ -15,6 +15,7 @@ frontend/.git-nested-backup/
 # Logs
 logs
 *.log
+.backend.pid
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

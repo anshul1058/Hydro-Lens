@@ -43,3 +43,7 @@ runs/
 runs_train.log
 yolov8n.pt
 /weights/
+
+# Phase 4: derived fine-tune datasets + temp val yamls
+training/active_learning_v1/data_*/
+training/active_learning_v1/_val_*.yaml

@@ -1,0 +1,90 @@
+{
+  "results": {
+    "original": {
+      "turbid": {
+        "precision": 0.5464,
+        "recall": 0.3098,
+        "mAP50": 0.319,
+        "mAP50-95": 0.1367,
+        "per_class_mAP50": {
+          "fragment": 0.39,
+          "fiber": 0.1592,
+          "film": 0.5839,
+          "pellet": 0.1428
+        }
+      },
+      "clean": {
+        "precision": 0.8188,
+        "recall": 0.806,
+        "mAP50": 0.8367,
+        "mAP50-95": 0.4822,
+        "per_class_mAP50": {
+          "fragment": 0.9052,
+          "fiber": 0.8173,
+          "film": 0.8164,
+          "pellet": 0.8078
+        }
+      }
+    },
+    "uncertainty": {
+      "turbid": {
+        "precision": 0.5206,
+        "recall": 0.3139,
+        "mAP50": 0.3193,
+        "mAP50-95": 0.1369,
+        "per_class_mAP50": {
+          "fragment": 0.3977,
+          "fiber": 0.1574,
+          "film": 0.5851,
+          "pellet": 0.137
+        }
+      },
+      "clean": {
+        "precision": 0.8217,
+        "recall": 0.8083,
+        "mAP50": 0.8354,
+        "mAP50-95": 0.4824,
+        "per_class_mAP50": {
+          "fragment": 0.9047,
+          "fiber": 0.8195,
+          "film": 0.8163,
+          "pellet": 0.8009
+        }
+      }
+    },
+    "random": {
+      "turbid": {
+        "precision": 0.5847,
+        "recall": 0.2924,
+        "mAP50": 0.3043,
+        "mAP50-95": 0.1193,
+        "per_class_mAP50": {
+          "fragment": 0.2425,
+          "fiber": 0.2134,
+          "film": 0.6215,
+          "pellet": 0.1398
+        }
+      },
+      "clean": {
+        "precision": 0.8198,
+        "recall": 0.7629,
+        "mAP50": 0.8058,
+        "mAP50-95": 0.4383,
+        "per_class_mAP50": {
+          "fragment": 0.863,
+          "fiber": 0.7997,
+          "film": 0.8373,
+          "pellet": 0.7232
+        }
+      }
+    }
+  },
+  "delta_mAP50_turbid": {
+    "uncertainty": 0.0003,
+    "random": -0.0147
+  },
+  "retention_delta_mAP50_clean": {
+    "uncertainty": -0.0013,
+    "random": -0.0309
+  }
+}

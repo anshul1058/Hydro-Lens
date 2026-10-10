@@ -113,3 +113,15 @@ Full table + class-merge map: `docs/DATASET.md` → "Post-Hackathon 5-Class Retr
 - Per-class mAP50: fragment 0.9052 · fiber 0.8173 · film 0.8164 · pellet 0.8078 — **foam not evaluated**: zero foam boxes in the held-out test split (test labels: 0×969, 1×406, 2×122, 4×150)
 - Artifacts: `training/multiclass_phase2_v1/` (`train/weights/best.pt` 6.25 MB, `results.csv`, `comparison.json`, `training_curves.png`)
 - **Verdict: NOT deployed.** `models/best.pt` untouched (still the binary 1-class model). Promoting the 5-class weights is a separate decision — Decision 1 above flags the class-name/order contract in `config.yaml` must match the new 5-class `data.yaml` on promotion
+
+## 2026-10-10 � Phase 4 / Addition 2: Active Learning Adaptation Workflow � DONE (experiment only, demo untouched)
+
+- Scripts: `scripts/active_learning_{prepare,select,finetune,eval}.py`; demo notebook `training/active_learning_phase4.ipynb` (outputs saved); artifacts `training/active_learning_v1/`
+- Budget **B = 50**, candidate pool 1,000 seeded train images; acquisition = margin (top1 - top2 detection conf @ conf=0.001, no detection ? 0); random baseline = seed 43 from the same pool (`active_learning_indices.json`)
+- Unseen condition = **synthetic turbidity** (blur + Gaussian noise + brightness/contrast drop) over all 682 test images ? `data/processed_multi/test_turbid/` (geometry unchanged ? labels valid); original test kept as retention set; group integrity holds (pool ? train, test derivatives stay in test)
+- Fine-tunes: 15 epochs each from `models/best.pt` (read-only), batch 16, imgsz 640, workers=0 ? `runs/{uncertainty,random}/`
+- **Turbid mAP50:** original 0.3190 ? uncertainty 0.3193 (**? +0.0003**) vs random 0.3043 (? -0.0147). Original collapses 0.837 ? 0.319 under turbidity (fiber 0.16, pellet 0.14) � real domain shift
+- **Retention clean mAP50:** uncertainty 0.8354 (**? -0.0013, no forgetting**) vs random 0.8058 (? -0.0309, forgets)
+- **Verdict: uncertainty acquisition beats random at the same budget on both criteria** (new-condition + retention). Absolute turbid gains are tiny at B=50/15 epochs � next levers are real turbid labels or B = 200
+- Artifacts: `active_learning_indices.json`, `comparison.json`, `figures/cm_{method}_{cond}.png` (6 before/after confusion matrices), `runs/*/results.csv`
+- `models/best.pt` never written � live demo (port 8000) unaffected throughout

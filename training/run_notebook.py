@@ -1,17 +1,20 @@
-"""Execute training/train_100_epochs.ipynb code cells in order (no Jupyter install needed).
+"""Execute training notebook code cells in order (no Jupyter install needed).
 
-Usage:  python training/run_notebook.py
+Usage:  python training/run_notebook.py [notebook.ipynb]
+        (defaults to train_100_epochs.ipynb)
 """
 
 import json
 import os
+import sys
 import time
 from pathlib import Path
 
 os.environ.setdefault("MPLBACKEND", "Agg")
 
 def main():
-    nb_path = Path(__file__).with_name("train_100_epochs.ipynb")
+    nb_name = sys.argv[1] if len(sys.argv) > 1 else "train_100_epochs.ipynb"
+    nb_path = Path(__file__).with_name(nb_name)
     nb = json.loads(nb_path.read_text(encoding="utf-8"))
     ns = {"__name__": "__main__", "__file__": str(nb_path)}
 

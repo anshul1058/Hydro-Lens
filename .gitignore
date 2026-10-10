@@ -35,6 +35,9 @@ lerna-debug.log*
 # ML: datasets, training outputs, downloaded weights
 data/raw/
 data/processed/
+data/processed_multi/
+data/uploads/
+training/multiclass_phase2_v1/
 runs/
 runs_train.log
 yolov8n.pt

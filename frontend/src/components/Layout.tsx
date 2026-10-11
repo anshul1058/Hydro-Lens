@@ -29,7 +29,7 @@ export const Layout: React.FC<LayoutProps> = () => {
     },
     {
       to: '/diagnostics',
-      label: 'System Diagnostics',
+      label: 'Documentation',
       icon: Activity,
       end: false
     }
@@ -267,7 +267,7 @@ export const Layout: React.FC<LayoutProps> = () => {
                 Calibration Portal
               </NavLink>
               <NavLink to="/diagnostics" className="hover:text-[#0284C7] transition-colors">
-                System Diagnostics
+                Documentation
               </NavLink>
               <NavLink to="/login" className="hover:text-[#0284C7] transition-colors">
                 Operator Portal

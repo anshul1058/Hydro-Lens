@@ -351,46 +351,6 @@ export const AnalyzePage: React.FC = () => {
             </div>
           )}
 
-{/* Capture-condition rejection / deferral banner */}
-          {result?.measurement_status && result.measurement_status !== 'OK' && (
-            <div
-              className={`p-4 rounded-2xl text-[13px] border ${
-                result.measurement_status === 'REJECTED'
-                  ? 'bg-[#FF6B6B]/12 border-[#FF6B6B]/40 text-[#8B1E1E]'
-                  : 'bg-[#F5B942]/12 border-[#F5B942]/40 text-[#6b5200]'
-              }`}
-            >
-              <div className="flex items-start space-x-3">
-                <AlertTriangle
-                  className={`w-5 h-5 shrink-0 mt-0.5 ${
-                    result.measurement_status === 'REJECTED' ? 'text-[#FF6B6B]' : 'text-[#F5B942]'
-                  }`}
-                />
-                <div className="space-y-1">
-                  <span className="font-extrabold uppercase tracking-wide">
-                    {result.measurement_status === 'REJECTED'
-                      ? 'Measurement Rejected — Capture Conditions Unreliable'
-                      : 'Measurement Deferred — Quantitative Results Blocked'}
-                  </span>
-                  <p className="text-[12px] opacity-90">
-                    Particle counts are shown for reference only. Micrometre sizes and concentration are
-                    not reported to avoid false precision.
-                  </p>
-                  <ul className="space-y-0.5 text-[12px]">
-                    {result.capture_quality.gates
-                      .filter((g) => !g.passed)
-                      .map((g) => (
-                        <li key={g.name} className="flex items-start space-x-1.5">
-                          <span className="font-bold">·</span>
-                          <span>{g.message}</span>
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Row of 5 Floating 3D Metric Bubbles */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 my-2">
             {analyzeLoading ? (
@@ -728,7 +688,7 @@ export const AnalyzePage: React.FC = () => {
                       <h4 className="text-section-title text-[#0A2540]">Concentration Calculation Blocked</h4>
                       <p className="text-body text-[#2C637A] max-w-md mx-auto">
                         {result?.measurement_status === 'REJECTED'
-                          ? 'Capture conditions are outside the supported range (see rejection banner above). Particle concentration cannot be reported without false precision. Fix capture conditions and re-image the sample.'
+                          ? 'Capture conditions are outside the supported range. Particle concentration cannot be reported without false precision. Fix capture conditions and re-image the sample.'
                           : 'Calculating particles per liter requires an active in-date micro-scale calibration (≤ 7 days). Please recalibrate in the Calibration Portal.'}
                       </p>
                     </div>

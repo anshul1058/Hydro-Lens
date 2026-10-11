@@ -251,51 +251,15 @@ export const Layout: React.FC<LayoutProps> = () => {
 
       {/* Clean, Minimal, Professional Scientific Footer */}
       <footer className="py-8 border-t border-[#BBE4F2] bg-white/85 backdrop-blur-md text-[#4A7F96] text-[12px] font-medium transition-colors">
-        <div className="max-w-[1260px] mx-auto px-4 sm:px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-b border-[#EAF7FC]">
-            {/* Left: Brand Identity */}
-            <div className="flex items-center space-x-3">
-              <HydroLensLogo size="sm" showText={true} />
-            </div>
-
-            {/* Center: Navigation Links */}
-            <div className="flex flex-wrap items-center justify-center gap-6 text-[13px] font-semibold text-[#2C637A]">
-              <NavLink to="/" className="hover:text-[#0284C7] transition-colors">
-                Sample Analysis
-              </NavLink>
-              <NavLink to="/calibration" className="hover:text-[#0284C7] transition-colors">
-                Calibration Portal
-              </NavLink>
-              <NavLink to="/diagnostics" className="hover:text-[#0284C7] transition-colors">
-                Documentation
-              </NavLink>
-              <NavLink to="/login" className="hover:text-[#0284C7] transition-colors">
-                Operator Portal
-              </NavLink>
-            </div>
-
-            {/* Right: Scientific Compliance Badges */}
-            <div className="flex items-center space-x-2">
-              <span className="px-2.5 py-1 rounded-full bg-[#EAF7FC] border border-[#BBE4F2] text-[11px] font-bold text-[#0284C7]">
-                ISO/TR 21960
-              </span>
-              <span className="px-2.5 py-1 rounded-full bg-[#E6FBF2] border border-[#10B981]/30 text-[11px] font-bold text-[#059669]">
-                ASTM D8332
-              </span>
-            </div>
-          </div>
-
-          {/* Bottom Copyright & Protocol Metadata */}
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-[#56889E]">
-            <p>
-              © 2026 Hydro-Lens Research Platform • Optical Field Microplastic Screening System.
-            </p>
-            <p className="flex items-center gap-2">
-              <span>NIST Standard Traceability</span>
-              <span>•</span>
-              <span>YOLOv8 Morphology Inference</span>
-            </p>
-          </div>
+        <div className="max-w-[1260px] mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-[#56889E]">
+          <p>
+            © 2026 Hydro-Lens Research Platform • Optical Field Microplastic Screening System.
+          </p>
+          <p className="flex items-center gap-2">
+            <span>NIST Standard Traceability</span>
+            <span>•</span>
+            <span>YOLOv8 Morphology Inference</span>
+          </p>
         </div>
       </footer>
     </div>

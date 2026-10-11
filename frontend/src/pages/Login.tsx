@@ -25,6 +25,11 @@ const GoogleLogo: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' })
   </svg>
 );
 
+type GsiClient = {
+  initialize: (config: { client_id: string; callback: (response: { credential?: string }) => void }) => void;
+  prompt: () => void;
+};
+
 const TICKER_MESSAGES = [
   'Detects 5 particle classes',
   '2.8 s on Raspberry Pi 4',
@@ -177,6 +182,31 @@ export const LoginPage: React.FC = () => {
     }
   };
 
+  type GsiResponse = { credential?: string };
+
+  const handleGoogleCredential = async (response: GsiResponse) => {
+    try {
+      if (!response.credential) throw new Error('No credential returned.');
+      const payload = JSON.parse(
+        atob(response.credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))
+      ) as { email?: string; name?: string; sub?: string; picture?: string };
+      if (!payload.email) throw new Error('No email in token');
+      await login({
+        email: payload.email,
+        name: payload.name,
+        avatarUrl: payload.picture,
+        remember: true,
+      });
+      setSuccess(true);
+      setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 400);
+    } catch {
+      setErrorMsg('Google authentication failed. Please try again.');
+      setLoading(false);
+    }
+  };
+
   const handleGoogleSignIn = () => {
     setErrorMsg(null);
     const googleClientId = (import.meta as { env?: { VITE_GOOGLE_CLIENT_ID?: string } }).env?.VITE_GOOGLE_CLIENT_ID;
@@ -186,15 +216,16 @@ export const LoginPage: React.FC = () => {
       return;
     }
 
-    // Redirect to Google OAuth 2.0 authorization endpoint
-    const redirectUri = `${window.location.origin}/auth/google/callback`;
-    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
-      googleClientId
-    )}&redirect_uri=${encodeURIComponent(
-      redirectUri
-    )}&response_type=token&scope=email%20profile%20openid&prompt=select_account`;
+    setLoading(true);
+    const gsi = (window as unknown as { google?: { accounts?: { id?: GsiClient } } }).google?.accounts?.id;
+    if (!gsi || typeof gsi.initialize !== 'function' || typeof gsi.prompt !== 'function') {
+      setErrorMsg('Google Sign-In script not loaded yet. Please refresh and try again.');
+      setLoading(false);
+      return;
+    }
 
-    window.location.href = googleAuthUrl;
+    gsi.initialize({ client_id: googleClientId, callback: handleGoogleCredential });
+    gsi.prompt();
   };
 
   return (

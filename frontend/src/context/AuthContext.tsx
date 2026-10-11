@@ -12,7 +12,7 @@ export interface AuthUser {
 interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
-  login: (credentials: { email: string; password?: string; labCode?: string; remember?: boolean }) => Promise<void>;
+  login: (credentials: { email: string; password?: string; labCode?: string; remember?: boolean; name?: string; avatarUrl?: string }) => Promise<void>;
   logout: () => void;
 }
 
@@ -45,11 +45,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async ({
     email,
     labCode,
+    name,
+    avatarUrl,
   }: {
     email: string;
     password?: string;
     labCode?: string;
     remember?: boolean;
+    name?: string;
+    avatarUrl?: string;
   }) => {
     // Simulating authentication response
     const namePart = email.split('@')[0] || 'Operator';
@@ -60,9 +64,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const newUser: AuthUser = {
       id: `OP-${Math.floor(1000 + Math.random() * 9000)}`,
       email,
-      name: formattedName || 'Chief Analyst',
+      name: name || formattedName || 'Chief Analyst',
       role: 'Microplastics Analyst',
       labCode: labCode || 'LAB-09-MAIN',
+      avatarUrl,
     };
 
     setUser(newUser);
